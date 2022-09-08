@@ -6,8 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "jest --watch",
-    "lint": "next lint"
+    "test": "jest",
+    "lint": "next lint",
+    "create-github": "node scripts/createGitHubJSON.mjs"
   },
   "dependencies": {
     "next": "12.3.0",
