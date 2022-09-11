@@ -21,7 +21,7 @@ describe('GitHubAPI', () => {
         expect(gitHubAPI['#auth']).toBeUndefined();
     });
 
-    it('Can connect to my GitHub and retrieve my pinned repos', async () => {
+    it('Can connect to my GitHub and retrieve my pinned repo names', async () => {
 
         // we need to read our login info from the .env file
         // and write it to the test.json file so that we can
@@ -44,7 +44,7 @@ describe('GitHubAPI', () => {
             // reset the test.json file to its original state
             resetTestJson();
 
-            const repos = await gitHubAPI.getPinnedRepos();
+            const repos = await gitHubAPI.getPinnedRepoNames();
 
             expect(repos.ok).toBeTruthy();
             expect(repos.status).toEqual(200);
@@ -52,5 +52,38 @@ describe('GitHubAPI', () => {
             expect(repos.errors).toBeUndefined();
         }
         expect.assertions(4);
+    });
+
+    it('Can connect to GitHub and retrieve a repo by name', async () => {
+        const newCredentials = await writeEnvDataToTestJson();
+
+        if (newCredentials) {
+            const gitHubAPI = new GitHubAPI();
+            resetTestJson();
+
+            const repo = await gitHubAPI.getRepoByName('covid-master');
+            const expectedData = {
+                data: {
+                    name: 'covid-master',
+                    size: 35637,
+                    url: 'https://github.com/iiTONELOC/covid-master',
+                    license: 'MIT License',
+                    description: 'Bored in the House is an interactive web application that presents meal recipes, drink recipes, and movies based on user input. ',
+                    top_language: 'JavaScript',
+                    created_at: '2021-02-02T03:35:50Z',
+                    updated_at: '2021-11-11T04:05:57Z',
+                    open_issues: 0,
+                    clone_url: 'https://github.com/iiTONELOC/covid-master.git'
+                },
+                status: 200,
+                ok: true,
+                errors: []
+            }
+
+            if (repo) {
+                expect(repo).toEqual(expectedData);
+            }
+        }
+        expect.assertions(1);
     });
 });

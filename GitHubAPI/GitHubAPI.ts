@@ -1,33 +1,22 @@
 import { readFileSync } from 'fs';
 import fetch from 'node-fetch'; //NOSONAR
 
+import { headers } from './helpers';
+
+import { APIResponseData } from './interfaces';
+import { repoByName } from './types';
+
+
 const filename: string = process.env.NODE_ENV === 'test' ?
     './.github.config-test.json' : './.github.config.json';
 
 const creationErrorPrefix = 'GitHubAPI Creation error:';
 
 const graphqlEndPoint = 'graphql';
+const restRepoEndPoint = (owner: string, repo: string): string => `repos/${owner}/${repo}`;
+
 const gitHubAPIUrl = 'https://api.github.com/';
 const graphQLRequestURL = gitHubAPIUrl + graphqlEndPoint;
-
-type authHeaders = {
-    'Authorization': string;
-    'Content-Type': string;
-};
-
-interface APIResponseData {
-    data: [] | [any],//NOSONAR
-    errors: [] | [any],//NOSONAR
-    ok: boolean,
-    status: number
-}
-
-function headers(_authToken = ''): authHeaders {
-    return {
-        'Authorization': `bearer ${_authToken}`,
-        'Content-Type': 'application/json'
-    };
-}
 
 export default class GitHubAPI {
     user: string;
@@ -65,7 +54,7 @@ export default class GitHubAPI {
      * }
      * ```
      */
-    async getPinnedRepos(): Promise<APIResponseData> {
+    async getPinnedRepoNames(): Promise<APIResponseData> {
         try {
             // Have to use the GraphQL API over the REST API to get the pinned repos
             const query = `query{user(login:"${this.user}"){
@@ -87,6 +76,68 @@ export default class GitHubAPI {
                 status: graphRes.status,
                 ok: graphRes.ok,
                 errors
+            };
+        } catch (error) {
+            return {
+                data: [],
+                status: 500,
+                ok: false,
+                errors: [error]
+            };
+        }
+    }
+
+    /**
+     * Get information about a repo by name
+     * @param repoName the name of the repo to look up
+     * @returns
+     * ```js
+     * {
+            data: {
+                name: // the name of the repo,
+                size: // the size of the repo in bytes,
+                url: // the url of the repo,
+                license: // the license of the repo,
+                description: // the description of the repo,
+                top_language: // the top language of the repo,
+                created_at: // the date the repo was created,
+                updated_at: // the date the repo was last updated,
+                open_issues: // the number of open issues,
+                clone_url: // the url to clone the repo,
+            },
+            status: res.status,
+            ok: res.ok,
+            errors: []
+        }
+    * ```
+     */
+    async getRepoByName(repoName: string): Promise<APIResponseData> {
+
+        try {
+            const URL = gitHubAPIUrl + restRepoEndPoint(this.user, 'covid-master');
+            const res = await fetch(URL, {
+                method: 'GET',
+                headers: headers(this.#auth)
+            });
+
+            const data: repoByName = await res.json();
+
+            return {
+                data: {
+                    name: data.name,
+                    size: data.size,
+                    url: data.html_url,
+                    license: data.license?.name,
+                    description: data.description,
+                    top_language: data.language,
+                    created_at: data.created_at,
+                    updated_at: data.updated_at,
+                    open_issues: data.open_issues,
+                    clone_url: data.clone_url
+                },
+                status: res.status,
+                ok: res.ok,
+                errors: []
             };
         } catch (error) {
             return {
