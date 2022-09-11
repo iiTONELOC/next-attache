@@ -1,19 +1,18 @@
 it('Creates the GitHubAPI\'s JSON data', () => {
-    const { readFileSync, existsSync } = require('fs');
+    const { readFileSync } = require('fs');
     const { fork } = require('child_process');
 
     const expectedData = {
-        "username": "GitHubUsername",
-        "authentication": "GitHubAccessToken"
+        "username": "GitHubUsername", //NOSONAR
+        "authenticate": "GitHubAccessToken"//NOSONAR
     };
 
-    // only recreate the test data if the test file does not exist
-    if (!existsSync('.github.config-test.json')) {
-        // create the JSON file
-        fork('scripts/createGitHubJSON.mjs',
-            ['GitHubUsername', 'GitHubAccessToken'],
-            { env: { ...process.env, NODE_ENV: 'test' } });
-    }
+    // the script is configured to rewrite the test file if it exists
+    // and we are in a test environment
+    fork('scripts/createGitHubJson.mjs',
+        ['GitHubUsername', 'GitHubAccessToken'],
+        { env: { ...process.env, NODE_ENV: 'test' } }
+    );
 
     // read the file
     const data = readFileSync('.github.config-test.json');
