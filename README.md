@@ -8,6 +8,7 @@
 
 - [Installation](#installation)
 - [Usage](#usage)
+- [License](#license)
 
 ## Installation
 
@@ -19,16 +20,29 @@
     git clone https://github.com/iiTONELOC/next-attache.git
     ```
 
-2. Create the JSON file for the GitHubAPI.
-    1. replace `GitHubUsername` with your GitHub Username  
-
-    2. Optional but recommend:  
-       It is best to authenticate with the GitHub API since non-authenticated apps are rate-limited to 60 requests per hour. [Read more here](https://docs.github.com/en/rest/overview/resources-in-the-rest-api#rate-limiting).
+2. Create the configuration file for the GitHubAPI.
+    1. Authentication is required:
        1. create a [GitHub access token to authenticate your app](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
-       2. replace `GitHubAccessToken` with your newly created token.
+       2. Run the script below replacing `GitHubUsername` with your username and `GitHubAccessToken` with your newly created token.
 
         ```bash
-            npm run create-github -u GitHubUsername -a GitHubAccessToken
+        npm run create-github -u GitHubUsername -a GitHubAccessToken
+        ```
+
+3. Create a .env.test file, be sure to replace username and auth with your GitHub username and previously created auth token.
+
+     *Note*: This step is only necessary if you need to run the tests.
+
+    * ## *`Powershell`*
+
+        ```bash
+        echo "GIT_HUB_USERNAME=username`nGIT_HUB_ACCESS_TOKEN=auth" > .env.test
+        ```
+
+    * ## *`Bash`*
+
+        ```bash
+        echo -e "GIT_HUB_USERNAME=username\nGIT_HUB_ACCESS_TOKEN=auth" > .env.test
         ```
 
 ## Usage
@@ -51,7 +65,7 @@
 
     ```bash
     npm run lint
-    ``` 
+    ```
 
 - ### *`Build`*
 
@@ -65,7 +79,8 @@
     npm start
     ```
 
+## LICENSE
 
-## LICENSE &#128190;
+## &#128190;
 
 This project is licensed by the [MIT LICENSE](./LICENSE).
