@@ -1,22 +1,13 @@
 import { readFileSync } from 'fs';
 import fetch from 'node-fetch'; //NOSONAR
-
 import { headers } from './helpers';
-
-import { APIResponseData } from './interfaces';
 import { repoByName } from './types';
+import { APIResponseData } from './interfaces';
+import {
+    filename, creationErrorPrefix, restRepoEndPoint,
+    gitHubAPIUrl, graphQLRequestURL
+} from './constants';
 
-
-const filename: string = process.env.NODE_ENV === 'test' ?
-    './.github.config-test.json' : './.github.config.json';
-
-const creationErrorPrefix = 'GitHubAPI Creation error:';
-
-const graphqlEndPoint = 'graphql';
-const restRepoEndPoint = (owner: string, repo: string): string => `repos/${owner}/${repo}`;
-
-const gitHubAPIUrl = 'https://api.github.com/';
-const graphQLRequestURL = gitHubAPIUrl + graphqlEndPoint;
 
 export default class GitHubAPI {
     user: string;
