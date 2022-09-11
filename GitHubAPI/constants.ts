@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 /**
  * Location of the configuration file
  */

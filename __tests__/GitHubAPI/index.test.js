@@ -1,5 +1,10 @@
-import { writeEnvDataToTestJson, resetTestJson } from '../../utils';
-const GitHubAPI = require('../../GitHubAPI').default;
+import {
+    writeEnvDataToTestJson, resetTestJson, emptyTestJson,
+    writeUsernameTestJson, writeAuthTestJson
+} from '../../utils';
+
+import GitHubAPI from '../../GitHubAPI';
+const covidMaster = 'covid-master';
 
 describe('GitHubAPI', () => {
     it('Instantiates a new GitHubAPI Class', () => {
@@ -21,6 +26,62 @@ describe('GitHubAPI', () => {
         expect(gitHubAPI['#auth']).toBeUndefined();
     });
 
+    it('Notifies a user that a GitHub username and auth token are required', async () => {
+
+        // delete the test.json file
+        const didDelete = await emptyTestJson();
+
+        if (didDelete) {
+            // reset the test.json file
+            try {
+                const gitHubAPI = new GitHubAPI();
+                expect(gitHubAPI).toBeInstanceOf(GitHubAPI);
+            } catch (error) {
+                expect(error.message).toBe('GitHubAPI Creation error: A username and auth token are required');
+            }
+        }
+        expect(didDelete).toBe(true);
+
+        await resetTestJson();
+        expect.assertions(2);
+    });
+
+    it('Notifies a user a GitHub auth token is required', async () => {
+        const didDelete = await writeUsernameTestJson();
+
+        if (didDelete) {
+            // reset the test.json file
+            try {
+                const gitHubAPI = new GitHubAPI();
+                expect(gitHubAPI).toBeInstanceOf(GitHubAPI);
+            } catch (error) {
+                expect(error.message).toBe('GitHubAPI Creation error: An auth token is required');
+            }
+        }
+        expect(didDelete).toBe(true);
+
+        await resetTestJson();
+        expect.assertions(2);
+    });
+
+    it('Notifies a user a GitHub username is required', async () => {
+        const didDelete = await writeAuthTestJson();
+
+        if (didDelete) {
+            // reset the test.json file
+            try {
+                const gitHubAPI = new GitHubAPI();
+                expect(gitHubAPI).toBeInstanceOf(GitHubAPI);
+            } catch (error) {
+                expect(error.message).toBe('GitHubAPI Creation error: A username is required');
+            }
+        }
+        expect(didDelete).toBe(true);
+
+        await resetTestJson();
+        expect.assertions(2);
+    });
+
     it('Can connect to my GitHub and retrieve my pinned repo names', async () => {
 
         // we need to read our login info from the .env file
@@ -30,7 +91,7 @@ describe('GitHubAPI', () => {
 
         // list of my pinned repos to test against
         const myPinned = [
-            'covid-master',
+            covidMaster,
             'dashboard',
             'employee-tracker',
             'budget-tracker',
@@ -61,10 +122,11 @@ describe('GitHubAPI', () => {
             const gitHubAPI = new GitHubAPI();
             resetTestJson();
 
-            const repo = await gitHubAPI.getRepoByName('covid-master');
+            const repo = await gitHubAPI.getRepoByName(covidMaster);
+
             const expectedData = {
                 data: {
-                    name: 'covid-master',
+                    name: covidMaster,
                     size: 35637,
                     url: 'https://github.com/iiTONELOC/covid-master',
                     license: 'MIT License',
@@ -78,7 +140,7 @@ describe('GitHubAPI', () => {
                 status: 200,
                 ok: true,
                 errors: []
-            }
+            };
 
             if (repo) {
                 expect(repo).toEqual(expectedData);

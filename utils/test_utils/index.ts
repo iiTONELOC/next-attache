@@ -1,4 +1,6 @@
+import fs from 'fs';
 import { fork } from 'child_process';
+
 /**
  * Forks the createJson script to write the test data or custom testData to the test json file
  * @param args optional args to pass to the child process
@@ -47,12 +49,55 @@ async function resetTestJson(): Promise<boolean | Error> {
     return forkCreateJsonScript();
 }
 
-export { writeEnvDataToTestJson, resetTestJson };
+/**
+ * Pass stringified json to be written to the file
+ * Used to write missing values for tests as the createGitHubJson script will
+ * assign GitHubUsername and GitHubAuth to the username and auth token respectively
+ * @param jsonToWrite Json to write to the test json file
+ */
+function manuallyWriteTestJson(jsonToWrite: string): Promise<boolean | Error> {
+    try {
+        fs.unlinkSync('.github.config-test.json');
+        // write an empty file
+        fs.writeFileSync('.github.config-test.json', jsonToWrite);
+        return Promise.resolve(true);
+    } catch (err) {
+        console.trace(err);
+        return Promise.reject(err);
+    }
+}
+
+/**
+ * Creates an empty test json file
+ */
+function emptyTestJson(): Promise<boolean | Error> {
+    return manuallyWriteTestJson('{}');
+}
+
+/**
+ * Writes test data for the username only
+ */
+function writeUsernameTestJson(): Promise<boolean | Error> {
+    return manuallyWriteTestJson('{"username": "GitHubUsername"}');
+}
+
+/**
+ * Writes test data for the auth token only
+ */
+function writeAuthTestJson(): Promise<boolean | Error> {
+    return manuallyWriteTestJson('{"authenticate": "GitHubAuth"}');
+}
+
+export { writeEnvDataToTestJson, resetTestJson, emptyTestJson, writeUsernameTestJson, writeAuthTestJson };
 
 
 const defaultExport: {
     writeEnvDataToTestJson: () => Promise<boolean | Error>;
     resetTestJson: () => Promise<boolean | Error>;
-} = { writeEnvDataToTestJson, resetTestJson };
+    writeUsernameTestJson: () => Promise<boolean | Error>;
+    writeAuthTestJson: () => Promise<boolean | Error>;
+    emptyTestJson: () => Promise<boolean | Error>;
+} = { writeEnvDataToTestJson, resetTestJson, emptyTestJson, writeUsernameTestJson, writeAuthTestJson };
 
+/*istanbul ignore next*/
 export default defaultExport;

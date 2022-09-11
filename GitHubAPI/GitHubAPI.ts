@@ -14,6 +14,7 @@ export default class GitHubAPI {
     #auth: string;
 
     constructor() {
+        // istanbul ignore next
         const config = JSON.parse(readFileSync(filename, 'utf8') || '{}');
         const { username, authenticate } = config;
 
@@ -106,6 +107,7 @@ export default class GitHubAPI {
 
         try {
             const URL = gitHubAPIUrl + restRepoEndPoint(this.user, 'covid-master');
+            /* istanbul ignore next */
             const res = await fetch(URL, {
                 method: 'GET',
                 headers: headers(this.#auth)

@@ -7,9 +7,6 @@ import fs from 'fs';
 // GitHubAPI to work properly. This file will only generate the JSON file if
 // we are not in a production environment.
 
-const green = '\x1b[32m%s\x1b[0m';
-const yellow = '\x1b[33m%s\x1b[0m';
-
 const args = process.argv.slice(2);
 
 const filename = '.github.config.json';
@@ -20,27 +17,42 @@ const accessToken = args[1] || 'GitHubAccessToken';
 
 const jsonLiteral = `{\n\t"username":"${username}",\n\t"authenticate":"${accessToken}"\n}`;
 
+/**
+ * Writes the JSON file to the root directory of the project
+ * @param {string} filename - The name of the file to create
+ * @param {string} jsonLiteral - The JSON literal to write to the file
+ */
+const writeJson = (filename, jsonLiteral) => {
+    try {
+        fs.writeFileSync(filename, jsonLiteral);
+    } catch (error) {
+        console.trace(error);
+    }
+};
+
+// Only allows for the script to run in a non-production environment
 if (process.env.NODE_ENV !== 'production') {
     // check if the file exists
     if (!fs.existsSync(filename)) {
-
-        // yellow text
-        console.log(yellow, 'Creating GitHubAPI Config file...');
-
-        // create the file
-        fs.writeFileSync(filename, jsonLiteral);
-
-        // green text
-        console.log(green, '\tFile created successfully!');
+        writeJson(filename, jsonLiteral);
     }
 
+    // if we are in test create the test file
     if (process.env.NODE_ENV === 'test') {
-        // create a test json file
-        // delete the existing one to ensure we have a fresh one
+        // delete the existing to ensure we have a fresh file
+
+        /*
+        Some test functions may need to overwrite the test file
+        because it contains non-functional data. When testing the
+        actual API calls, the file will have to be overwritten with
+        valid user credentials.
+        */
+
         if (fs.existsSync(testFilename)) {
             fs.rmSync(testFilename);
         }
-        fs.writeFileSync(testFilename, jsonLiteral);
+
+        writeJson(testFilename, jsonLiteral);
     }
 }
 
