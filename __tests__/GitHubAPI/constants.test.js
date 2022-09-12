@@ -1,4 +1,4 @@
-const { restRepoEndPoint } = require('../../GitHubAPI/constants');
+const { restRepoEndPoint } = require('../../lib/GitHubAPI/constants');
 
 describe('GitHubAPI Constants file', () => {
 
