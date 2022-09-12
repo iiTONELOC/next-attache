@@ -1,6 +1,8 @@
 import fs from 'fs';
 import { fork } from 'child_process';
 
+const testFilename = '.github.config-test.json';
+
 /**
  * Forks the createJson script to write the test data or custom testData to the test json file
  * @param args optional args to pass to the child process
@@ -57,9 +59,12 @@ async function resetTestJson(): Promise<boolean | Error> {
  */
 function manuallyWriteTestJson(jsonToWrite: string): Promise<boolean | Error> {
     try {
-        fs.unlinkSync('.github.config-test.json');
+        // check if the file exists
+        if (fs.existsSync(testFilename)) {
+            fs.unlinkSync(testFilename);
+        }
         // write an empty file
-        fs.writeFileSync('.github.config-test.json', jsonToWrite);
+        fs.writeFileSync(testFilename, jsonToWrite);
         return Promise.resolve(true);
     } catch (err) {
         console.trace(err);

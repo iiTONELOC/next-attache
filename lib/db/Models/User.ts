@@ -36,6 +36,7 @@ const userSchema = new Schema<UserInterface>({
     }
 });
 
+/*istanbul ignore next */
 userSchema.pre('save', async function (next) {
     if (this.isNew || this.isModified('password')) {
         const saltRounds = process.env.SALT_ROUNDS || defaultRounds;
