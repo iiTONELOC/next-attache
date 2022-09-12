@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import { ProjectCollectionType } from './Project';
 import bcrypt from 'bcrypt';
 
 interface UserInterface {
@@ -6,6 +7,8 @@ interface UserInterface {
     email: string;
     password: string;
     avatar?: string;
+    pinnedProjects: ProjectCollectionType;
+    attacheCase: ProjectCollectionType;
 }
 
 const defaultRounds = 10;
@@ -33,7 +36,19 @@ const userSchema = new Schema<UserInterface>({
         type: String,
         required: false,
         default: null
-    }
+    },
+    pinnedProjects: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Project'
+        }
+    ],
+    attacheCase: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Attache'
+        }
+    ]
 });
 
 /*istanbul ignore next */

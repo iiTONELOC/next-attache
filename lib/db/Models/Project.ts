@@ -1,6 +1,6 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, Types } from 'mongoose';
 
-interface ProjectInterface {
+export interface ProjectInterface {
     name: string;
     size: number;
     license: string;
@@ -14,6 +14,8 @@ interface ProjectInterface {
     topLanguage: string;
     screenshotUrl: string;
 }
+
+export type ProjectCollectionType = Types.ObjectId[] | ProjectInterface[] | [];
 
 const projectSchema = new Schema<ProjectInterface>({
     name: {

@@ -16,6 +16,8 @@ describe('User Model', () => {
         expect(user.name).toBe('test');
         expect(user.email).toBe('test@test.com');
         expect(user.avatar).toBe(null);
+        expect(user.attacheCase).toEqual([]);
+        expect(user.pinnedProjects).toEqual([]);
         expect(user.password).not.toBe('test67891023456789');
         expect(await user.isCorrectPassword('test67891023456789')).toBe(true);
 
