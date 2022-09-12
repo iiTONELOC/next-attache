@@ -3,6 +3,8 @@ export interface DefaultUserSettings {
     name?: string;
     email?: string;
     phone?: string;
+    about?: string;
+    navHeading?: string;
     portfolioTitle?: string;
     portfolioDescription?: string;
     portfolioImage?: string;
