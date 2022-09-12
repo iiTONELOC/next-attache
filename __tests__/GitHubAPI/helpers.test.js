@@ -1,4 +1,4 @@
-const { headers } = require('../../GitHubAPI/helpers');
+const { headers } = require('../../lib/GitHubAPI/helpers');
 
 describe('GitHubAPI Helpers - headers function', () => {
     it('Returns the correct Authorization and Content-Type entries', () => {

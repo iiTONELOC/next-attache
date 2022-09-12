@@ -1,9 +1,9 @@
 import {
     writeEnvDataToTestJson, resetTestJson, emptyTestJson,
     writeUsernameTestJson, writeAuthTestJson
-} from '../../utils';
+} from '../../lib/utils';
 
-import GitHubAPI from '../../GitHubAPI';
+import GitHubAPI from '../../lib/GitHubAPI';
 const covidMaster = 'covid-master';
 
 describe('GitHubAPI', () => {
