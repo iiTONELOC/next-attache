@@ -46,7 +46,7 @@ describe('GitHubAPI', () => {
         expect.assertions(2);
     });
 
-    it('Notifies a user a GitHub auth token is required', async () => {
+    it('Notifies a user that a GitHub auth token is required', async () => {
         const didDelete = await writeUsernameTestJson();
 
         if (didDelete) {
@@ -64,7 +64,7 @@ describe('GitHubAPI', () => {
         expect.assertions(2);
     });
 
-    it('Notifies a user a GitHub username is required', async () => {
+    it('Notifies a user that a GitHub username is required', async () => {
         const didDelete = await writeAuthTestJson();
 
         if (didDelete) {
@@ -147,5 +147,72 @@ describe('GitHubAPI', () => {
             }
         }
         expect.assertions(1);
+    });
+
+    it('Can connect to GitHub and retrieve a repository\'s contents', async () => {
+        const newCredentials = await writeEnvDataToTestJson();
+
+        if (newCredentials) {
+            const gitHubAPI = new GitHubAPI();
+            resetTestJson();
+            const covidMasterContents = await gitHubAPI.getRepoContents(covidMaster);
+
+            expect(covidMasterContents.data).toBeDefined();
+        }
+        expect.assertions(1);
+    });
+
+    it('Can connect to GitHub and retrieve a repository\'s readme', async () => {
+        const newCredentials = await writeEnvDataToTestJson();
+        const expectedData = {
+            html_url: 'https://github.com/iiTONELOC/covid-master/blob/main/README.md',
+            download_url: 'https://raw.githubusercontent.com/iiTONELOC/covid-master/main/README.md'
+        };
+        if (newCredentials) {
+            const gitHubAPI = new GitHubAPI();
+            resetTestJson();
+
+            const covidMasterReadmeData = await gitHubAPI.getRepoReadme(covidMaster);
+            expect(covidMasterReadmeData.data).toEqual(expectedData);
+        }
+        expect.assertions(1);
+    });
+
+    it('Can connect to GitHub and retrieve the screenshot url from the readme', async () => {
+        const newCredentials = await writeEnvDataToTestJson();
+
+        const expectedData = {
+            data: {
+                screenshotURL: 'https://raw.githubusercontent.com/iiTONELOC/covid-master/main/assets/images/boredinthehousegif.gif'
+            },
+            status: 200,
+            ok: true,
+            errors: []
+        };
+
+        if (newCredentials) {
+            const gitHubAPI = new GitHubAPI();
+            resetTestJson();
+
+            const covidMasterReadmeScreenshot = await gitHubAPI.getRepoScreenshot(covidMaster);
+            expect(covidMasterReadmeScreenshot).toBeDefined();
+            expect(covidMasterReadmeScreenshot).toEqual(expectedData);
+        }
+        expect.assertions(2);
+    });
+
+    it('Can return the URL for my GitHub Avatar', async () => {
+        const newCredentials = await writeEnvDataToTestJson();
+
+        if (newCredentials) {
+            const gitHubAPI = new GitHubAPI();
+            resetTestJson();
+
+            const avatar = await gitHubAPI.getAvatarURL();
+
+            expect(avatar).toBeDefined();
+            expect(avatar.data.avatar_url).toEqual('https://avatars.githubusercontent.com/u/75545909?v=4');
+        }
+        expect.assertions(2);
     });
 });

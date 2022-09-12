@@ -106,7 +106,7 @@ export default class GitHubAPI {
     async getRepoByName(repoName: string): Promise<APIResponseData> {
 
         try {
-            const URL = gitHubAPIUrl + restRepoEndPoint(this.user, 'covid-master');
+            const URL = gitHubAPIUrl + restRepoEndPoint(this.user, repoName);
             /* istanbul ignore next */
             const res = await fetch(URL, {
                 method: 'GET',
@@ -134,7 +134,183 @@ export default class GitHubAPI {
             };
         } catch (error) {
             return {
+                data: {},
+                status: 500,
+                ok: false,
+                errors: [error]
+            };
+        }
+    }
+
+    /**
+     * Retrieves an array of objects containing the contents of the repository
+     * @param repoName the name of the repo to look up
+     */
+    async getRepoContents(repoName: string): Promise<APIResponseData> {
+        try {
+            const URL = gitHubAPIUrl + restRepoEndPoint(this.user, repoName) + '/contents';
+            /* istanbul ignore next */
+            const res = await fetch(URL, {
+                method: 'GET',
+                headers: headers(this.#auth)
+            });
+
+            const data = await res.json();
+
+            return {
+                data,
+                status: res.status,
+                ok: res.ok,
+                errors: []
+            };
+        } catch (error) {
+            return {
                 data: [],
+                status: 500,
+                ok: false,
+                errors: [error]
+            };
+        }
+    }
+
+    /**
+     * Retrieves the readme of a repository
+     * @param repoName the name of the repo to look up
+     * @returns
+     * ```js
+     * {
+            data: {
+                html_url: 'url',
+                download_url: 'url'
+            },
+            status: res.status,
+            ok: res.ok,
+            errors: []
+        }
+    * ```
+     */
+    async getRepoReadme(repoName: string): Promise<APIResponseData> {
+        try {
+            const contents: APIResponseData = await this.getRepoContents(repoName);
+
+            const readme = contents.data.
+                find((file: { name: string; }) => file.name.includes('README'));
+
+            return {
+                data: {
+                    html_url: readme?.html_url,
+                    download_url: readme?.download_url
+                },
+                status: contents.status,
+                ok: contents.ok,
+                errors: contents.errors
+            };
+        } catch (error) {
+            return {
+                data: {},
+                status: 500,
+                ok: false,
+                errors: [error]
+            };
+        }
+    }
+
+    /**
+     * Retrieves the URL for the user's README
+     * @param repoName the name of the repo to look up
+     * @returns
+     * ```js
+     * {
+            data: {screenshotURL: 'url'},
+            status: res.status,
+            ok: res.ok,
+            errors: []
+        }
+    * ```
+     */
+    async getRepoScreenshot(repoName: string): Promise<APIResponseData> {
+        try {
+            const readme = await this.getRepoReadme(repoName);
+            const screenShotRegex = /# Screenshot.+\n+!\[.+\]\(.+\)/g;
+            const downloadURL = readme.data.download_url.replace('README.md', '');
+
+            if (readme.ok) {
+                const readmeData = await fetch(readme.data.download_url);
+                const readmeText = await readmeData.text();
+
+                // capture the screenshot section of the readme
+                const screenshotMatch = readmeText.match(screenShotRegex);
+
+                // remove all extra spacing and newlines
+                const screenshotRaw = screenshotMatch?.[0].replace(/\s+/g, '');
+
+                // capture the relative path to the screenshot
+                const scrnShotPath = screenshotRaw?.match(/\(.+\)/g)?.[0];
+
+                // remove the parenthesis and the "./" from the path
+                const screenshotURL = downloadURL + scrnShotPath?.replace('(', '')
+                    .replace(')', '')
+                    .replace('./', '');
+
+                return {
+                    data: { screenshotURL },
+                    status: readme.status,
+                    ok: readme.ok,
+                    errors: readme.errors
+                };
+            } else {
+                return {
+                    data: {},
+                    status: readme.status,
+                    ok: readme.ok,
+                    errors: readme.errors
+                };
+            }
+        } catch (error) {
+            return {
+                data: {},
+                status: 500,
+                ok: false,
+                errors: [error]
+            };
+        }
+    }
+
+    /**
+    * Retrieves the URL for the user's Avatar
+    * @returns
+    * ```js
+    * {
+            data: {avatar_url: 'url'},
+            status: res.status,
+            ok: res.ok,
+            errors: []
+        }
+   * ```
+    */
+    async getAvatarURL(): Promise<APIResponseData> {
+        try {
+            const URL = gitHubAPIUrl + 'users/' + this.user;
+            /* istanbul ignore next */
+            const res = await fetch(URL, {
+                method: 'GET',
+                headers: headers(this.#auth)
+            });
+
+            const data = await res.json();
+
+            return {
+                data: {
+                    avatar_url: data.avatar_url
+                },
+                status: res.status,
+                ok: res.ok,
+                errors: []
+            };
+        } catch (error) {
+
+            return {
+                data: {},
                 status: 500,
                 ok: false,
                 errors: [error]
