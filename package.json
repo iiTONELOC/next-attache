@@ -6,19 +6,24 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "jest --watch",
-    "lint": "next lint"
+    "test": "jest --detectOpenHandles",
+    "test:coverage": "jest --coverage",
+    "lint": "next lint",
+    "create-github": "node scripts/createGitHubJson.mjs"
   },
   "dependencies": {
     "next": "12.3.0",
+    "node-fetch": "^2.6.7",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
+    "@types/babel__core": "^7.1.19",
     "@types/jest": "^29.0.0",
     "@types/node": "18.7.16",
+    "@types/node-fetch": "^2.6.2",
     "@types/react": "18.0.18",
     "@types/react-dom": "18.0.6",
     "autoprefixer": "^10.4.8",
