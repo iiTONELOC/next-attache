@@ -1,6 +1,6 @@
 export default function Footer() { // NOSONAR
     return (
-        <footer>
+        <footer className="w-full h-auto">
             <p>Footer</p>
         </footer>
     );

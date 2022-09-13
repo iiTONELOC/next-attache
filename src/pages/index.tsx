@@ -1,65 +1,64 @@
-import type { NextPage } from 'next';
+import Head from 'next/head';
 import Image from 'next/image';
-import styles from '../styles/Home.module.css';
+import { useEffect, useState } from 'react';
+import DefaultUserSettings from '../../attache-defaults.json';
+import GitHubAPI from '../../lib/GitHubAPI';
 
-const Home: NextPage = () => {
-  return (
-    <div className={styles.container}>
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.tsx</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
-    </div>
-  );
+const pageStyles = {
+    main: 'w-full h-full bg-black flex flex-col justify-start gap-y-10 items-center mb-10',
+    avatarSection: 'w-full flex flex-row justify-center items-center mt-8 p-3 ',
+    aboutSection: 'w-full flex flex-wrap flex-column justify-center items-center gap-y-5 p-2 ',
+    aboutHeading: 'w-full text-4xl text-gray-200 font-bold text-center',
+    aboutContent: 'w-5/6 text-gray-100 lg:w-4/6 text-xl'
 };
 
-export default Home;
+const About = (props: { avatar_url: string }): JSX.Element | null => {
+    const [isMounted, setIsMounted] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        setIsMounted(true);
+        return () => setIsMounted(null);
+    }, []);
+
+    if (!isMounted) {
+        return null;
+    }
+
+    return (
+        <main className={pageStyles.main}>
+            <Head>
+                <title>{`${DefaultUserSettings.name}'s Portfolio - About`}</title>
+            </Head>
+            <section className={pageStyles.avatarSection}>
+                <p className='text-8xl md:text-9xl'>{'<'}</p>
+                <span className=' bg-zinc-800 rounded-full'>
+                    <Image
+                        alt='Avatar'
+                        width={200}
+                        height={200}
+                        className='rounded-full'
+                        src={props?.avatar_url} />
+                </span>
+                <p className='text-8xl md:text-9xl'>{'/>'}</p>
+            </section>
+
+            <section className={pageStyles.aboutSection}>
+                <h1 className={pageStyles.aboutHeading}>Always learning</h1>
+                <p className={pageStyles.aboutContent}>{DefaultUserSettings.about}</p>
+            </section>
+
+        </main>
+    );
+};
+
+export async function getStaticProps() {
+    const gitHubApi = new GitHubAPI();
+    const { data } = await gitHubApi.getAvatarURL();
+    return {
+        props: { avatar_url: data.avatar_url || 'https://placeholder.pics/svg/200x200/0F0F0F-7431A3/D1D1D1-111111/Loading' } // will be passed to the page component as props
+    };
+}
+
+
+export default About;

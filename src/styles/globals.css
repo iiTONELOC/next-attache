@@ -2,30 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
+html {
+  background-color: black;
+}
+
 body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  color: lightgray
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
+/* Works on Firefox */
 * {
-  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: indigo black;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 12px;
+}
 
-  body {
-    color: white;
-    background: black;
-  }
+*::-webkit-scrollbar-track {
+  background: black;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: indigo;
+  border-radius: 20px;
+  border: 3px solid black;
 }
