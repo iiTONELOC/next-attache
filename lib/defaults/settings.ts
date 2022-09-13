@@ -6,8 +6,6 @@ export interface DefaultUserSettings {
     about?: string;
     navHeading?: string;
     portfolioTitle?: string;
-    portfolioDescription?: string;
-    portfolioImage?: string;
     // used to override GitHub's default pinned projects for the portfolio
     pinnedProjects?: string[];
 }

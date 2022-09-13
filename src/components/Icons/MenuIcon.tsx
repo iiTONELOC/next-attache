@@ -18,3 +18,4 @@ export default function MenuIcon(props?: IconProps): JSX.Element {
         </svg>
     );
 }
+
