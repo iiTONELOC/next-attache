@@ -2,7 +2,7 @@ import { ReactElement, useState } from 'react';
 
 const componentStyles = {
     section: 'static',
-    toolTipContainer: `mt-8 absolute bg-green-500 text-white px-3 py-1 pb-2 rounded-full flex flex-row justify-center items-center`
+    toolTipContainer: `z-40 mt-6 absolute bg-black/80 border border-purple-900 text-white px-3 py-1 pb-2 rounded-full flex flex-row justify-center items-center text-base`
 };
 
 export default function WithToolTip({ children, tip }: { children: ReactElement, tip: string }): JSX.Element {

@@ -14,5 +14,6 @@ export type repoByName = {
     clone_url: string,
     size: number,
     commits_url: string,
+    url: string,
     license: { name: string }
 };

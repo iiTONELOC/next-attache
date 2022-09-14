@@ -1,9 +1,8 @@
 import Head from 'next/head';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useIsMounted } from '../hooks';
 import GitHubAPI from '../../lib/GitHubAPI';
 import DefaultUserSettings from '../../attache-defaults.json';
-
 
 
 const pageStyles = {
@@ -19,19 +18,12 @@ const pageStyles = {
 };
 
 const About = (props: { avatar_url: string }): JSX.Element | null => {
-    const [isMounted, setIsMounted] = useState<boolean | null>(null);
-    const [isHovered, setIsHovered] = useState<boolean>(false);
-
-    useEffect(() => {
-        setIsMounted(true);
-        return () => setIsMounted(null);
-    }, []);
+    const isMounted = useIsMounted();
 
     if (!isMounted) {
         return null;
     }
 
-    const handleHover = (): void => setIsHovered(!isHovered);
 
     return (
         <main className={pageStyles.main}>
@@ -40,6 +32,8 @@ const About = (props: { avatar_url: string }): JSX.Element | null => {
                 <link rel="icon" href={props?.avatar_url} />
                 <meta name="viewport" content="initial-scale=1.0, width=device-width" />
             </Head>
+
+            {/* Avatar with < /> */}
             <section className={pageStyles.avatarSection}>
                 <p className={pageStyles.codeText + ' ml-5'}>{'<'}</p>
                 <span className={pageStyles.imgSpan}>
@@ -49,17 +43,21 @@ const About = (props: { avatar_url: string }): JSX.Element | null => {
                         height={pageStyles.imgHeight}
                         className='rounded-full'
                         src={props?.avatar_url}
-                        onMouseEnter={handleHover}
-                        onMouseLeave={handleHover}
                     />
                 </span>
                 <p className={pageStyles.codeText}>{'/'}</p>
                 <p className={pageStyles.codeText + ' -ml-3'}>{'>'}</p>
             </section>
 
+            {/* About Me */}
             <section className={pageStyles.aboutSection}>
-                <h1 className={pageStyles.aboutHeading}>{DefaultUserSettings.aboutHeading || 'About Me'}</h1>
-                <p className={pageStyles.aboutContent}>{DefaultUserSettings.about || 'Missing Defaults!'}</p>
+                <h1 className={pageStyles.aboutHeading}>{
+                    DefaultUserSettings.aboutHeading || 'About Me'
+                }</h1>
+
+                <p className={pageStyles.aboutContent}>{
+                    DefaultUserSettings.about || 'Missing Defaults!'
+                }</p>
             </section>
         </main>
     );
@@ -68,8 +66,9 @@ const About = (props: { avatar_url: string }): JSX.Element | null => {
 export async function getStaticProps() {
     const gitHubApi = new GitHubAPI();
     const { data } = await gitHubApi.getAvatarURL();
+
     return {
-        props: { avatar_url: data?.avatar_url || 'https://via.placeholder.com/150' } // will be passed to the page component as props
+        props: { avatar_url: data?.avatar_url }
     };
 }
 

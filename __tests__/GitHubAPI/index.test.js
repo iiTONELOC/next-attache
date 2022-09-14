@@ -95,8 +95,8 @@ describe('GitHubAPI', () => {
             'dashboard',
             'employee-tracker',
             'budget-tracker',
-            'tailstrap',
-            'rusty_wizard'
+            'rusty_wizard',
+            'Flashtastic'
         ];
 
         if (newCredentials) {
@@ -215,4 +215,43 @@ describe('GitHubAPI', () => {
         }
         expect.assertions(2);
     });
+
+    it('Can return the link to the demo video from the README', async () => {
+        const newCredentials = await writeEnvDataToTestJson();
+
+        const expectedData = {
+            data: {
+                demoURL: 'https://drive.google.com/file/d/1_rLpuJNYqfKFYjpfh1-PHcIBcDm9GDr8/view'
+            },
+            status: 200,
+            ok: true,
+            errors: []
+        };
+
+        if (newCredentials) {
+            const gitHubAPI = new GitHubAPI();
+            resetTestJson();
+
+            const demoURL = await gitHubAPI.getDemoURL('employee-tracker');
+
+            expect(demoURL).toBeDefined();
+            expect(demoURL).toEqual(expectedData);
+        }
+    });
+
+    it('Can return the live URL link for the repo from the JSON settings', async () => {
+        const newCredentials = await writeEnvDataToTestJson();
+
+        const expectedData = 'https://i-dash.herokuapp.com/';
+
+        if (newCredentials) {
+            const gitHubAPI = new GitHubAPI();
+            resetTestJson();
+
+            const liveURL = await gitHubAPI.getLiveURL('dashboard');
+
+            expect(liveURL).toBeDefined();
+            expect(liveURL).toEqual(expectedData);
+        }
+    })
 });

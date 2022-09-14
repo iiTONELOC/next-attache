@@ -1,3 +1,5 @@
-import IsMobile from "./isMobile";
+import IsMobile from './isMobile';
+import useHovered from './isHovered';
+import useIsMounted from './isMounted';
 
-export { IsMobile };
+export { IsMobile, useHovered, useIsMounted };

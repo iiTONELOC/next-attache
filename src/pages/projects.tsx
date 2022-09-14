@@ -5,9 +5,9 @@ import GitHubAPI from '../../lib/GitHubAPI';
 import DefaultUserSettings from '../../attache-defaults.json';
 
 const pageStyles = {
-    main: 'w-full h-full flex flex-row justify-start gap-x-10 items-center mb-10 rounded-b-lg',
-    projectSection: 'w-full h-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-3 gap-5 p-5',
-    div: 'bg-pink-600 p-3 rounded-lg m-2 text-white text-2xl text-center h-80'
+    main: 'w-full h-full flex flex-wrap flex-row justify-center gap-x-10 items-center mb-10 rounded-b-lg',
+    projectSection: 'w-4/6 md:w-3/6 lg:w-4/6 h-full grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-2 hover:gap-4 mt-5',
+    div: 'text-white text-2xl text-center h-full'
 
 };
 
@@ -59,7 +59,7 @@ export async function getStaticProps() {
     const repoNames = pinnedRepoNames.data;
     return {
         props: {
-            avatar_url: data?.avatar_url || 'https://placeholder.pics/svg/200x200/0F0F0F-7431A3/D1D1D1-111111/Loading',
+            avatar_url: data?.avatar_url || '/images/default-img.jpg',
             pinnedRepoNames: repoNames
         }
     };

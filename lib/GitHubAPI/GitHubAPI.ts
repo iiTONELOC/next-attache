@@ -3,10 +3,12 @@ import fetch from 'node-fetch'; //NOSONAR
 import { headers } from './helpers';
 import { repoByName } from './types';
 import { APIResponseData } from './interfaces';
+import repoDefaults from '../../attache-defaults.json';
 import {
     filename, creationErrorPrefix, restRepoEndPoint,
     gitHubAPIUrl, graphQLRequestURL
 } from './constants';
+
 
 
 export default class GitHubAPI {
@@ -276,6 +278,121 @@ export default class GitHubAPI {
             };
         }
     }
+
+    /**
+    * Retrieves the URL for the user's Demo video
+    * @param repoName the name of the repo to look up
+    * @returns
+    * ```js
+    * {
+            data: {demoURL: 'url'},
+            status: res.status,
+            ok: res.ok,
+            errors: []
+        }
+   * ```
+    */
+    async getDemoURL(repoName: string): Promise<APIResponseData> {
+        try {
+            const readme = await this.getRepoReadme(repoName);
+            const demoRegex = /#.+Demo?.+\n+!?\[.+\]\(.+\)/g;
+
+            if (readme.ok) {
+                const readmeData = await fetch(readme.data.download_url);
+                const readmeText = await readmeData.text();
+
+                // capture the demo section of the readme
+                const demoMatch = readmeText.match(demoRegex);
+
+                // remove all extra spacing and newlines
+                const demoRaw = demoMatch?.[0].replace(/\s+/g, '') || '';
+
+                // capture the relative path to the screenshot
+                const demoPath = demoRaw?.match(/\(.+\)/g)?.[0] || '';
+
+                // remove the parenthesis and the "./" from the path
+                const demoURL = demoPath.replace('(', '').replace(')', '');
+
+                return {
+                    data: { demoURL },
+                    status: readme.status,
+                    ok: readme.ok,
+                    errors: readme.errors
+                };
+            } else {
+                return {
+                    data: {},
+                    status: readme.status,
+                    ok: readme.ok,
+                    errors: readme.errors
+                };
+            }
+        } catch (error) {
+            return {
+                data: {},
+                status: 500,
+                ok: false,
+                errors: [error]
+            };
+        }
+    }
+
+    /**
+ * Retrieves the URL for the live deployment
+ * @param repoName the name of the repo to look up
+ * @returns
+ * ```js
+ * {
+            data: {liveURL: 'url' | demoURL: 'url'},
+            status: res.status,
+            ok: res.ok,
+            errors: []
+        }
+* ```
+ */
+    async getLiveURL(repoName: string): Promise<APIResponseData> {
+        try {
+            const { pinned, otherRepos } = Object.create(repoDefaults);
+
+            const repo = pinned[repoName] || otherRepos[repoName] || null;
+
+            if (repo) {
+                const { liveUrl } = repo;
+                const _data = { liveURL: {} };
+
+                switch (liveUrl) {
+                    case 'GITHUB':
+                        _data.liveURL = `https://${this.user}.github.io/${repoName}`;
+                        break;
+                    case 'NONE':
+                        _data.liveURL = '';
+                        break;
+                    case 'DEMO':
+                        _data.liveURL = '';
+                        break;
+                    default:
+                        _data.liveURL = liveUrl;
+                }
+
+                return {
+                    data: _data,
+                    status: 200,
+                    ok: true,
+                    errors: []
+                };
+            } else {
+                throw new Error('Repo not found');
+            }
+        } catch (error) {
+            return {
+                data: {},
+                status: 500,
+                ok: false,
+                errors: [error]
+            };
+        }
+    }
+
 
     /**
     * Retrieves the URL for the user's Avatar
