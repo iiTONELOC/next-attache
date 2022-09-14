@@ -1,8 +1,9 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import DefaultUserSettings from '../../attache-defaults.json';
 import GitHubAPI from '../../lib/GitHubAPI';
+import DefaultUserSettings from '../../attache-defaults.json';
+
 
 
 const pageStyles = {
@@ -36,6 +37,7 @@ const About = (props: { avatar_url: string }): JSX.Element | null => {
         <main className={pageStyles.main}>
             <Head>
                 <title>{`${DefaultUserSettings.name}'s Portfolio - About`}</title>
+                <link rel="icon" href={props?.avatar_url} />
                 <meta name="viewport" content="initial-scale=1.0, width=device-width" />
             </Head>
             <section className={pageStyles.avatarSection}>
@@ -67,7 +69,7 @@ export async function getStaticProps() {
     const gitHubApi = new GitHubAPI();
     const { data } = await gitHubApi.getAvatarURL();
     return {
-        props: { avatar_url: data?.avatar_url || 'https://placeholder.pics/svg/200x200/0F0F0F-7431A3/D1D1D1-111111/Loading' } // will be passed to the page component as props
+        props: { avatar_url: data?.avatar_url || 'https://via.placeholder.com/150' } // will be passed to the page component as props
     };
 }
 

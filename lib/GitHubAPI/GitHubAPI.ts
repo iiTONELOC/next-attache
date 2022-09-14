@@ -231,7 +231,7 @@ export default class GitHubAPI {
     async getRepoScreenshot(repoName: string): Promise<APIResponseData> {
         try {
             const readme = await this.getRepoReadme(repoName);
-            const screenShotRegex = /# Screenshot.+\n+!\[.+\]\(.+\)/g;
+            const screenShotRegex = /#.+Screenshot?.+\n+!\[.+\]\(.+\)/g;
             const downloadURL = readme.data.download_url.replace('README.md', '');
 
             if (readme.ok) {
@@ -248,10 +248,11 @@ export default class GitHubAPI {
                 const scrnShotPath = screenshotRaw?.match(/\(.+\)/g)?.[0];
 
                 // remove the parenthesis and the "./" from the path
-                const screenshotURL = downloadURL + scrnShotPath?.replace('(', '')
+                let screenshotURL = downloadURL + scrnShotPath?.replace('(', '')
                     .replace(')', '')
                     .replace('./', '');
 
+                !screenshotMatch && (screenshotURL = 'https://via.placeholder.com/150');
                 return {
                     data: { screenshotURL },
                     status: readme.status,
