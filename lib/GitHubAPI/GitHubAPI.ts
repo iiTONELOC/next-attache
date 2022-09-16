@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import fetch from 'node-fetch'; //NOSONAR
-import { headers } from './helpers';
+import { headers, readmeParser } from './helpers';
 import { repoByName } from './types';
 import { APIResponseData } from './interfaces';
 import repoDefaults from '../../attache-defaults.json';
@@ -14,6 +14,7 @@ import {
 export default class GitHubAPI {
     user: string;
     #auth: string;
+    #readmeCache: { [key: string]: string };
 
     constructor() {
         // istanbul ignore next
@@ -34,6 +35,8 @@ export default class GitHubAPI {
 
         this.user = username;
         this.#auth = authenticate;
+        this.#readmeCache = {};
+
     }
 
     /**
@@ -176,7 +179,7 @@ export default class GitHubAPI {
     }
 
     /**
-     * Retrieves the readme of a repository
+     * Retrieves the URLs to download or view the readme of a repository
      * @param repoName the name of the repo to look up
      * @returns
      * ```js
@@ -218,7 +221,64 @@ export default class GitHubAPI {
     }
 
     /**
-     * Retrieves the URL for the user's README
+    * Retrieves the readme of a repository
+    * @param repoName the name of the repo to look up
+    * @returns
+    * ```js
+    * {
+           data: {
+               readme: 'string',
+           },
+           status: res.status,
+           ok: res.ok,
+           errors: []
+       }
+   * ```
+    */
+    async getRepoReadmeAsText(repoName: string): Promise<APIResponseData> {
+        if (!this.#readmeCache[repoName]) {
+            try {
+                const readme: APIResponseData = await this.getRepoReadme(repoName);
+
+                if (readme.ok) {
+                    const readmeData = await fetch(readme.data.download_url);
+                    const readmeText = await readmeData.text();
+                    this.#readmeCache[repoName] = readmeText;
+
+                    return {
+                        data: { readme: readmeText },
+                        status: readme.status,
+                        ok: readme.ok,
+                        errors: readme.errors
+                    };
+                } else {
+                    return {
+                        data: {},
+                        status: readme.status,
+                        ok: readme.ok,
+                        errors: readme.errors
+                    };
+                }
+            } catch (error) {
+                return {
+                    data: {},
+                    status: 500,
+                    ok: false,
+                    errors: [error]
+                };
+            }
+        } else {
+            return {
+                data: { readme: this.#readmeCache[repoName] },
+                status: 200,
+                ok: true,
+                errors: []
+            };
+        }
+    }
+
+    /**
+     * Retrieves the URL for the user's screenshot
      * @param repoName the name of the repo to look up
      * @returns
      * ```js
@@ -232,29 +292,27 @@ export default class GitHubAPI {
      */
     async getRepoScreenshot(repoName: string): Promise<APIResponseData> {
         try {
+            // We need the download_url here so we can take advantage of the other ReadMe retrievers
+            // but we can still cache the readme text here to avoid making multiple requests
             const readme = await this.getRepoReadme(repoName);
-            const screenShotRegex = /#.+Screenshot?.+\n+!\[.+\]\(.+\)/g;
-            const downloadURL = readme.data.download_url.replace('README.md', '');
 
             if (readme.ok) {
+                // README screenshots should contain a relative path only we need to build the full URL
+                const SCREENSHOT_URL_BASE_PATH = readme.data.download_url.replace('README.md', '');
+
+                // download the RAW README file
                 const readmeData = await fetch(readme.data.download_url);
                 const readmeText = await readmeData.text();
 
-                // capture the screenshot section of the readme
-                const screenshotMatch = readmeText.match(screenShotRegex);
+                // cache the readme text
+                !this.#readmeCache[repoName] && (this.#readmeCache[repoName] = readmeText);
 
-                // remove all extra spacing and newlines
-                const screenshotRaw = screenshotMatch?.[0].replace(/\s+/g, '');
+                // parse the README for a screenshot
+                const readmeURL = readmeParser('screenshot', readmeText);
 
-                // capture the relative path to the screenshot
-                const scrnShotPath = screenshotRaw?.match(/\(.+\)/g)?.[0];
+                // return a placeholder if no screenshot is found
+                const screenshotURL = readmeURL ? SCREENSHOT_URL_BASE_PATH + readmeURL : 'https://via.placeholder.com/150';
 
-                // remove the parenthesis and the "./" from the path
-                let screenshotURL = downloadURL + scrnShotPath?.replace('(', '')
-                    .replace(')', '')
-                    .replace('./', '');
-
-                !screenshotMatch && (screenshotURL = 'https://via.placeholder.com/150');
                 return {
                     data: { screenshotURL },
                     status: readme.status,
@@ -294,24 +352,11 @@ export default class GitHubAPI {
     */
     async getDemoURL(repoName: string): Promise<APIResponseData> {
         try {
-            const readme = await this.getRepoReadme(repoName);
-            const demoRegex = /#.+Demo?.+\n+!?\[.+\]\(.+\)/g;
+            // should pull a cached readme if it exists or fetch a new one
+            const readme = await this.getRepoReadmeAsText(repoName);
 
             if (readme.ok) {
-                const readmeData = await fetch(readme.data.download_url);
-                const readmeText = await readmeData.text();
-
-                // capture the demo section of the readme
-                const demoMatch = readmeText.match(demoRegex);
-
-                // remove all extra spacing and newlines
-                const demoRaw = demoMatch?.[0].replace(/\s+/g, '') || '';
-
-                // capture the relative path to the screenshot
-                const demoPath = demoRaw?.match(/\(.+\)/g)?.[0] || '';
-
-                // remove the parenthesis and the "./" from the path
-                const demoURL = demoPath.replace('(', '').replace(')', '');
+                const demoURL = readmeParser('demo', readme.data.readme);
 
                 return {
                     data: { demoURL },
@@ -434,5 +479,13 @@ export default class GitHubAPI {
                 errors: [error]
             };
         }
+    }
+
+    clearItemFromCache(item: string): void {
+        delete this.#readmeCache[item];
+    }
+
+    clearCache(): void {
+        this.#readmeCache = {};
     }
 }

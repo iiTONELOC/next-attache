@@ -249,9 +249,10 @@ describe('GitHubAPI', () => {
             resetTestJson();
 
             const liveURL = await gitHubAPI.getLiveURL('dashboard');
+            const { data } = liveURL;
 
             expect(liveURL).toBeDefined();
-            expect(liveURL).toEqual(expectedData);
+            expect(data.liveURL).toEqual(expectedData);
         }
-    })
+    });
 });
