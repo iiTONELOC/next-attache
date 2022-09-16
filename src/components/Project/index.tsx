@@ -81,7 +81,7 @@ export default function Project(props: { projectName: string }): JSX.Element | n
 
 
             {!errors ? (
-                <section className='h-full bg-zinc-900/80 w-full flex flex-col justify-center items-center rounded-md text-gray-200'>
+                <section className='h-full bg-zinc-900/80 w-full flex flex-wrap flex-row justify-center items-center rounded-md text-gray-200'>
                     {/* Image container */}
                     <div className='w-full  p-1 h-40 overflow-hidden  rounded-t-md'>
                         <div className='relative h-[152px] overflow-hidden rounded-t-md'>

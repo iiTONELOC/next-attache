@@ -40,10 +40,20 @@ export default function handler(
         try {
             const gitHubAPI = new GitHubAPI();
             const repo = await gitHubAPI.getRepoByName(name as string);
+            /**
+             * If we grab the screenshot first, we can benefit from the cached response when
+             * reading for the demoURL. Either call will cache the readme but the getRepoScreenshot
+             * requires extra data so an external fetch is always required, even if the readme exists
+             * in the cache. Before returning the response we should manually clear the readme from the
+             * cache, because this isn't actively managed and not clearing it will result in not receiving
+             * fresh updates.
+             */
             const repoScreenshot = await gitHubAPI.getRepoScreenshot(name as string);
             const demoURL = await gitHubAPI.getDemoURL(name as string);
             const liveURL = await gitHubAPI.getLiveURL(name as string);
 
+            // clear the cache
+            gitHubAPI.clearItemFromCache(name as string);
             const data: repoData = {
                 ...repo.data,
                 screenshotURL: repoScreenshot.data.screenshotURL,
