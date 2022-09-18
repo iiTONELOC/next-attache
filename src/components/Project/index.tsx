@@ -46,7 +46,8 @@ export default function Project(props: { projectName: string }): JSX.Element | n
                     data && setApiData({ ...data });
 
                     if (error) {
-                        throw new Error(error);
+                        /*@ts-ignore*/
+                        throw new Error(error?.message || 'An error occurred');
                     }
 
                 } catch (error) {

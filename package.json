@@ -4,15 +4,18 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "npm run create-github",
     "build": "next build",
     "start": "next start",
     "test": "jest --detectOpenHandles",
     "test:coverage": "jest --coverage",
     "lint": "next lint",
-    "create-github": "node scripts/createGitHubJson.mjs"
+    "create-github": "node scripts/createGitHubJson.mjs",
+    "delete-db": "npx ts-node scripts/deleteDb.ts"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
+    "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.9.1",
     "mongoose": "^6.6.0",
     "next": "12.3.0",
@@ -27,8 +30,9 @@
     "@types/babel__core": "^7.1.19",
     "@types/bcrypt": "^5.0.0",
     "@types/jest": "^29.0.0",
+    "@types/jsonwebtoken": "^8.5.9",
     "@types/mongoose": "^5.11.97",
-    "@types/node": "^18.7.16",
+    "@types/node": "^18.7.18",
     "@types/node-fetch": "^2.6.2",
     "@types/react": "^18.0.18",
     "@types/react-dom": "18.0.6",
@@ -40,6 +44,8 @@
     "jest-environment-jsdom": "^29.0.2",
     "postcss": "^8.4.16",
     "tailwindcss": "^3.1.8",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.4.0",
     "typescript": "^4.8.3"
   }
 }

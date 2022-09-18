@@ -1,11 +1,9 @@
 import { useState } from 'react';
+import API from '../../utils/API';
 import FormContainer from './FormContainer';
-// NOSONAR
-// import { validateEmail } from '../../utils/validateEmail';
 import { UsernameInput, PasswordInput } from './inputs';
 import { HiLockClosed, HiExclamationCircle as AlertIcon } from 'react-icons/hi';
-// NOSONAR
-// const { loginUser } = UserAPI;
+import { errorType } from '../../types';
 
 type FormState = {
     email?: string | null,
@@ -13,13 +11,17 @@ type FormState = {
     username?: string | null
 };
 
+export const timeOutInMilliseconds = 3500;
+export const minPassLength = 18;
+
 export function isFormValidated(formState: FormState) {
-    return formState?.password?.length || 0 >= 18;
+    const length: number = formState?.password?.length || 0;
+    return length >= minPassLength;
 }
 
 export default function LoginForm() {
     const [formState, setFormState] = useState({ username: null, password: null });
-    const [errorMessage, setErrorMessage] = useState<{ message: string } | null>(null);
+    const [errorMessage, setErrorMessage] = useState<errorType>(null);
 
     const handleChange = (e: React.SyntheticEvent) => {
         const { name, value } = e.target as HTMLInputElement;
@@ -29,42 +31,51 @@ export default function LoginForm() {
         });
     };
 
+    const handleSignUpInstead: React.MouseEventHandler<HTMLButtonElement> = e => {
+        e.preventDefault();
+        e.stopPropagation();
+        window.location.href = '/admin/sign-up';
+    };
+
+    const handleErrorMessage: (message: string) => void = message => {
+        setErrorMessage(message);
+        setTimeout(() => {
+            setErrorMessage(null);
+        }, timeOutInMilliseconds);
+    };
+
     const submitFormHandler = async (e: React.SyntheticEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        //NOSONAR
-        // const user = {
-        //     username: formState.username,
-        //     password: formState.password
-        // };
-        // if (isFormValidated(formState)) {
-        //     const response = await loginUser(user);
-        //     const data = await response.json();
-        //     if (response.status === 200) {
-        //         const { token, ...rest } = data;
 
-        //         // set the token in local storage
+        const user = {
+            name: formState.username || '',
+            password: formState.password || ''
+        };
+        if (isFormValidated(formState)) {
+            try {
+                // /*@ts-ignore*/
+                const response = await API.adminLogin(user);
+                if (!response?.data?.token) {
+                    const { error } = response;
 
-        //         // return auth.login(token);
-        //     } else {
-        //         const { error } = data;
-        //         if (error) {
-        //             setErrorMessage(error);
-        //             setTimeout(() => {
-        //                 setErrorMessage(null);
-        //             }, 3500);
-        //         }
-        //     }
-        // }
+                    error && handleErrorMessage(error.message);
+                }
+            } catch (error) {
+                /*@ts-ignore */
+                handleErrorMessage(error.message || 'An error occurred');
+            }
+        }
     };
 
     return (
         <>
             <div className='bg-red-500 rounded-lg text-white flex flex-row justify-between drop-shadow-lg'>
-                {errorMessage && <><AlertIcon className='ml-1 w-7 h-7 self-center' /><span className='p-2 ml-1 content-center'>{errorMessage.message}</span></>}
+                {errorMessage && <><AlertIcon className='ml-1 w-7 h-7 self-center' /><span className='p-2 ml-1 content-center'>{errorMessage}</span></>}
             </div>
             <FormContainer>
                 <h2 className='text-center text-xl text-gray-300 -mt-8'>Login</h2>
+
                 <div className="rounded-md shadow-sm -space-y-px">
                     <UsernameInput
                         onChange={handleChange}
@@ -73,21 +84,16 @@ export default function LoginForm() {
                     />
                     <PasswordInput onChange={handleChange} />
                 </div>
+
                 <div className="flex items-center justify-between">
-
-
                     <span
                         tabIndex={-1}
-                        onClick={(e: React.SyntheticEvent) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            window.location.replace('/admin/sign-up');
-                        }}
+                        onClick={handleSignUpInstead}
                         className="bg-slate-900 hover:bg-indigo-800 text-white py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                         Create account instead
                     </span>
-
                 </div>
+
                 <div>
                     <button
                         onClick={submitFormHandler}

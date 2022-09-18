@@ -7,7 +7,7 @@ import fs from 'fs';
 // GitHubAPI to work properly. This file will only generate the JSON file if
 // we are not in a production environment.
 
-const args = process.argv.slice(2);
+const args = process.argv.slice(2); // NOSONAR
 
 const filename = '.github.config.json';
 const testFilename = '.github.config-test.json';

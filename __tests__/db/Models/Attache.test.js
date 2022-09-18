@@ -1,5 +1,5 @@
 import connect from '../../../lib/db/connection';
-import { Attache } from '../../../lib/db/models';
+import { Attache } from '../../../lib/db/Models';
 
 let db;
 

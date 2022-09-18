@@ -54,7 +54,7 @@ const userSchema = new Schema<UserInterface>({
 /*istanbul ignore next */
 userSchema.pre('save', async function (next) {
     if (this.isNew || this.isModified('password')) {
-        const saltRounds = process.env.SALT_ROUNDS || defaultRounds;
+        const saltRounds = process.env.SALT_ROUNDS ? parseInt(process.env.SALT_ROUNDS, 10) : defaultRounds;
         this.password = await bcrypt.hash(this.password, saltRounds);
     }
 

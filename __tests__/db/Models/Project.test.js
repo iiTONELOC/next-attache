@@ -1,5 +1,5 @@
 import connect from '../../../lib/db/connection';
-import { Project } from '../../../lib/db/models';
+import { Project } from '../../../lib/db/Models';
 
 let db;
 

@@ -1,5 +1,5 @@
 import connect from '../../../lib/db/connection';
-import { User } from '../../../lib/db/models';
+import { User } from '../../../lib/db/Models';
 
 describe('User Model', () => {
     it('should create a new user', async () => {
