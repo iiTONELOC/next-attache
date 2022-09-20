@@ -1,8 +1,9 @@
 import defaultUserSettings from '../../../attache-defaults.json';
 import { useState, useEffect } from 'react';
 import WithToolTip from '../WithToolTip';
-import { IsMobile } from '../../hooks';
+import { IsMobile, useIsMounted } from '../../hooks';
 import { MenuIcon } from '../Icons';
+import Auth from '../../utils/Auth';
 import NavLink from '../NavLink';
 import Link from 'next/link';
 
@@ -21,27 +22,49 @@ const componentStyles = {
     }
 };
 
+type linkType = {
+    name: string,
+    to?: string,
+    onClick?: Function
+};
 
-const links: { name: string, to: string }[] = [
+const links: linkType[] = [
     { name: 'About', to: '/' },
     { name: 'Projects', to: '/projects' },
     { name: 'Contact', to: '/contact' },
     { name: 'Resume', to: '/resume' }
 ];
 
+const adminLinks: linkType[] = [
+    { name: 'Dashboard', to: '/admin/dashboard' },
+    { name: 'Attachés', to: '/admin/attachés' },
+    {
+        name: 'Logout', onClick: (e: React.SyntheticEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            Auth.logout();
+        }
+    }
+];
+
+const controlAltL = (e: KeyboardEvent): void => {
+    if (e.key === 'l' && e.ctrlKey && e.altKey) {
+        // check if we are logged in
+        const loggedIn = Auth.loggedIn();
+        loggedIn ? Auth.logout() : window.location.replace('/admin/login');
+    }
+}
 
 export default function NavBar(): JSX.Element | null { // NOSONAR
-    const [isMounted, setIsMounted] = useState<null | boolean>(null);
     const { isMobile } = IsMobile();
+    const isMounted = useIsMounted();
     const [isOpen, setIsOpen] = useState<boolean>(!isMobile);
-
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
     useEffect(() => {
-        setIsMounted(true);
+        setIsAuthenticated(Auth.loggedIn());
+
         setIsOpen(!isMobile);
-        return () => {
-            setIsMounted(null);
-        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -52,10 +75,27 @@ export default function NavBar(): JSX.Element | null { // NOSONAR
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isMobile]);
 
+    useEffect(() => {
+        if (isMounted) {
+            if (typeof window !== 'undefined' && isMounted) {
+
+                window.addEventListener('keydown', controlAltL);
+            }
+            setIsAuthenticated(Auth.loggedIn());
+        }
+        return () => {
+            if (typeof window !== 'undefined' && isMounted) {
+                window.removeEventListener('keydown', controlAltL);
+            }
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isMounted]);
+
     if (!isMounted) {
         return null;
     }
 
+    const linksToRender = isAuthenticated ? adminLinks : links;
     return (
         <header className={componentStyles.header + componentStyles.headerResponsive}>
             {
@@ -65,7 +105,9 @@ export default function NavBar(): JSX.Element | null { // NOSONAR
                             <h1 className={componentStyles.name}>{navHeading}</h1>
                         </Link>
                         <nav className={componentStyles.navBar + componentStyles.navBarResponsive}>
-                            {links.map(el => <NavLink linkName={el.name} to={el.to} key={el.name} />)}
+                            {
+                                linksToRender.map(el => <NavLink linkName={el.name} to={el.to} key={el.name} onClick={el.onClick} />)
+                            }
                         </nav>
                         {isMobile && isOpen && (
                             <WithToolTip tip='Click to close nav'>

@@ -44,7 +44,7 @@ export default function PasswordInput({ onChange }: propTypes) {
                 name="password"
                 type="password"
                 onChange={onChange}
-                autoComplete="current-password"
+                autoComplete="off"
                 required
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border bg-yellow-100 border-gray-300
                 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm`}

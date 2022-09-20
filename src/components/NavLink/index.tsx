@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useIsMounted } from '../../hooks';
 import { useState, useEffect } from 'react';
 
 const componentStyles = {
@@ -7,20 +8,19 @@ const componentStyles = {
     active: ` bg-purple-800 italic underline underline-offset-4`
 };
 
-export default function NavLink({ linkName, to = '/' }: { linkName: string, to: string }): JSX.Element | null {
+export default function NavLink({ linkName, to, onClick }: //NOSONAR
+    { linkName: string, to?: string, onClick?: Function }
+): JSX.Element | null {
     const isActive = (currentLink: string) => {
         const currentPath = window.location.pathname;
         return currentPath === currentLink;
     };
-    const [isMounted, setIsMounted] = useState<null | boolean>(null);
-    const [isActiveLink, setIsActiveLink] = useState<boolean>(isActive(to));
-
+    const [isActiveLink, setIsActiveLink] = useState<boolean>(to ? isActive(to) : false);
+    const isMounted = useIsMounted();
 
     useEffect(() => {
-        setIsMounted(true);
-        setIsActiveLink(isActive(to));
+        to && setIsActiveLink(isActive(to));
         return () => {
-            setIsMounted(null);
             setIsActiveLink(false);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -28,7 +28,7 @@ export default function NavLink({ linkName, to = '/' }: { linkName: string, to: 
 
     useEffect(() => {
         if (isMounted) {
-            setIsActiveLink(isActive(to));
+            to && setIsActiveLink(isActive(to));
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [window.location.pathname]);
@@ -39,8 +39,19 @@ export default function NavLink({ linkName, to = '/' }: { linkName: string, to: 
 
     const activeStyle = isActiveLink ? componentStyles.active : '';
     return (
-        <Link href={to}>
-            <p className={componentStyles.link + '' + activeStyle}>{linkName}</p>
-        </Link>
+        onClick === undefined ? (
+            <Link href={to || ''}>
+                <p className={componentStyles.link + '' + activeStyle}>
+                    {linkName}
+                </p>
+            </Link>
+        ) : (
+            <p
+                onClick={(e: React.SyntheticEvent) => onClick(e)}
+                className={componentStyles.link + '' + activeStyle}
+            >
+                {linkName}
+            </p>
+        )
     );
 }

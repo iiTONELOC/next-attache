@@ -6,9 +6,9 @@ import { HiLockClosed, HiExclamationCircle as AlertIcon } from 'react-icons/hi';
 import { errorType } from '../../types';
 
 type FormState = {
-    email?: string | null,
-    password?: string | null,
-    username?: string | null
+    email?: string,
+    password?: string,
+    username?: string
 };
 
 export const timeOutInMilliseconds = 3500;
@@ -20,7 +20,7 @@ export function isFormValidated(formState: FormState) {
 }
 
 export default function LoginForm() {
-    const [formState, setFormState] = useState({ username: null, password: null });
+    const [formState, setFormState] = useState({ username: '', password: '' });
     const [errorMessage, setErrorMessage] = useState<errorType>(null);
 
     const handleChange = (e: React.SyntheticEvent) => {
@@ -65,6 +65,11 @@ export default function LoginForm() {
                 /*@ts-ignore */
                 handleErrorMessage(error.message || 'An error occurred');
             }
+        } else {
+            console.log('form not validated');
+            console.log(formState);
+            console.log(formState.password?.length);
+            handleErrorMessage('Password must be at least 18 characters');
         }
     };
 
