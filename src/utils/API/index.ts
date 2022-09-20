@@ -1,12 +1,16 @@
+import AuthService, { Auth } from '../Auth';
 import { apiResponseData } from '../../types';
 import { adminLoginProps, adminSignUpProps } from './types';
+
 
 class API {
     #username: string;
     #token: string;
     #headers: Headers;
+    #Auth: Auth;
 
     constructor() {
+        this.#Auth = AuthService;
         this.#username = process.env.NEXT_PUBLIC_GITHUB_USERNAME || '';
         this.#token = process.env.NEXT_PUBLIC_GIT_HUB_ACCESS_TOKEN || '';
         this.#headers = new Headers({
@@ -36,12 +40,7 @@ class API {
         const data = await response.json();
         if (response.ok) {
             const { token } = data.data;
-
-            // set the token in local storage
-            localStorage.setItem('git_portfolio_token', token);
-
-            // redirect to the dashboard
-            window.location.replace('/admin/dashboard');
+            this.#Auth.login(token);
         }
         return data;
     }
@@ -56,12 +55,7 @@ class API {
         const data = await response.json();
         if (response.ok) {
             const { token } = data.data;
-
-            // set the token in local storage
-            localStorage.setItem('git_portfolio_token', token);
-
-            // redirect to the dashboard
-            window.location.replace('/admin/dashboard');
+            this.#Auth.login(token);
         }
         return data;
     }

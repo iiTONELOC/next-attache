@@ -5,6 +5,7 @@ import { User } from '../../../../lib/db/Models';
 import { apiResponseData } from '../../../types';
 import withAuth from '../../../utils/withAuth';
 import { Connection } from 'mongoose';
+import HttpStatus from '../../../utils/StatusCodes';
 
 // /api/admin/login
 export default function handler(req: NextApiRequest, res: NextApiResponse): apiResponseData {
@@ -32,25 +33,25 @@ export default function handler(req: NextApiRequest, res: NextApiResponse): apiR
                         // disconnect
                         /*@ts-ignore*/
                         await db?.close();
-                        return res.status(200).json({ data: { token } });
+                        return res.status(HttpStatus.OK).json({ data: { token } });
                     } else {
                         // disconnect
                         /*@ts-ignore*/
                         await db?.close();
-                        return res.status(400).json({ error: { message: 'Incorrect credentials' } });
+                        return res.status(HttpStatus.BAD_REQUEST).json({ error: { message: 'Incorrect credentials' } });
                     }
                 } else {
                     // disconnect
                     /*@ts-ignore*/
                     await db?.close();
-                    return res.status(401).json({ error: { message: 'Unauthorized' } });
+                    return res.status(HttpStatus.UNAUTHORIZED).json({ error: { message: 'Unauthorized' } });
                 }
 
             } else {
                 // disconnect
                 /*@ts-ignore*/
                 await db?.close();
-                return res.status(401).json({ error: { message: 'Unauthorized' } });
+                return res.status(HttpStatus.UNAUTHORIZED).json({ error: { message: 'Unauthorized' } });
             }
         }
     );

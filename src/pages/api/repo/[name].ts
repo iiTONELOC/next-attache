@@ -1,7 +1,9 @@
 import type { apiResponseData, repoData } from '../../../types';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import HttpStatus from '../../../utils/StatusCodes';
 import GitHubAPI from '../../../../lib/GitHubAPI';
 import withAuth from '../../../utils/withAuth';
+
 
 
 /**
@@ -65,7 +67,7 @@ export default function handler(
                 data: { ...data }
             });
         } catch (error: any) {
-            return res.status(500).json({
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 error: error?.message || 'Something went wrong'
             });
         }
