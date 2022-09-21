@@ -9,7 +9,6 @@ const covidMaster = 'covid-master';
 describe('GitHubAPI', () => {
     it('Instantiates a new GitHubAPI Class', () => {
         const gitHubAPI = new GitHubAPI();
-
         expect(gitHubAPI).toBeInstanceOf(GitHubAPI);
     });
 
@@ -248,7 +247,7 @@ describe('GitHubAPI', () => {
             const gitHubAPI = new GitHubAPI();
             resetTestJson();
 
-            const liveURL = await gitHubAPI.getLiveURL('dashboard');
+            const liveURL = await gitHubAPI.getLiveURL('dashboard', 'pinned');
             const { data } = liveURL;
 
             expect(liveURL).toBeDefined();

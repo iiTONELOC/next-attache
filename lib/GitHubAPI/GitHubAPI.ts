@@ -1,14 +1,26 @@
+import fetch from 'node-fetch';
 import { readFileSync } from 'fs';
-import fetch from 'node-fetch'; //NOSONAR
-import { headers, readmeParser } from './helpers';
 import { repoByName } from './types';
 import { APIResponseData } from './interfaces';
+import { headers, readmeParser } from './helpers';
 import repoDefaults from '../../attache-defaults.json';
+import dynamicDefaults from '../../attache-dynamic.json';
 import {
     filename, creationErrorPrefix, restRepoEndPoint,
     gitHubAPIUrl, graphQLRequestURL
 } from './constants';
 
+interface DemoOptions {
+    GITHUB: string,
+    DEMO: string,
+    NONE: string
+}
+
+export const demoOptions: DemoOptions = {
+    GITHUB: 'GITHUB',
+    DEMO: 'DEMO',
+    NONE: 'NONE'
+};
 
 
 export default class GitHubAPI {
@@ -36,7 +48,6 @@ export default class GitHubAPI {
         this.user = username;
         this.#auth = authenticate;
         this.#readmeCache = {};
-
     }
 
     /**
@@ -395,24 +406,25 @@ export default class GitHubAPI {
         }
 * ```
  */
-    async getLiveURL(repoName: string): Promise<APIResponseData> {
+    async getLiveURL(repoName: string, type: 'pinned' | 'dynamic'): Promise<APIResponseData> {
         try {
-            const { pinned, otherRepos } = Object.create(repoDefaults);
+            const { pinned } = Object.create(repoDefaults);
+            const { otherRepos } = Object.create(dynamicDefaults);
 
-            const repo = pinned[repoName] || otherRepos[repoName] || null;
+            const repo = type === 'pinned' ? pinned[repoName] : otherRepos[repoName];
 
             if (repo) {
                 const { liveUrl } = repo;
                 const _data = { liveURL: {} };
 
                 switch (liveUrl) {
-                    case 'GITHUB':
+                    case demoOptions.GITHUB:
                         _data.liveURL = `https://${this.user}.github.io/${repoName}`;
                         break;
-                    case 'NONE':
+                    case demoOptions.NONE:
                         _data.liveURL = '';
                         break;
-                    case 'DEMO':
+                    case demoOptions.DEMO:
                         _data.liveURL = '';
                         break;
                     default:

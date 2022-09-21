@@ -52,7 +52,7 @@ export default function handler(
              */
             const repoScreenshot = await gitHubAPI.getRepoScreenshot(name as string);
             const demoURL = await gitHubAPI.getDemoURL(name as string);
-            const liveURL = await gitHubAPI.getLiveURL(name as string);
+            const liveURL = await gitHubAPI.getLiveURL(name as string, 'pinned');
 
             // clear the cache
             gitHubAPI.clearItemFromCache(name as string);
