@@ -6,10 +6,14 @@ import type { IconProps } from '../components/Icons/types';
 
 // client side API
 export type repoData = repoByName & {
-    screenshotURL?: string,
-    liveURL?: string,
-    demoURL?: string,
-    token?: string,
+    screenshotUrl?: string,
+    liveUrl?: string,
+    demoUrl?: string,
+};
+
+export type repoNameData = {
+    data?: string[],
+    error?: { message: string }
 };
 
 // API Responses
@@ -18,6 +22,12 @@ export type apiResponseData = {
     error?: { message: string }
 };
 
+export type authenticationResponseData = {
+    data?: {
+        token: string,
+    },
+    error?: { message: string }
+};
 
 
 // pages or components

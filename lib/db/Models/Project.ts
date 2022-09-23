@@ -5,6 +5,7 @@ export interface ProjectInterface {
     size: number;
     license: string;
     repoUrl: string;
+    demoUrl?: string;
     liveUrl?: string;
     cloneUrl: string;
     createdAt: string;
@@ -31,7 +32,8 @@ const projectSchema = new Schema<ProjectInterface>({
     },
     license: {
         type: String,
-        required: true,
+        required: false,
+        default: null,
         unique: false,
         trim: true
     },
@@ -51,6 +53,12 @@ const projectSchema = new Schema<ProjectInterface>({
     cloneUrl: {
         type: String,
         required: true,
+        unique: false,
+        trim: true
+    },
+    demoUrl: {
+        type: String,
+        default: null,
         unique: false,
         trim: true
     },

@@ -29,8 +29,6 @@ const Projects = (props: propTypes): JSX.Element | null => {
         return null;
     }
 
-
-
     return (
         <main className={pageStyles.main}>
             <Head>
@@ -57,6 +55,7 @@ export async function getStaticProps() {
     const pinnedRepoNames = await gitHubApi.getPinnedRepoNames();
     const { data } = await gitHubApi.getAvatarURL();
     const repoNames = pinnedRepoNames.data;
+
     return {
         props: {
             avatar_url: data?.avatar_url || '/images/default-img.jpg',

@@ -16,9 +16,9 @@ type FormState = {
 export default function SignUpForm() {
     const [errorMessage, setErrorMessage] = useState<errorType>(null);
     const [formState, setFormState] = useState<FormState>({
-        email: null,
-        username: null,
-        password: null
+        email: '',
+        username: '',
+        password: ''
     });
 
     const handleChange = (e: React.SyntheticEvent) => {
@@ -52,7 +52,7 @@ export default function SignUpForm() {
             password: formState.password || ''
         };
 
-        if (isFormValidated(formState)) {
+        if (isFormValidated(formState.password || '')) {
             try {
                 const response = await API.adminSignUp(newUser);
                 const token = response?.data?.token;

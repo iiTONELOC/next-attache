@@ -1,11 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import connect from '../../lib/db/connection';
+import { dbConnection } from '../../lib/db/connection';
+import { apiResponseData } from '../types';
 import { User } from '../../lib/db/Models';
 import { extractToken } from './withAuth';
-import { Connection } from 'mongoose';
+import HttpStatus from './StatusCodes';
 import { ObjectId } from 'mongodb';
 import jwt from 'jsonwebtoken';
-import { apiResponseData } from '../types';
+
+
+dbConnection();
 
 type userDataType = {
     username: string;
@@ -13,7 +16,7 @@ type userDataType = {
     _id: ObjectId;
 };
 
-
+;
 export const signToken: Function = ({ username, email, _id }: userDataType): string => {
     const payload: userDataType = { username, email, _id };
 
@@ -39,10 +42,8 @@ export default async function withAdminAuth(
 
     if (authorization) {
         const token = extractToken(authorization);
-        let db: Connection | Error | null = null;
-
         try {
-            db = await connect();
+
             /*@ts-ignore*/
             const { data } = jwt.verify(
                 token,
@@ -53,21 +54,19 @@ export default async function withAdminAuth(
             // TODO: Check if the user exists in the database
             const user = await User.findById({ _id: data?._id });// NOSONAR
             if (user) {
-                /*@ts-ignore*/
-                await db?.close();
+
                 return callback({ authData: data });
             } else {
-                /*@ts-ignore*/
-                await db?.close();
-                return res.status(401).json({ error: { message: 'Unauthorized' } });
+                console.log('User not found');
+                return res.status(HttpStatus.UNAUTHORIZED).json({ error: { message: 'Unauthorized' } });
             }
 
         } catch (error) {
-            /*@ts-ignore*/
-            await db?.close();
-            return res.status(500).json({ error: { message: 'Server error' } });
+            console.log(error);
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: { message: 'Server error' } });
         }
     } else {
-        return res.status(401).json({ error: { message: 'Unauthorized' } });
+        console.log('ERROR: No token provided');
+        return res.status(HttpStatus.UNAUTHORIZED).json({ error: { message: 'Unauthorized' } });
     }
 }

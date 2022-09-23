@@ -1,24 +1,23 @@
+import { dbConnection } from '../../../../lib/db/connection';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { authenticationResponseData } from '../../../types';
 import { signToken } from '../../../utils/withAdminAuth';
-import connect from '../../../../lib/db/connection';
-import { User } from '../../../../lib/db/Models';
-import { apiResponseData } from '../../../types';
-import withAuth from '../../../utils/withAuth';
-import { Connection } from 'mongoose';
 import HttpStatus from '../../../utils/StatusCodes';
+import { User } from '../../../../lib/db/Models';
+import withAuth from '../../../utils/withAuth';
+
+dbConnection();
 
 // /api/admin/login
-export default function handler(req: NextApiRequest, res: NextApiResponse): apiResponseData {
-    let db: Connection | Error | null = null;
-    // Ensures a basic level of authentication;
+export default async function handler(
+    req: NextApiRequest, res: NextApiResponse
+): Promise<authenticationResponseData> {
+
     return withAuth(req, res,
         async () => {
-            db = await connect();
-            // get the user data from the request body
             const { name, password } = req.body;
 
             if (name && password) {
-
                 // look up the user
                 const user = await User.findOne({ name });// NOSONAR
 
@@ -30,28 +29,19 @@ export default function handler(req: NextApiRequest, res: NextApiResponse): apiR
                         // FIXME: Encrypt the _id
 
                         const token = signToken({ name, password, _id: user._id });
-                        // disconnect
-                        /*@ts-ignore*/
-                        await db?.close();
+
                         return res.status(HttpStatus.OK).json({ data: { token } });
                     } else {
-                        // disconnect
-                        /*@ts-ignore*/
-                        await db?.close();
-                        return res.status(HttpStatus.BAD_REQUEST).json({ error: { message: 'Incorrect credentials' } });
+                        return res.status(HttpStatus.BAD_REQUEST).json(
+                            { error: { message: 'Incorrect credentials' } });
                     }
                 } else {
-                    // disconnect
-                    /*@ts-ignore*/
-                    await db?.close();
-                    return res.status(HttpStatus.UNAUTHORIZED).json({ error: { message: 'Unauthorized' } });
+                    return res.status(HttpStatus.UNAUTHORIZED).json(
+                        { error: { message: 'Unauthorized' } });
                 }
-
             } else {
-                // disconnect
-                /*@ts-ignore*/
-                await db?.close();
-                return res.status(HttpStatus.UNAUTHORIZED).json({ error: { message: 'Unauthorized' } });
+                return res.status(HttpStatus.UNAUTHORIZED).json(
+                    { error: { message: 'Unauthorized' } });
             }
         }
     );

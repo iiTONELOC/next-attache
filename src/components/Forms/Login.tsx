@@ -14,8 +14,8 @@ type FormState = {
 export const timeOutInMilliseconds = 3500;
 export const minPassLength = 18;
 
-export function isFormValidated(formState: FormState) {
-    const length: number = formState?.password?.length || 0;
+export function isFormValidated(password: string) {
+    const length: number = password?.length || 0;
     return length >= minPassLength;
 }
 
@@ -52,9 +52,9 @@ export default function LoginForm() {
             name: formState.username || '',
             password: formState.password || ''
         };
-        if (isFormValidated(formState)) {
+        if (isFormValidated(formState.password)) {
             try {
-                // /*@ts-ignore*/
+                // will automatically redirect to /admin if successful
                 const response = await API.adminLogin(user);
                 if (!response?.data?.token) {
                     const { error } = response;
@@ -66,9 +66,6 @@ export default function LoginForm() {
                 handleErrorMessage(error.message || 'An error occurred');
             }
         } else {
-            console.log('form not validated');
-            console.log(formState);
-            console.log(formState.password?.length);
             handleErrorMessage('Password must be at least 18 characters');
         }
     };
@@ -76,7 +73,13 @@ export default function LoginForm() {
     return (
         <>
             <div className='bg-red-500 rounded-lg text-white flex flex-row justify-between drop-shadow-lg'>
-                {errorMessage && <><AlertIcon className='ml-1 w-7 h-7 self-center' /><span className='p-2 ml-1 content-center'>{errorMessage}</span></>}
+                {errorMessage && <>
+                    <AlertIcon className='ml-1 w-7 h-7 self-center' />
+                    <span className='p-2 ml-1 content-center'>
+                        {errorMessage}
+                    </span>
+                </>
+                }
             </div>
             <FormContainer>
                 <h2 className='text-center text-xl text-gray-300 -mt-8'>Login</h2>
