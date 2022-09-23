@@ -163,7 +163,7 @@ export default class GitHubAPI {
         }
     * ```
      */
-    async getRepoByName(repoName: string): Promise<APIResponseData> {
+    async getRepoByName(repoName: string, liveUrlType?: 'pinned' | 'dynamic'): Promise<APIResponseData> {
 
         try {
             const URL = gitHubAPIUrl + restRepoEndPoint(this.user, repoName);
@@ -174,6 +174,14 @@ export default class GitHubAPI {
             });
 
             const data = await res.json();
+
+            // need to fetch more data than this endpoint provides
+
+            const repoScreenshot = await this.getRepoScreenshot(repoName);
+            const demoUrl = await this.getDemoURL(repoName);
+            const liveUrl = await this.getLiveUrl(repoName, liveUrlType || 'pinned');
+
+            this.clearItemFromCache(repoName);
 
             return {
                 data: {
@@ -186,7 +194,10 @@ export default class GitHubAPI {
                     createdAt: data.created_at,
                     updatedAt: data.updated_at,
                     openIssues: data.open_issues,
-                    cloneUrl: data.clone_url
+                    cloneUrl: data.clone_url,
+                    liveUrl: liveUrl.data.liveUrl,
+                    screenshotUrl: repoScreenshot.data.screenshotUrl,
+                    demoUrl: demoUrl.data.demoUrl || ''
                 },
                 status: res.status,
                 ok: res.ok,

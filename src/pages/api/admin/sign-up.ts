@@ -1,32 +1,23 @@
+import { UserController } from '../../../../lib/db/controller';
 import gitHubDefaults from '../../../../.github.config.json';
 import { dbConnection } from '../../../../lib/db/connection';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { signToken } from '../../../utils/withAdminAuth';
+import withAppAuth from '../../../utils/withAppAuth';
 import HttpStatus from '../../../utils/StatusCodes';
-import { User } from '../../../../lib/db/Models';
 import { apiResponseData } from '../../../types';
-import withAuth from '../../../utils/withAuth';
 
+const { doesUserExist, createUser } = UserController;
 
 dbConnection();
-
-export const doesUserExist = async (email: string): Promise<boolean> => {
-    try {
-        const user = await User.findOne({ email }); //NOSONAR
-        return !!user;
-    } catch (error) {
-        return false;
-    }
-};
 
 // /api/admin/sign-up
 export default function handler(
     req: NextApiRequest,
     res: NextApiResponse): apiResponseData {
 
-
     // Ensures a basic level of authentication;
-    return withAuth(req, res,
+    return withAppAuth(req, res,
         async () => {
             const { name, email, password } = req.body;
 
@@ -41,7 +32,7 @@ export default function handler(
                 }
 
                 // check if the user already exists
-                const user = await doesUserExist(email);// NOSONAR
+                const user = await doesUserExist({ email });// NOSONAR
 
                 if (user) {
                     return res.status(HttpStatus.FORBIDDEN).json(
@@ -50,8 +41,7 @@ export default function handler(
                 } else {
                     // create the user
                     try {
-                        const newUser = await User.create(
-                            { name, email, password });
+                        const newUser = await createUser({ name, email, password });
 
                         // sign the token
                         const token = signToken(newUser);

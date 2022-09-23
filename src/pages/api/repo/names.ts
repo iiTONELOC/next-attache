@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { repoNameData } from '../../../types';
 import HttpStatus from '../../../utils/StatusCodes';
 import GitHubAPI from '../../../../lib/GitHubAPI';
-import withAuth from '../../../utils/withAuth';
+import withAppAuth from '../../../utils/withAppAuth';
 
 /**
  * Fetches the data for a single repo.
@@ -11,7 +11,7 @@ export default function handler(
     req: NextApiRequest,
     res: NextApiResponse<repoNameData>
 ) {
-    return withAuth(req, res, async () => {
+    return withAppAuth(req, res, async () => {
         try {
             const gitHubAPI = new GitHubAPI();
             const repo: {

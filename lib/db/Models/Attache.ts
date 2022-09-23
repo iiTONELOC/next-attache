@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 import { ProjectCollectionType } from './Project';
 
-interface AttacheInterface {
+export interface AttacheInterface {
     name: string;
     createdAt: Date;
     updatedAt: Date;
@@ -9,6 +9,15 @@ interface AttacheInterface {
     projects: ProjectCollectionType;
     resume: string;
 }
+export type AttacheModel = {
+    _id: Schema.Types.ObjectId;
+    name: string;
+    createdAt: Date;
+    updatedAt: Date;
+    notes?: string;
+    projects: ProjectCollectionType;
+    resume: string;
+};
 
 const attacheSchema = new Schema<AttacheInterface>({
     name: {
@@ -42,6 +51,6 @@ const attacheSchema = new Schema<AttacheInterface>({
         timestamps: true
     });
 
-const Attache = model('Attache', attacheSchema);
+const Attache = model<AttacheInterface>('Attache', attacheSchema);
 
 export default Attache;

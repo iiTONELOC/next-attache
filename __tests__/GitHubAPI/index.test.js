@@ -152,6 +152,9 @@ describe('GitHubAPI', () => {
                 data: {
                     name: covidMaster,
                     size: 35637,
+                    demoUrl: '',
+                    liveUrl: 'https://iiTONELOC.github.io/covid-master',
+                    screenshotUrl: 'https://raw.githubusercontent.com/iiTONELOC/covid-master/main/assets/images/boredinthehousegif.gif',
                     repoUrl: 'https://github.com/iiTONELOC/covid-master',
                     license: 'MIT License',
                     description: 'Bored in the House is an interactive web application that presents meal recipes, drink recipes, and movies based on user input. ',

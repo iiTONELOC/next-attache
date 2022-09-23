@@ -1,7 +1,7 @@
 import AuthService, { Auth } from '../Auth';
 import { adminLoginProps, adminSignUpProps } from './types';
 import { apiResponseData, authenticationResponseData } from '../../types';
-import { AttacheState, FormInputState } from '../../components/Forms/CreateNewAttache/types';
+import { AttacheState } from '../../components/Forms/CreateNewAttache/types';
 
 
 const API_PREFIX = '/api';
@@ -56,7 +56,6 @@ class API {
         // add the new authorization header
         _headers.append('Authorization', `Bearer ${token}`);
 
-        console.log('headers', _headers);
         const response = await fetch(routes.join('/'), {
             method: 'POST',
             headers: _headers,
@@ -109,13 +108,25 @@ class API {
         for (const project of formData.projectData) {
             const currentProject = await this._adminPostFetch(
                 `repo/${project.name}?liveUrlType=dynamic`,
-                project
+                {}
             );
-            currentProject && projects.push(currentProject);
+
+
+            currentProject && !currentProject.error && projects.push(currentProject.data);
+            currentProject.error && console.error(currentProject.error);
         }
 
-        console.log('projects', projects);
-        return projects;
+        const attacheData = await this._adminPostFetch(
+            'attache',
+            { projects }
+        );
+
+        // now we need to hit the api/attache endpoint and create the attache
+        // using the projects we just created
+
+
+
+        return attacheData;
     }
 
 

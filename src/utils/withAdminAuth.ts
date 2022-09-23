@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { dbConnection } from '../../lib/db/connection';
 import { apiResponseData } from '../types';
 import { User } from '../../lib/db/Models';
-import { extractToken } from './withAuth';
+import { extractToken } from './withAppAuth';
 import HttpStatus from './StatusCodes';
 import { ObjectId } from 'mongodb';
 import jwt from 'jsonwebtoken';
@@ -57,16 +57,16 @@ export default async function withAdminAuth(
 
                 return callback({ authData: data });
             } else {
-                console.log('User not found');
+
                 return res.status(HttpStatus.UNAUTHORIZED).json({ error: { message: 'Unauthorized' } });
             }
 
         } catch (error) {
-            console.log(error);
+
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: { message: 'Server error' } });
         }
     } else {
-        console.log('ERROR: No token provided');
+
         return res.status(HttpStatus.UNAUTHORIZED).json({ error: { message: 'Unauthorized' } });
     }
 }

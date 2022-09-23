@@ -1,16 +1,36 @@
+import { AttacheController } from '../../../../lib/db/controller';
+import { ProjectModel } from '../../../../lib/db/Models/Project'
+import { dbConnection } from '../../../../lib/db/connection';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import withAdminAuth from '../../../utils/withAdminAuth';
 import HttpStatus from '../../../utils/StatusCodes';
 
+dbConnection();
+const { createAttache } = AttacheController;
 
-const createAttache = async (req: NextApiRequest, res: NextApiResponse) => {
-    const data = {
-        data: {
-            message: 'Testing, route works'
-        }
+const _createAttache = async (req: NextApiRequest, res: NextApiResponse) => {
+
+    // required a name
+    // and a resume, we haven't implemented that yet
+    // can optionally take notes, and projects
+    const { body } = req;
+    const { projects, name, resume, notes } = body;
+
+    const dateAndTime = new Date().toLocaleString();
+    const _name = name || dateAndTime;
+    const _resume = resume || 'no resume';
+
+    const attacheData = {
+        notes,
+        name: _name,
+        resume: _resume,
+        projects: projects?.filter(
+            (el: ProjectModel) => el !== undefined || el !== null) || []
     };
 
-    return res.status(200).json({ ...data });
+    const newAttache = await createAttache(attacheData);
+    /*@ts-ignore*/
+    return res.status(HttpStatus.CREATED).json({ ...newAttache._doc });
 };
 
 
@@ -19,9 +39,7 @@ export default function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    const { query, method } = req;
-    console.log("ATTACHE ROUTE HIT");
-    console.log({ query, method });
+    const { method } = req;
 
     return withAdminAuth(req, res, async () => {
         try {
@@ -30,7 +48,7 @@ export default function handler(
             // LEAST 3 CASES
             switch (method) { //NOSONAR
                 case 'POST':
-                    return createAttache(req, res);
+                    return _createAttache(req, res);
                 default:
                     return res.status(HttpStatus.METHOD_NOT_ALLOWED).json({
                         error: `Method ${method} not allowed`

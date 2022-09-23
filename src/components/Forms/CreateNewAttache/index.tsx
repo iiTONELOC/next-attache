@@ -44,9 +44,10 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
     const handleSubmitAttache = async (e: React.SyntheticEvent) => {
         e?.preventDefault();
         e?.stopPropagation();
-        console.log('CREATING NEW ATTACHE');
-        console.log({ attacheState });
+
         const attache = await API.createAttache(attacheState);
+        // TODO: CONTINUE PROCESS
+        // FIXME: need to get the name, any notes and a resume for the attache
     };
 
     const addProject = () => {

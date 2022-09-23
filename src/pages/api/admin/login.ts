@@ -1,25 +1,24 @@
-import { dbConnection } from '../../../../lib/db/connection';
+import { UserController } from '../../../../lib/db/controller';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { authenticationResponseData } from '../../../types';
 import { signToken } from '../../../utils/withAdminAuth';
 import HttpStatus from '../../../utils/StatusCodes';
-import { User } from '../../../../lib/db/Models';
-import withAuth from '../../../utils/withAuth';
+import withAppAuth from '../../../utils/withAppAuth';
 
-dbConnection();
+const { lookUpUserBy } = UserController;
 
 // /api/admin/login
 export default async function handler(
     req: NextApiRequest, res: NextApiResponse
 ): Promise<authenticationResponseData> {
 
-    return withAuth(req, res,
+    return withAppAuth(req, res,
         async () => {
             const { name, password } = req.body;
 
             if (name && password) {
                 // look up the user
-                const user = await User.findOne({ name });// NOSONAR
+                const user = await lookUpUserBy.name(name);// NOSONAR
 
                 if (user) {
                     // verify the password

@@ -11,10 +11,29 @@ export interface ProjectInterface {
     createdAt: string;
     updatedAt: string;
     openIssues: number;
-    description: string;
+    description?: string;
     topLanguage: string;
     screenshotUrl: string;
 }
+// I know I can extend but the IDE may or may not
+// show the extended types in the editor so this is
+// a bit more explicit and user friendly
+export type ProjectModel = {
+    _id: Types.ObjectId;
+    name: string;
+    size: number;
+    license: string;
+    repoUrl: string;
+    demoUrl?: string;
+    liveUrl?: string;
+    cloneUrl: string;
+    createdAt: string;
+    updatedAt: string;
+    openIssues: number;
+    description: string;
+    topLanguage: string;
+    screenshotUrl: string;
+};
 
 export type ProjectCollectionType = Types.ObjectId[] | ProjectInterface[] | [];
 
@@ -81,7 +100,7 @@ const projectSchema = new Schema<ProjectInterface>({
     },
     description: {
         type: String,
-        required: true,
+        default: null,
         unique: false,
         trim: true
     },
@@ -99,6 +118,6 @@ const projectSchema = new Schema<ProjectInterface>({
     }
 });
 
-const Project = model('Project', projectSchema);
+const Project = model<ProjectInterface>('Project', projectSchema);
 
 export default Project;

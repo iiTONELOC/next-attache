@@ -1,19 +1,17 @@
-import type { apiResponseData, repoData } from '../../../types';
-import { dbConnection } from '../../../../lib/db/connection';
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { Project } from '../../../../lib/db/Models';
-import HttpStatus from '../../../utils/StatusCodes';
 import GitHubAPI from '../../../../lib/GitHubAPI';
-import withAuth from '../../../utils/withAuth';
+import HttpStatus from '../../../utils/StatusCodes';
+import withAppAuth from '../../../utils/withAppAuth';
+import withAdminAuth from '../../../utils/withAdminAuth';
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { dbConnection } from '../../../../lib/db/connection';
+import { ProjectModel } from '../../../../lib/db/Models/Project';
+import { ProjectController } from '../../../../lib/db/controller';
 
+
+const { getProjectBy, updateProjectBy, createProject } = ProjectController;
+const gitHubAPI = new GitHubAPI();
 
 dbConnection();
-
-export async function findRepo(req: NextApiRequest) {
-    const { name } = req.query;
-    return Project.findOne({ name });
-}
-
 
 /**
  * Fetches the data for a single repo.
@@ -37,56 +35,49 @@ export async function findRepo(req: NextApiRequest) {
     }
     ```
  */
-export const getRepo = async (
+export const handleProjectLookUp = async (
     req: NextApiRequest,
-    res: NextApiResponse
+    res: NextApiResponse,
+    updateExisting = false
 ) => {
-    // look up repo in database
-    // if repo isn't found, fetch it from GitHub and create it in the database
-    // if the repo is found in the db, return it
-
     const { name, liveUrlType } = req.query;
 
-    const repoInDb = await findRepo(req); //NOSONAR
+    // look up repo in database
+    const repoInDb = await getProjectBy.name(name as string); //NOSONAR
+
     if (repoInDb) {
-        // TO DO UPDATE THE REPO IF NEEDED
-        return res.status(HttpStatus.OK).json({ data: repoInDb });
+        // Dynamic indicates that the project requested isn't our
+        // default pinned projects, this tells the underlying
+        // handler where to look for the liveUrl
+        if (liveUrlType === 'dynamic') {
+            // Not currently used, but will be used in the future
+            if (updateExisting) {
+                const gitHubData = await gitHubAPI.getRepoByName(name as string);
+                const { data } = gitHubData;
+
+                const updatedRepo = await updateProjectBy.name(name as string, {
+                    ...data
+                });
+                return res.status(HttpStatus.OK).json({ data: updatedRepo._doc });
+            }
+            return res.status(HttpStatus.OK).json({ data: repoInDb });
+
+        } else {
+            // For Pinned Repos
+            return res.status(HttpStatus.OK).json({ data: repoInDb });
+        }
+
     } else {
-        // not found in db, fetch from GitHub
-        const gitHubAPI = new GitHubAPI();
+        // Repo doesn't exist in database yet let's add it
         const repo = await gitHubAPI.getRepoByName(name as string);
-        /**
-          * If we grab the screenshot first, we can benefit from the cached
-          * response when reading for the demoURL. Either call will cache the
-          * readme but the getRepoScreenshot requires extra data so an
-          * external fetch is always required, even if the readme exists in
-          * the cache. Before returning the response we should manually clear
-          * the readme from the cache, because this isn't actively managed and
-          * not clearing it will result in not receiving fresh updates.
-          */
-        const repoScreenshot = await gitHubAPI.getRepoScreenshot(name as string);
-        const demoURL = await gitHubAPI.getDemoURL(name as string);
-        /*@ts-ignore*/
-        const liveUrl = await gitHubAPI.getLiveUrl(name as string, liveUrlType || 'pinned');
 
-        // clear the cache
-        gitHubAPI.clearItemFromCache(name as string);
-
-        const data: repoData = {
-            ...repo.data,
-            screenshotUrl: repoScreenshot.data.screenshotUrl,
-            demoUrl: demoURL.data.demoUrl || '',
-            liveUrl: liveUrl.data.liveUrl
-        };
+        const data: ProjectModel = { ...repo.data };
 
         // create the repo in the database
-        try {
-            await Project.create({ ...data });
-        } catch (error) {
-            console.error(error);
-        }
-        return res.status(repo.status).json({
-            data: { ...data }
+        const newProject = await createProject(data);
+        return newProject && res.status(repo.status).json({
+            /*@ts-ignore*/
+            data: { ...newProject._doc }
         });
     }
 };
@@ -97,26 +88,26 @@ export default function handler(
 ) {
     const { method, query } = req;
 
-    return withAuth(req, res, async () => {
-        try {
+    // Basic GET route needs withAppAuth
 
-            if (method === 'GET') {
-                const repo = await getRepo(req, res);
-                return repo;
-            } else if (method === 'POST' && query.liveUrlType === 'dynamic') {
-                const existingRepo = await getRepo(req, res);
-                return existingRepo;
-            } else {
-                return res.status(HttpStatus.METHOD_NOT_ALLOWED).json({
-                    error: { message: 'Method not allowed' }
-                });
-            }
+    // Other methods will require admin validation
 
+    try {
+        // For fetching a single repo
+        if (method === 'GET') {
 
-        } catch (error: any) {
-            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-                error: error?.message || 'Something went wrong'
+            return withAppAuth(req, res, async () => handleProjectLookUp(req, res));
+
+        } else if (method === 'POST' && query.liveUrlType === 'dynamic') {
+            return withAdminAuth(req, res, async () => handleProjectLookUp(req, res));
+        } else {
+            return res.status(HttpStatus.METHOD_NOT_ALLOWED).json({
+                error: { message: 'Method not allowed' }
             });
         }
-    });
+    } catch (error: any) {
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+            error: error?.message || 'Something went wrong'
+        });
+    }
 }
