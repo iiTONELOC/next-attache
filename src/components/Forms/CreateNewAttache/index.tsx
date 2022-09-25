@@ -17,6 +17,7 @@ const disableAddButton = (currentStep: number): boolean => !canAddProjects(curre
 
 export default function CreateNewAttache(props: { repoNames: dashboardProps['repoNames'] }): JSX.Element {
     const [formInputState, setFormInputState] = useState<FormInputState>(defaultFormInputState);
+    const [repoNamePool, setRepoNamePool] = useState<string[] | undefined>(props.repoNames);
     const [attacheState, setAttacheState] = useState<AttacheState>(defaultAttacheState);
     const [repoNameValidated, setRepoNameValidated] = useState<boolean>(false);
     const [repoUrlValidated, setRepoUrlValidated] = useState<boolean>(false);
@@ -24,7 +25,7 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
     const [currentStep, setCurrentStep] = useState<number>(0);
     const isMounted: boolean | null = useIsMounted();
 
-    const { repoNames } = props;
+
 
     const handleChange = (e: React.SyntheticEvent) => {
         const { name, value } = e.target as HTMLInputElement;
@@ -59,6 +60,9 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
             ]
         });
 
+        // filter the repoName from the pool
+        setRepoNamePool(repoNamePool?.filter(
+            repoName => repoName !== formInputState.name));
         // Reset State for the next project
         setFormInputState({ ...defaultFormInputState });
         setRepoNameValidated(false);
@@ -100,7 +104,7 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [formInputState]);
 
-    if (!isMounted && repoNames.length === 0) {
+    if (!isMounted && repoNamePool?.length === 0) {
         return <></>;
     }
 
@@ -129,7 +133,7 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
 
                 <RepoNameInput
                     onChange={handleChange}
-                    availableRepos={repoNames}
+                    availableRepos={repoNamePool}
                     currentValue={formInputState.name}
                     setValidated={setRepoNameValidated}
                 />

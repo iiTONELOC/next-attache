@@ -1,4 +1,5 @@
 import AttacheInput from './AttacheInput';
+import { useIsMounted } from '../../../../hooks';
 import { AttacheInputProps, inputTypes } from './types';
 
 export default function RepoNameInput({ //NOSONAR
@@ -7,14 +8,15 @@ export default function RepoNameInput({ //NOSONAR
     setValidated,
     availableRepos
 }: AttacheInputProps
-): JSX.Element {
-
+): JSX.Element | null {
+    const isMounted = useIsMounted();
     const validate = (
         e: React.SyntheticEvent,
         setValidated: inputTypes['setValidated'],
         _setError: React.Dispatch<React.SetStateAction<string | null>>,
         _clearError: Function
     ) => {
+
         const { value } = e.target as HTMLInputElement;
         const len = value.length;
 
@@ -36,7 +38,8 @@ export default function RepoNameInput({ //NOSONAR
         }
     };
 
-    return <AttacheInput
+
+    return isMounted ? <AttacheInput
         type='text'
         name='name'
         id='repoName'
@@ -48,5 +51,5 @@ export default function RepoNameInput({ //NOSONAR
         setValidated={setValidated}
         placeholder='Enter a repo name'
         description='The name of the repo'
-    />;
+    /> : null;
 }
