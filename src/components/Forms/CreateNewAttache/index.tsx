@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
-import { FormButtons } from './FormButtons';
 import { useIsMounted } from '../../../hooks';
 import { FormInputState, AttacheState } from './types';
-import { RepoNameInput, RepoLiveUrlInput } from '../inputs';
 import { dashboardProps } from '../../../pages/admin/dashboard';
 import {
     styles,
@@ -10,7 +8,8 @@ import {
     defaultAttacheState,
     defaultFormInputState
 } from './constants';
-import API from '../../../utils/API';
+
+import { AddProjects } from './Fragments';
 
 const canAddProjects = (currentStep: number): boolean => currentStep < maxNumProjects + 1;
 const disableAddButton = (currentStep: number): boolean => !canAddProjects(currentStep);
@@ -22,10 +21,9 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
     const [repoNameValidated, setRepoNameValidated] = useState<boolean>(false);
     const [repoUrlValidated, setRepoUrlValidated] = useState<boolean>(false);
     const [validInputs, setValidInputs] = useState<boolean>([repoNameValidated, repoUrlValidated].every(Boolean));
+
     const [currentStep, setCurrentStep] = useState<number>(0);
     const isMounted: boolean | null = useIsMounted();
-
-
 
     const handleChange = (e: React.SyntheticEvent) => {
         const { name, value } = e.target as HTMLInputElement;
@@ -42,11 +40,11 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
         validInputs && isMounted && addProject();
     };
 
-    const handleSubmitAttache = async (e: React.SyntheticEvent) => {
+    const getAttacheInfo = async (e: React.SyntheticEvent) => {
         e?.preventDefault();
         e?.stopPropagation();
 
-        const attache = await API.createAttache(attacheState);
+        // const attache = await API.createAttache(attacheState);
         // TODO: CONTINUE PROCESS
         // FIXME: need to get the name, any notes and a resume for the attache
     };
@@ -63,12 +61,15 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
         // filter the repoName from the pool
         setRepoNamePool(repoNamePool?.filter(
             repoName => repoName !== formInputState.name));
+
         // Reset State for the next project
         setFormInputState({ ...defaultFormInputState });
         setRepoNameValidated(false);
         setRepoUrlValidated(false);
+
         // Increment the current step
         setCurrentStep(currentStep + 1);
+
         // move the cursor back to the repo name input
         document.getElementById('repoName')?.focus();
     };
@@ -108,6 +109,8 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
         return <></>;
     }
 
+    /* Dynamic Styles */
+
     const footerStyle = styles.footer.container + ` ${currentStep > 1 ?
         styles.footer.currentStepGreaterThan1 :
         styles.footer.currentStepLessThan1}`;
@@ -118,59 +121,28 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
     const backButtonStyles = styles.button + ` ${styles.backButton}`;
 
     const numToDisplay = currentStep > maxNumProjects ? maxNumProjects : currentStep;
+
     return (
         <div className={styles.container} >
             <form className={styles.form} autoComplete="off">
-                <header className={styles.header}>
-                    <h2 className={styles.headerText}>
-                        Adding Project
-                    </h2>
-
-                    <p className={styles.headerText}>
-                        {numToDisplay} of {maxNumProjects}
-                    </p>
-                </header>
-
-                <RepoNameInput
-                    onChange={handleChange}
-                    availableRepos={repoNamePool}
-                    currentValue={formInputState.name}
-                    setValidated={setRepoNameValidated}
+                <AddProjects
+                    currentStep={currentStep}
+                    numToDisplay={numToDisplay}
+                    currentNameValue={formInputState.name}
+                    currentUrlValue={formInputState.liveUrl}
+                    addBtnClassNames={addButton}
+                    backBtnClassNames={backButtonStyles}
+                    footerClassNames={footerStyle}
+                    availableRepoNames={repoNamePool}
+                    attacheState={attacheState}
+                    onNameChange={handleChange}
+                    onUrlChange={handleChange}
+                    setNameValidated={setRepoNameValidated}
+                    setUrlValidated={setRepoUrlValidated}
+                    handleAddProject={handleAddProject}
+                    handleGoBackProject={handleBack}
+                    handleFinishProjects={getAttacheInfo}
                 />
-
-                <RepoLiveUrlInput
-                    onChange={handleChange}
-                    setValidated={setRepoUrlValidated}
-                    currentValue={formInputState.liveUrl}
-                />
-
-                <footer className={footerStyle}>
-                    <FormButtons
-                        styles={{
-                            section: {
-                                container: styles.footer.textSectionContainer,
-                                p: styles.footer.textSectionP
-                            }
-                        }}
-                        addButtonProps={{
-                            currentStep,
-                            disableAddButton,
-                            handleAddProject,
-                            className: addButton
-                        }}
-                        backButtonProps={{
-                            currentStep,
-                            handleBack,
-                            className: backButtonStyles
-                        }}
-                        submitButtonProps={{
-                            currentStep,
-                            attacheState,
-                            handleSubmit: handleSubmitAttache,
-                            className: styles.button + ` ${styles.submitButton}`
-                        }}
-                    />
-                </footer>
             </form>
         </div >
     );

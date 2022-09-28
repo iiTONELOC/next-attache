@@ -1,5 +1,5 @@
-import RepoLiveUrlInput from './RepoLiveUrlInput';
-import RepoNameInput from './RepoNameInput';
+import RepoLiveUrlInput from '../../CreateNewAttache/Fragments/AddProjects/RepoLiveUrlInput';
+import RepoNameInput from '../../CreateNewAttache/Fragments/AddProjects/RepoNameInput';
 import AttacheInput from './AttacheInput';
 
 export {

@@ -1,6 +1,6 @@
-import AttacheInput from './AttacheInput';
-import { useIsMounted } from '../../../../hooks';
-import { AttacheInputProps, inputTypes } from './types';
+import { useIsMounted } from '../../../../../hooks';
+import AttacheInput from '../../../inputs/attache/AttacheInput';
+import { AttacheInputProps, inputTypes } from '../../../inputs/attache/types';
 
 export default function RepoNameInput({ //NOSONAR
     onChange,

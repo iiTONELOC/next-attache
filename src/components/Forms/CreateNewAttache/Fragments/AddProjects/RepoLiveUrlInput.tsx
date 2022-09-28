@@ -1,5 +1,5 @@
-import AttacheInput from './AttacheInput';
-import { inputTypes, AttacheInputProps } from './types';
+import AttacheInput from '../../../inputs/attache/AttacheInput';
+import { inputTypes, AttacheInputProps } from '../../../inputs/attache/types';
 
 const acceptableNonUrls: string[] = [
     'GITHUB',
