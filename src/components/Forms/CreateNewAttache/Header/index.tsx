@@ -4,17 +4,22 @@ import { maxNumProjects } from '../constants';
 export type HeaderProps = {
     currentStep?: number;
     title?: string;
-    numToDisplay?: number;
 };
 
 export function AttacheFormHeader(props: HeaderProps): JSX.Element {
     const { header, headerText } = formStyles;
-    const { title, currentStep, numToDisplay } = props;
+
+    let { title, currentStep } = props;
+
+    currentStep = currentStep || 0;
+    title = title || 'Add Projects';
+
+    const numToDisplay = currentStep > maxNumProjects ? maxNumProjects : currentStep;
 
     return (
         <header className={header}>
             <h2 className={headerText}>
-                {title || 'Adding Project'}
+                {title}
             </h2>
             {currentStep && (
                 <p className={headerText}>

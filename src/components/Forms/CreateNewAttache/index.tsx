@@ -3,29 +3,59 @@ import { useIsMounted } from '../../../hooks';
 import { FormInputState, AttacheState } from './types';
 import { dashboardProps } from '../../../pages/admin/dashboard';
 import {
-    styles,
     maxNumProjects,
     defaultAttacheState,
     defaultFormInputState
 } from './constants';
 
+import { formStyles } from './styles';
 import { AddProjects } from './Fragments';
 
-const canAddProjects = (currentStep: number): boolean => currentStep < maxNumProjects + 1;
-const disableAddButton = (currentStep: number): boolean => !canAddProjects(currentStep);
+const footerStyles = formStyles.footer;
+const btnStyles = formStyles.button;
+const addBtnStyles = formStyles.addButton;
 
 export default function CreateNewAttache(props: { repoNames: dashboardProps['repoNames'] }): JSX.Element {
+    /*
+        AddProject Managed State
+    */
     const [formInputState, setFormInputState] = useState<FormInputState>(defaultFormInputState);
     const [repoNamePool, setRepoNamePool] = useState<string[] | undefined>(props.repoNames);
     const [attacheState, setAttacheState] = useState<AttacheState>(defaultAttacheState);
     const [repoNameValidated, setRepoNameValidated] = useState<boolean>(false);
     const [repoUrlValidated, setRepoUrlValidated] = useState<boolean>(false);
-    const [validInputs, setValidInputs] = useState<boolean>([repoNameValidated, repoUrlValidated].every(Boolean));
-
+    const [validProjectInputs, setValidProjectInputs] = useState<boolean>([repoNameValidated, repoUrlValidated].every(Boolean));
     const [currentStep, setCurrentStep] = useState<number>(0);
+
+    // Current component only
     const isMounted: boolean | null = useIsMounted();
 
-    const handleChange = (e: React.SyntheticEvent) => {
+    /* 
+        Dynamic CSS Styles
+
+            Sometimes inline dynamic styles do not load properly,
+            TailwindCSS seems to purge the declarations or some properties
+            intermittently appear. To fix this, all styles are declared in
+            the ./styles.ts file and imported into the component. We can then
+            decide here which styles to use based on the current state of the
+            component.    
+       */
+
+    const footerStyle = footerStyles.container + ` ${currentStep > 1 ?
+        footerStyles.currentStepGreaterThan1 :
+        footerStyles.currentStepLessThan1}`;
+
+    const addButton = btnStyles + ` ${validProjectInputs ? addBtnStyles.validated :
+        addBtnStyles.default}`;
+
+    const backButtonStyles = btnStyles + ` ${formStyles.backButton}`;
+
+    /*
+        Event Handlers
+    */
+
+    // Add Project Inputs
+    const handleAddProjectStateChange = (e: React.SyntheticEvent) => {
         const { name, value } = e.target as HTMLInputElement;
         setFormInputState({
             ...formInputState,
@@ -33,24 +63,8 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
         });
     };
 
-    const handleAddProject = (e: React.SyntheticEvent) => {
-        e?.preventDefault();
-        e?.stopPropagation();
-
-        validInputs && isMounted && addProject();
-    };
-
-    const getAttacheInfo = async (e: React.SyntheticEvent) => {
-        e?.preventDefault();
-        e?.stopPropagation();
-
-        // const attache = await API.createAttache(attacheState);
-        // TODO: CONTINUE PROCESS
-        // FIXME: need to get the name, any notes and a resume for the attache
-    };
-
+    // add project to attacheState
     const addProject = () => {
-        // add project to attacheState
         setAttacheState({
             projectData: [
                 ...attacheState.projectData,
@@ -74,7 +88,27 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
         document.getElementById('repoName')?.focus();
     };
 
-    const handleBack = () => {
+    // Adds the project to the list for the attache
+    const handleAddProject = (e: React.SyntheticEvent) => {
+        e?.preventDefault();
+        e?.stopPropagation();
+
+        validProjectInputs && isMounted && addProject();
+    };
+
+    // Fired once all projects have been added
+    // Will toggle state for the form to appear
+    const getAttacheInfo = async (e: React.SyntheticEvent) => {
+        e?.preventDefault();
+        e?.stopPropagation();
+
+        // const attache = await API.createAttache(attacheState);
+        // TODO: CONTINUE PROCESS
+        // FIXME: need to get the name, any notes and a resume for the attache
+    };
+
+    // controls the back button in the AddProjects fragment
+    const handleGoBackProject = () => {
         setCurrentStep(currentStep - 1);
         const projectData = [...attacheState.projectData];
         const lastProject = projectData.pop();
@@ -90,6 +124,9 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
         );
     };
 
+    /*
+     * Initial State
+     */
     useEffect(() => {
         setCurrentStep(1);
         return () => {
@@ -98,8 +135,11 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
         };
     }, []);
 
+    /**
+     * Validates inputs for AddProject Fragment
+     */
     useEffect(() => {
-        isMounted && setValidInputs(
+        isMounted && setValidProjectInputs(
             [repoNameValidated, repoUrlValidated].every(Boolean)
         );
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -109,25 +149,14 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
         return <></>;
     }
 
-    /* Dynamic Styles */
 
-    const footerStyle = styles.footer.container + ` ${currentStep > 1 ?
-        styles.footer.currentStepGreaterThan1 :
-        styles.footer.currentStepLessThan1}`;
 
-    const addButton = styles.button + ` ${validInputs ? styles.addButton.validated :
-        styles.addButton.default}`;
-
-    const backButtonStyles = styles.button + ` ${styles.backButton}`;
-
-    const numToDisplay = currentStep > maxNumProjects ? maxNumProjects : currentStep;
 
     return (
-        <div className={styles.container} >
-            <form className={styles.form} autoComplete="off">
+        <div className={formStyles.container} >
+            <form className={formStyles.form} autoComplete="off">
                 <AddProjects
                     currentStep={currentStep}
-                    numToDisplay={numToDisplay}
                     currentNameValue={formInputState.name}
                     currentUrlValue={formInputState.liveUrl}
                     addBtnClassNames={addButton}
@@ -135,15 +164,15 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
                     footerClassNames={footerStyle}
                     availableRepoNames={repoNamePool}
                     attacheState={attacheState}
-                    onNameChange={handleChange}
-                    onUrlChange={handleChange}
+                    onNameChange={handleAddProjectStateChange}
+                    onUrlChange={handleAddProjectStateChange}
                     setNameValidated={setRepoNameValidated}
                     setUrlValidated={setRepoUrlValidated}
                     handleAddProject={handleAddProject}
-                    handleGoBackProject={handleBack}
+                    handleGoBackProject={handleGoBackProject}
                     handleFinishProjects={getAttacheInfo}
                 />
             </form>
-        </div >
+        </div>
     );
 }

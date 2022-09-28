@@ -10,7 +10,6 @@ import { AttacheInputProps } from '../../../inputs/attache/types';
 
 export type AddProjectProps = {
     currentStep: number,
-    numToDisplay: number,
     currentNameValue: string,
     currentUrlValue: string,
     footerClassNames: string,
@@ -31,7 +30,6 @@ export type AddProjectProps = {
 export function AddProjects(props: AddProjectProps) {
     const {
         currentStep,
-        numToDisplay,
         currentNameValue,
         currentUrlValue,
         addBtnClassNames,
@@ -46,7 +44,6 @@ export function AddProjects(props: AddProjectProps) {
         handleAddProject,
         handleGoBackProject,
         handleFinishProjects
-
     } = props;
 
     const canAddProjects = (currentStep: number): boolean => currentStep < maxNumProjects + 1;
@@ -56,7 +53,6 @@ export function AddProjects(props: AddProjectProps) {
         <>
             <AttacheFormHeader
                 currentStep={currentStep}
-                numToDisplay={numToDisplay}
             />
 
             <RepoNameInput
