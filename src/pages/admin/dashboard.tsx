@@ -77,7 +77,10 @@ export default function Dashboard(props: dashboardProps): JSX.Element | null {
                                 onClick={() => setShowForm(!showForm)}
                             />
                         </header>
-                        <CreateNewAttache repoNames={repoNames || []} />
+                        <CreateNewAttache
+                            repoNames={repoNames || []}
+                            closeForm={() => setShowForm(!showForm)}
+                        />
                     </>
                 ) : null
                 }

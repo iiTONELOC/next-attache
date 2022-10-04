@@ -105,26 +105,34 @@ class API {
     async createAttache(formData: AttacheState) {
         const projects = [];
 
+        // create the project data for the attache
+        // this creates a new entry in the db for the project
+        // if exists, we will update existing data.
         for (const project of formData.projectData) {
             const currentProject = await this._adminPostFetch(
                 `repo/${project.name}?liveUrlType=dynamic`,
                 {}
             );
 
-
+            // add the project to the array
             currentProject && !currentProject.error && projects.push(currentProject.data);
             currentProject.error && console.error(currentProject.error);
         }
 
+        // create the attache
         const attacheData = await this._adminPostFetch(
             'attache',
-            { projects }
+            // the endpoint expects a body with the following structure
+            /*
+                body:{
+                    projects: [project],
+                    name: string,
+                    resume?: string,
+                    notes?: string,
+                }
+            */
+            { projects, ...formData.details }
         );
-
-        // now we need to hit the api/attache endpoint and create the attache
-        // using the projects we just created
-
-
 
         return attacheData;
     }

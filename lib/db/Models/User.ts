@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 import { ProjectCollectionType } from './Project';
 import bcrypt from 'bcrypt';
 
@@ -77,4 +77,4 @@ userSchema.methods.isCorrectPassword = async function (password: string) {
 
 const User = model<UserInterface>('User', userSchema);
 
-export default User;
+export default models['User'] || User;

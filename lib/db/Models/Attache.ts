@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 import { ProjectCollectionType } from './Project';
 
 export interface AttacheInterface {
@@ -53,4 +53,4 @@ const attacheSchema = new Schema<AttacheInterface>({
 
 const Attache = model<AttacheInterface>('Attache', attacheSchema);
 
-export default Attache;
+export default models['Attache'] || Attache;

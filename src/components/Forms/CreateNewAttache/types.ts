@@ -1,3 +1,5 @@
+import { AttacheFormData } from './Fragments';
+
 export interface FormInputState {
     name: string;
     liveUrl: string;
@@ -5,6 +7,7 @@ export interface FormInputState {
 
 export interface AttacheState {
     projectData: FormInputState[];
+    details: AttacheFormData
 }
 
 

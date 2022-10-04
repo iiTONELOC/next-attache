@@ -1,4 +1,4 @@
-import { Schema, model, Types } from 'mongoose';
+import { Schema, model, models, Types } from 'mongoose';
 
 export interface ProjectInterface {
     name: string;
@@ -120,4 +120,4 @@ const projectSchema = new Schema<ProjectInterface>({
 
 const Project = model<ProjectInterface>('Project', projectSchema);
 
-export default Project;
+export default models['Project'] || Project;

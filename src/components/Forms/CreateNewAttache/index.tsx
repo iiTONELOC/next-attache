@@ -1,21 +1,30 @@
+import { formStyles } from './styles';
 import { useEffect, useState } from 'react';
 import { useIsMounted } from '../../../hooks';
 import { FormInputState, AttacheState } from './types';
+import {
+    AddProjects, AttacheDetails, AttacheDetailsDefaultFormData,
+    AttacheFormData
+} from './Fragments';
 import { dashboardProps } from '../../../pages/admin/dashboard';
+
 import {
     maxNumProjects,
     defaultAttacheState,
     defaultFormInputState
 } from './constants';
+import API from '../../../utils/API';
 
-import { formStyles } from './styles';
-import { AddProjects } from './Fragments';
 
+const addBtnStyles = formStyles.addButton;
 const footerStyles = formStyles.footer;
 const btnStyles = formStyles.button;
-const addBtnStyles = formStyles.addButton;
 
-export default function CreateNewAttache(props: { repoNames: dashboardProps['repoNames'] }): JSX.Element {
+
+export default function CreateNewAttache(props: {
+    repoNames: dashboardProps['repoNames'],
+    closeForm: () => void
+}): JSX.Element {
     /*
         AddProject Managed State
     */
@@ -27,10 +36,20 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
     const [validProjectInputs, setValidProjectInputs] = useState<boolean>([repoNameValidated, repoUrlValidated].every(Boolean));
     const [currentStep, setCurrentStep] = useState<number>(0);
 
+    /*
+        Controls which fragment is rendered
+    */
+    const [projectsAdded, setProjectsAdded] = useState<boolean>(false);
+
+    /*
+        AttacheDetails Managed State
+    */
+    const [attacheFormState, setAttacheFormState] = useState<AttacheFormData>(AttacheDetailsDefaultFormData);
+    const [attacheDetailsNameValidated, setAttacheDetailsNameValidated] = useState<boolean>(false);
     // Current component only
     const isMounted: boolean | null = useIsMounted();
 
-    /* 
+    /*
         Dynamic CSS Styles
 
             Sometimes inline dynamic styles do not load properly,
@@ -38,7 +57,7 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
             intermittently appear. To fix this, all styles are declared in
             the ./styles.ts file and imported into the component. We can then
             decide here which styles to use based on the current state of the
-            component.    
+            component.
        */
 
     const footerStyle = footerStyles.container + ` ${currentStep > 1 ?
@@ -63,9 +82,19 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
         });
     };
 
+    // Attache Details
+    const handleAttacheDetailsOnChange = (e: React.SyntheticEvent) => {
+        const { name, value } = e.target as HTMLInputElement;
+        setAttacheFormState({
+            ...attacheFormState,
+            [name]: value
+        });
+    };
+
     // add project to attacheState
     const addProject = () => {
         setAttacheState({
+            ...attacheState,
             projectData: [
                 ...attacheState.projectData,
                 formInputState
@@ -101,11 +130,39 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
     const getAttacheInfo = async (e: React.SyntheticEvent) => {
         e?.preventDefault();
         e?.stopPropagation();
-
-        // const attache = await API.createAttache(attacheState);
-        // TODO: CONTINUE PROCESS
-        // FIXME: need to get the name, any notes and a resume for the attache
+        // toggle the view
+        setProjectsAdded(true);
     };
+
+
+    const handleCreateAttache = async (e: React.SyntheticEvent) => {
+        e?.preventDefault();
+        e?.stopPropagation();
+
+        const attache = await API.createAttache({
+            ...attacheState,
+            details: {
+                ...attacheFormState
+            }
+        });
+
+        if (attache) {
+            // reset the state
+            setCurrentStep(0);
+            setProjectsAdded(false);
+            setRepoUrlValidated(false);
+            setRepoNameValidated(false);
+            setValidProjectInputs(false);
+            setAttacheState(defaultAttacheState);
+            setFormInputState(defaultFormInputState);
+            setAttacheFormState(AttacheDetailsDefaultFormData);
+
+            // close the form
+            props?.closeForm();
+            // TODO: Update project state, not currently implemented
+        }
+    };
+
 
     // controls the back button in the AddProjects fragment
     const handleGoBackProject = () => {
@@ -117,10 +174,14 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
             setFormInputState(lastProject);
             setRepoNameValidated(true);
             setRepoUrlValidated(true);
+            projectsAdded && setProjectsAdded(false);
         }
 
         attacheState.projectData.length <= maxNumProjects - 1 && (
-            setAttacheState({ projectData })
+            setAttacheState({
+                ...attacheState,
+                projectData
+            })
         );
     };
 
@@ -128,11 +189,8 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
      * Initial State
      */
     useEffect(() => {
-        setCurrentStep(1);
-        return () => {
-            setCurrentStep(0);
-            setAttacheState(defaultAttacheState);
-        };
+        setCurrentStep(currentStep === 0 ? 1 : currentStep);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     /**
@@ -150,28 +208,39 @@ export default function CreateNewAttache(props: { repoNames: dashboardProps['rep
     }
 
 
-
-
     return (
         <div className={formStyles.container} >
             <form className={formStyles.form} autoComplete="off">
-                <AddProjects
-                    currentStep={currentStep}
-                    currentNameValue={formInputState.name}
-                    currentUrlValue={formInputState.liveUrl}
-                    addBtnClassNames={addButton}
-                    backBtnClassNames={backButtonStyles}
-                    footerClassNames={footerStyle}
-                    availableRepoNames={repoNamePool}
-                    attacheState={attacheState}
-                    onNameChange={handleAddProjectStateChange}
-                    onUrlChange={handleAddProjectStateChange}
-                    setNameValidated={setRepoNameValidated}
-                    setUrlValidated={setRepoUrlValidated}
-                    handleAddProject={handleAddProject}
-                    handleGoBackProject={handleGoBackProject}
-                    handleFinishProjects={getAttacheInfo}
-                />
+                {/* Returns the Add Project Fragment by default */}
+                {
+                    !projectsAdded ? <AddProjects
+                        currentStep={currentStep}
+                        addBtnClassNames={addButton}
+                        footerClassNames={footerStyle}
+                        availableRepoNames={repoNamePool}
+                        backBtnClassNames={backButtonStyles}
+                        currentNameValue={formInputState.name}
+                        currentUrlValue={formInputState.liveUrl}
+                        onNameChange={handleAddProjectStateChange}
+                        onUrlChange={handleAddProjectStateChange}
+                        handleGoBackProject={handleGoBackProject}
+                        setNameValidated={setRepoNameValidated}
+                        setUrlValidated={setRepoUrlValidated}
+                        handleFinishProjects={getAttacheInfo}
+                        handleAddProject={handleAddProject}
+                    /> : <AttacheDetails
+                        currentStep={currentStep}
+                        footerClassNames={footerStyle}
+                        currentNameValue={attacheFormState.name}
+                        isValidated={attacheDetailsNameValidated}
+                        currentNotesValue={attacheFormState.notes}
+                        currentResumeValue={attacheFormState.resume}
+                        setNameValidated={setAttacheDetailsNameValidated}
+                        onChange={handleAttacheDetailsOnChange}
+                        createAttache={handleCreateAttache}
+                        goBack={handleGoBackProject}
+                    />
+                }
             </form>
         </div>
     );

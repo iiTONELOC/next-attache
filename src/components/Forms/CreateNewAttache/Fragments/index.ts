@@ -1,9 +1,19 @@
 import { AddProjects, AddProjectProps } from './AddProjects';
+import {
+    AttacheDetails,
+    AttacheFormData,
+    AttacheDetailsProps,
+    AttacheDetailsDefaultFormData
+} from './AttacheDetails';
 
 export type {
-    AddProjectProps
+    AttacheFormData,
+    AddProjectProps,
+    AttacheDetailsProps
 };
 
 export {
-    AddProjects
+    AddProjects,
+    AttacheDetails,
+    AttacheDetailsDefaultFormData
 };

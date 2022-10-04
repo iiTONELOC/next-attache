@@ -1,5 +1,3 @@
-import { AttacheState } from './types';
-
 const minNumSteps = 7;
 
 export type BackButtonProps = {
@@ -55,13 +53,13 @@ export function AddButton(props: AddButtonProps) {// NOSONAR
 
 export type SubmitButtonProps = {
     handleSubmit: (e: React.MouseEvent) => void;
-    attacheState: AttacheState;
     currentStep: number;
+    label?: string;
     className: string;
 };
 
 export function SubmitAttache(props: SubmitButtonProps) {// NOSONAR
-    const { currentStep, handleSubmit, className } = props;
+    const { currentStep, handleSubmit, className, label } = props;
 
     if (currentStep < minNumSteps) {
         return <></>;
@@ -73,19 +71,19 @@ export function SubmitAttache(props: SubmitButtonProps) {// NOSONAR
             type="submit"
             className={className}
         >
-            Create Attaché
+            {label || 'Create Attaché'}
         </button>
     );
 }
 
-export type FormButtonsProps = {
+export type AttacheAddProjectButtonProps = {
     styles: { section: { container: string, p: string } }
     backButtonProps: BackButtonProps;
     addButtonProps: AddButtonProps;
     submitButtonProps: SubmitButtonProps;
 };
 
-export function FormButtons(props: FormButtonsProps) {
+export function AttacheAddProjectButton(props: AttacheAddProjectButtonProps) {
     const { backButtonProps, addButtonProps, submitButtonProps, styles } = props;
     const { currentStep } = { ...backButtonProps };
 

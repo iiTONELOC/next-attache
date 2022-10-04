@@ -1,10 +1,9 @@
 import { formStyles } from '../../styles';
-import { AttacheState } from '../../types';
 import RepoNameInput from './RepoNameInput';
-import { FormButtons } from '../../FormButtons';
 import { AttacheFormHeader } from '../../Header';
 import { maxNumProjects } from '../../constants';
 import RepoLiveUrlInput from './RepoLiveUrlInput';
+import { AttacheAddProjectButton } from '../../FormButtons';
 import { AttacheInputProps } from '../../../inputs/attache/types';
 
 
@@ -15,7 +14,6 @@ export type AddProjectProps = {
     footerClassNames: string,
     addBtnClassNames: string,
     backBtnClassNames: string,
-    attacheState: AttacheState,
     availableRepoNames: AttacheInputProps['availableRepos'],
     onNameChange: AttacheInputProps['onChange'],
     onUrlChange: AttacheInputProps['onChange'],
@@ -36,7 +34,6 @@ export function AddProjects(props: AddProjectProps) {
         footerClassNames,
         backBtnClassNames,
         availableRepoNames,
-        attacheState,
         onNameChange,
         onUrlChange,
         setNameValidated,
@@ -69,7 +66,7 @@ export function AddProjects(props: AddProjectProps) {
             />
 
             <footer className={footerClassNames}>
-                <FormButtons
+                <AttacheAddProjectButton
                     styles={{
                         section: {
                             container: formStyles.footer.textSectionContainer,
@@ -89,7 +86,6 @@ export function AddProjects(props: AddProjectProps) {
                     }}
                     submitButtonProps={{
                         currentStep,
-                        attacheState,
                         handleSubmit: handleFinishProjects,
                         className: formStyles.button + ` ${formStyles.submitButton}`
                     }}

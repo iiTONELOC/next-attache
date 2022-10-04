@@ -16,14 +16,15 @@ export function AttacheFormHeader(props: HeaderProps): JSX.Element {
 
     const numToDisplay = currentStep > maxNumProjects ? maxNumProjects : currentStep;
 
+
     return (
         <header className={header}>
             <h2 className={headerText}>
                 {title}
             </h2>
-            {currentStep && (
+            {currentStep !== 0 && (
                 <p className={headerText}>
-                    {numToDisplay && (`${numToDisplay} of ${maxNumProjects}`)}
+                    {numToDisplay !== 0 && (`${numToDisplay} of ${maxNumProjects}`)}
                 </p>
             )}
         </header>
