@@ -8,4 +8,9 @@ export async function connect(): Promise<Connection | Error> {
     });
 }
 
+export function dbConnection(): Connection { // NOSONAR
+    mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/dynamic_port');
+
+    return mongoose.connection;
+}
 export default connect;

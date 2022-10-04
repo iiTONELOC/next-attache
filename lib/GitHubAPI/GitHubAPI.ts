@@ -1,14 +1,25 @@
+import fetch from 'node-fetch';
 import { readFileSync } from 'fs';
-import fetch from 'node-fetch'; //NOSONAR
-import { headers, readmeParser } from './helpers';
-import { repoByName } from './types';
 import { APIResponseData } from './interfaces';
+import { headers, readmeParser } from './helpers';
 import repoDefaults from '../../attache-defaults.json';
+import dynamicDefaults from '../../attache-dynamic.json';
 import {
     filename, creationErrorPrefix, restRepoEndPoint,
     gitHubAPIUrl, graphQLRequestURL
 } from './constants';
 
+interface DemoOptions {
+    GITHUB: string,
+    DEMO: string,
+    NONE: string
+}
+
+export const demoOptions: DemoOptions = {
+    GITHUB: 'GITHUB',
+    DEMO: 'DEMO',
+    NONE: 'NONE'
+};
 
 
 export default class GitHubAPI {
@@ -36,7 +47,6 @@ export default class GitHubAPI {
         this.user = username;
         this.#auth = authenticate;
         this.#readmeCache = {};
-
     }
 
     /**
@@ -85,6 +95,51 @@ export default class GitHubAPI {
     }
 
     /**
+    * Retrieve a list of the first 100 repositories
+    * returns an object with the following properties:
+    * ```js
+    * {
+    *   data: ['repo1name', 'repo2name', ...'lastRepoName'], // array of strings containing repo names
+    *   errors: [], // array of graphql error objects
+    *   ok: boolean, // true if the request was successful
+    *   status: number // the status code of the response
+    * }
+    * ```
+    */
+    async getAllRepoNames(): Promise<APIResponseData> {
+        try {
+            // Have to use the GraphQL API over the REST API to get the pinned repos
+            const query = `query{user(login:"${this.user}"){repositories(first:100) {nodes{name}}}}`;
+
+            const graphRes = await fetch(graphQLRequestURL, {
+                method: 'POST',
+                headers: headers(this.#auth),
+                body: JSON.stringify({ query })
+            });
+
+            const graphData = await graphRes.json();
+            const { data, errors } = graphData;
+
+            const repoNames = data?.user?.repositories.nodes?.map(
+                (repo: { name?: string; }) => repo?.name) || [];
+
+            return {
+                data: repoNames,
+                status: graphRes.status,
+                ok: graphRes.ok,
+                errors
+            };
+        } catch (error) {
+            return {
+                data: [],
+                status: 500,
+                ok: false,
+                errors: [error]
+            };
+        }
+    }
+
+    /**
      * Get information about a repo by name
      * @param repoName the name of the repo to look up
      * @returns
@@ -108,7 +163,7 @@ export default class GitHubAPI {
         }
     * ```
      */
-    async getRepoByName(repoName: string): Promise<APIResponseData> {
+    async getRepoByName(repoName: string, liveUrlType?: 'pinned' | 'dynamic'): Promise<APIResponseData> {
 
         try {
             const URL = gitHubAPIUrl + restRepoEndPoint(this.user, repoName);
@@ -118,20 +173,31 @@ export default class GitHubAPI {
                 headers: headers(this.#auth)
             });
 
-            const data: repoByName = await res.json();
+            const data = await res.json();
+
+            // need to fetch more data than this endpoint provides
+
+            const repoScreenshot = await this.getRepoScreenshot(repoName);
+            const demoUrl = await this.getDemoURL(repoName);
+            const liveUrl = await this.getLiveUrl(repoName, liveUrlType || 'pinned');
+
+            this.clearItemFromCache(repoName);
 
             return {
                 data: {
                     name: data.name,
                     size: data.size,
-                    url: data.html_url,
+                    repoUrl: data.html_url,
                     license: data.license?.name,
                     description: data.description,
-                    top_language: data.language,
-                    created_at: data.created_at,
-                    updated_at: data.updated_at,
-                    open_issues: data.open_issues,
-                    clone_url: data.clone_url
+                    topLanguage: data.language,
+                    createdAt: data.created_at,
+                    updatedAt: data.updated_at,
+                    openIssues: data.open_issues,
+                    cloneUrl: data.clone_url,
+                    liveUrl: liveUrl.data.liveUrl,
+                    screenshotUrl: repoScreenshot.data.screenshotUrl,
+                    demoUrl: demoUrl.data.demoUrl || ''
                 },
                 status: res.status,
                 ok: res.ok,
@@ -283,7 +349,7 @@ export default class GitHubAPI {
      * @returns
      * ```js
      * {
-            data: {screenshotURL: 'url'},
+            data: {screenshotUrl: 'url'},
             status: res.status,
             ok: res.ok,
             errors: []
@@ -311,10 +377,10 @@ export default class GitHubAPI {
                 const readmeURL = readmeParser('screenshot', readmeText);
 
                 // return a placeholder if no screenshot is found
-                const screenshotURL = readmeURL ? SCREENSHOT_URL_BASE_PATH + readmeURL : 'https://via.placeholder.com/150';
+                const screenshotUrl = readmeURL ? SCREENSHOT_URL_BASE_PATH + readmeURL : 'https://via.placeholder.com/150';
 
                 return {
-                    data: { screenshotURL },
+                    data: { screenshotUrl },
                     status: readme.status,
                     ok: readme.ok,
                     errors: readme.errors
@@ -356,10 +422,10 @@ export default class GitHubAPI {
             const readme = await this.getRepoReadmeAsText(repoName);
 
             if (readme.ok) {
-                const demoURL = readmeParser('demo', readme.data.readme);
+                const demoUrl = readmeParser('demo', readme.data.readme);
 
                 return {
-                    data: { demoURL },
+                    data: { demoUrl },
                     status: readme.status,
                     ok: readme.ok,
                     errors: readme.errors
@@ -388,35 +454,36 @@ export default class GitHubAPI {
  * @returns
  * ```js
  * {
-            data: {liveURL: 'url' | demoURL: 'url'},
+            data: {liveUrl: 'url' | demoURL: 'url'},
             status: res.status,
             ok: res.ok,
             errors: []
         }
 * ```
  */
-    async getLiveURL(repoName: string): Promise<APIResponseData> {
+    async getLiveUrl(repoName: string, type: 'pinned' | 'dynamic'): Promise<APIResponseData> {
         try {
-            const { pinned, otherRepos } = Object.create(repoDefaults);
+            const { pinned } = Object.create(repoDefaults);
+            const { otherRepos } = Object.create(dynamicDefaults);
 
-            const repo = pinned[repoName] || otherRepos[repoName] || null;
+            const repo = type === 'pinned' ? pinned[repoName] : otherRepos[repoName];
 
             if (repo) {
                 const { liveUrl } = repo;
-                const _data = { liveURL: {} };
+                const _data = { liveUrl: {} };
 
                 switch (liveUrl) {
-                    case 'GITHUB':
-                        _data.liveURL = `https://${this.user}.github.io/${repoName}`;
+                    case demoOptions.GITHUB:
+                        _data.liveUrl = `https://${this.user}.github.io/${repoName}`;
                         break;
-                    case 'NONE':
-                        _data.liveURL = '';
+                    case demoOptions.NONE:
+                        _data.liveUrl = '';
                         break;
-                    case 'DEMO':
-                        _data.liveURL = '';
+                    case demoOptions.DEMO:
+                        _data.liveUrl = '';
                         break;
                     default:
-                        _data.liveURL = liveUrl;
+                        _data.liveUrl = liveUrl;
                 }
 
                 return {

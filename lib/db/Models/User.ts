@@ -1,8 +1,8 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 import { ProjectCollectionType } from './Project';
 import bcrypt from 'bcrypt';
 
-interface UserInterface {
+export interface UserInterface {
     name: string;
     email: string;
     password: string;
@@ -10,6 +10,16 @@ interface UserInterface {
     pinnedProjects: ProjectCollectionType;
     attacheCase: ProjectCollectionType;
 }
+
+export type UserModel = {
+    _id: Schema.Types.ObjectId;
+    name: string;
+    email: string;
+    password: string;
+    avatar?: string;
+    pinnedProjects: ProjectCollectionType;
+    attacheCase: ProjectCollectionType;
+};
 
 const defaultRounds = 10;
 
@@ -65,6 +75,6 @@ userSchema.methods.isCorrectPassword = async function (password: string) {
     return bcrypt.compare(password, this.password);
 };
 
-const User = model('User', userSchema);
+const User = model<UserInterface>('User', userSchema);
 
-export default User;
+export default models['User'] || User;

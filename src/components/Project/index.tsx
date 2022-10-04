@@ -1,4 +1,4 @@
-import type { apiResponseData, apiDataType, errorType } from '../../types';
+import type { apiResponseData, errorType, repoData } from '../../types';
 import { useIsMounted, useHovered } from '../../hooks';
 import { IoRocketOutline } from 'react-icons/io5';
 import { BiMoviePlay } from 'react-icons/bi';
@@ -26,14 +26,14 @@ const formatRepoName: Function = (repoName: string): string => {
 };
 
 export default function Project(props: { projectName: string }): JSX.Element | null {// NOSONAR
-    const [apiData, setApiData] = useState<apiDataType>(null);
+    const [apiData, setApiData] = useState<repoData | null>(null);
     const [errors, setErrors] = useState<errorType>(null);
 
     const { projectName } = props;
     const isMounted = useIsMounted();
     const { isHovered, handleHover } = useHovered();
 
-    const { screenshotURL, description, demoURL, liveURL, url } = apiData || {};
+    const { screenshotUrl, description, demoUrl, liveUrl, repoUrl } = apiData || {};
 
     // Fetch data from API
     useEffect(() => {
@@ -42,9 +42,7 @@ export default function Project(props: { projectName: string }): JSX.Element | n
                 try {
                     const response: apiResponseData = await API.getRepo(props.projectName);
                     const { data, error } = response;
-
-                    data && setApiData({ ...data });
-
+                    data && setApiData(data);
                     if (error) {
                         /*@ts-ignore*/
                         throw new Error(error?.message || 'An error occurred');
@@ -64,9 +62,9 @@ export default function Project(props: { projectName: string }): JSX.Element | n
 
     // needs access to the destructured api data
     const footerIcons: FooterIcons[] = [
-        { name: 'deployment', icon: <IoRocketOutline className={footerIconClasses} />, href: liveURL },
-        { name: 'demo', icon: <BiMoviePlay className={footerIconClasses} />, href: demoURL },
-        { name: 'GitHub repo', icon: <VscGithub className={footerIconClasses} />, href: url }
+        { name: 'deployment', icon: <IoRocketOutline className={footerIconClasses} />, href: liveUrl },
+        { name: 'demo', icon: <BiMoviePlay className={footerIconClasses} />, href: demoUrl },
+        { name: 'GitHub repo', icon: <VscGithub className={footerIconClasses} />, href: repoUrl }
     ];
 
     const emeraldOnHover = isHovered ? 'text-emerald-400' : '';
@@ -91,7 +89,7 @@ export default function Project(props: { projectName: string }): JSX.Element | n
                                     className='text-base'
                                     objectFit='cover'
                                     layout='fill'
-                                    src={screenshotURL || '/images/default-img.jpg'}
+                                    src={screenshotUrl || '/images/default-img.jpg'}
                                     alt={projectName}
                                 />
                             ) :
@@ -109,18 +107,21 @@ export default function Project(props: { projectName: string }): JSX.Element | n
                     <footer className='bg-black/20 w-full self-end rounded-b-md'>
                         <section className='flex flex-row justify-evenly items-center w-full p-2'>
                             {
-                                footerIcons.map(({ icon, name, href }, index) => (
-                                    href && (
-                                        <a
-                                            key={index}
-                                            href={href}
-                                            target='_blank'
-                                            rel='noreferrer'
-                                        >
-                                            {icon}
-                                        </a>
+                                footerIcons.map(({ icon, name, href }, index) => {
+
+                                    return (
+                                        href && href !== '' && (
+                                            <a
+                                                key={index}
+                                                href={href}
+                                                target='_blank'
+                                                rel='noreferrer'
+                                            >
+                                                {icon}
+                                            </a>
+                                        )
                                     )
-                                ))
+                                })
                             }
                         </section>
                     </footer>

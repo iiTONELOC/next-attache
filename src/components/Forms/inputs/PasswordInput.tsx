@@ -21,7 +21,7 @@ export default function PasswordInput({ onChange }: propTypes) {
             setError('A password is required');
             clearError();
         }
-        if (len <= 18) {
+        if (len < 18) {
             setError('Passwords must be at least 18 characters');
             clearError();
         } else {

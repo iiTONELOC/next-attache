@@ -8,6 +8,7 @@ class HttpStatus {
     static readonly FORBIDDEN: number = 403;
     static readonly NOT_FOUND: number = 404;
     static readonly CONFLICT: number = 409;
+    static readonly METHOD_NOT_ALLOWED: number = 405;
     static readonly INTERNAL_SERVER_ERROR: number = 500;
 }
 

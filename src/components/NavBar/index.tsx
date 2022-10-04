@@ -37,7 +37,7 @@ const links: linkType[] = [
 
 const adminLinks: linkType[] = [
     { name: 'Dashboard', to: '/admin/dashboard' },
-    { name: 'Attachés', to: '/admin/attachés' },
+    { name: 'Attachés', to: '/admin/attache' },
     {
         name: 'Logout', onClick: (e: React.SyntheticEvent) => {
             e.preventDefault();

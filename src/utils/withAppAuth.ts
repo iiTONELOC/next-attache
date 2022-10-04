@@ -17,7 +17,7 @@ export const extractToken: Function = (auth: string): string => auth.split(' ')[
  * @param res NextApiResponse
  * @param callback Function to execute if the request is authenticated
  */
-export default function withAuth(req: NextApiRequest, res: NextApiResponse, callback: Function) {
+export default function withAppAuth(req: NextApiRequest, res: NextApiResponse, callback: Function) {
     const { headers } = req;
     const { authorization } = headers;
     const { authenticate } = gitHubDefaults;
