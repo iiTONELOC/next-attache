@@ -9,6 +9,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+    await Attache.deleteMany({});
     await db.close();
 });
 

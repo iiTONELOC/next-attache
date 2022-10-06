@@ -16,7 +16,6 @@ type userDataType = {
     _id: ObjectId;
 };
 
-;
 export const signToken: Function = ({ username, email, _id }: userDataType): string => {
     const payload: userDataType = { username, email, _id };
 
@@ -54,10 +53,8 @@ export default async function withAdminAuth(
             // TODO: Check if the user exists in the database
             const user = await User.findById({ _id: data?._id });// NOSONAR
             if (user) {
-
                 return callback({ authData: data });
             } else {
-
                 return res.status(HttpStatus.UNAUTHORIZED).json({ error: { message: 'Unauthorized' } });
             }
 
@@ -66,7 +63,6 @@ export default async function withAdminAuth(
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: { message: 'Server error' } });
         }
     } else {
-
         return res.status(HttpStatus.UNAUTHORIZED).json({ error: { message: 'Unauthorized' } });
     }
 }

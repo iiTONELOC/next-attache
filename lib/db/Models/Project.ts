@@ -118,6 +118,6 @@ const projectSchema = new Schema<ProjectInterface>({
     }
 });
 
-const Project = model<ProjectInterface>('Project', projectSchema);
+const Project = models['Project'] ? model<ProjectInterface>('Project') : model<ProjectInterface>('Project', projectSchema);
 
-export default models['Project'] || Project;
+export default Project;

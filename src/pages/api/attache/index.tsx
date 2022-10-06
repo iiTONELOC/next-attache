@@ -6,7 +6,7 @@ import withAdminAuth from '../../../utils/withAdminAuth';
 import HttpStatus from '../../../utils/StatusCodes';
 
 dbConnection();
-const { createAttache } = AttacheController;
+const { createAttache, getAttacheIds } = AttacheController;
 
 const _createAttache = async (req: NextApiRequest, res: NextApiResponse) => {
 
@@ -33,6 +33,14 @@ const _createAttache = async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(HttpStatus.CREATED).json({ ...newAttache._doc });
 };
 
+const _getAttacheIds = async (req: NextApiRequest, res: NextApiResponse) => {
+    const ids = await getAttacheIds();
+    if (ids) {
+        return res.status(HttpStatus.OK).json(ids);
+    } else {
+        return res.status(HttpStatus.NOT_FOUND).json({ message: 'No ids found' });
+    }
+};
 
 // api/attache
 export default function handler(
@@ -49,6 +57,8 @@ export default function handler(
             switch (method) { //NOSONAR
                 case 'POST':
                     return _createAttache(req, res);
+                case 'GET':
+                    return _getAttacheIds(req, res);
                 default:
                     return res.status(HttpStatus.METHOD_NOT_ALLOWED).json({
                         error: `Method ${method} not allowed`

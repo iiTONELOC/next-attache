@@ -94,11 +94,11 @@ export default function handler(
 
     try {
         // For fetching a single repo
-        if (method === 'GET') {
+        if (method === 'GET' && !query?.liveUrlType) {
 
             return withAppAuth(req, res, async () => handleProjectLookUp(req, res));
 
-        } else if (method === 'POST' && query.liveUrlType === 'dynamic') {
+        } else if (method === 'GET' && query.liveUrlType === 'dynamic') {
             return withAdminAuth(req, res, async () => handleProjectLookUp(req, res));
         } else {
             return res.status(HttpStatus.METHOD_NOT_ALLOWED).json({

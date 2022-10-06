@@ -51,6 +51,6 @@ const attacheSchema = new Schema<AttacheInterface>({
         timestamps: true
     });
 
-const Attache = model<AttacheInterface>('Attache', attacheSchema);
+const Attache = models['Attache'] ? model<AttacheInterface>('Attache') : model<AttacheInterface>('Attache', attacheSchema);
 
-export default models['Attache'] || Attache;
+export default Attache;

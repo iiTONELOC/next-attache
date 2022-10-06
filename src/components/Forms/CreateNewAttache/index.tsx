@@ -1,19 +1,23 @@
 import { formStyles } from './styles';
 import { useEffect, useState } from 'react';
 import { useIsMounted } from '../../../hooks';
+import { SET_LIST_STATE } from '../../../actions';
+import AdminAPI from '../../../utils/API/AdminAPI';
 import { FormInputState, AttacheState } from './types';
-import {
-    AddProjects, AttacheDetails, AttacheDetailsDefaultFormData,
-    AttacheFormData
-} from './Fragments';
+import { useAttacheListState } from '../../../providers';
 import { dashboardProps } from '../../../pages/admin/dashboard';
-
+import {
+    AddProjects,
+    AttacheDetails,
+    AttacheFormData,
+    AttacheDetailsDefaultFormData
+} from './Fragments';
 import {
     maxNumProjects,
     defaultAttacheState,
     defaultFormInputState
 } from './constants';
-import API from '../../../utils/API';
+
 
 
 const addBtnStyles = formStyles.addButton;
@@ -21,13 +25,13 @@ const footerStyles = formStyles.footer;
 const btnStyles = formStyles.button;
 
 
-export default function CreateNewAttache(props: {
-    repoNames: dashboardProps['repoNames'],
-    closeForm: () => void
-}): JSX.Element {
-    /*
-        AddProject Managed State
-    */
+export default function CreateNewAttache(
+    props: {
+        repoNames: dashboardProps['repoNames'],
+        closeForm: () => void,
+    }
+): JSX.Element {
+    /* AddProject Fragment Managed State */
     const [formInputState, setFormInputState] = useState<FormInputState>(defaultFormInputState);
     const [repoNamePool, setRepoNamePool] = useState<string[] | undefined>(props.repoNames);
     const [attacheState, setAttacheState] = useState<AttacheState>(defaultAttacheState);
@@ -36,29 +40,27 @@ export default function CreateNewAttache(props: {
     const [validProjectInputs, setValidProjectInputs] = useState<boolean>([repoNameValidated, repoUrlValidated].every(Boolean));
     const [currentStep, setCurrentStep] = useState<number>(0);
 
-    /*
-        Controls which fragment is rendered
-    */
+    /*  Controls which fragment is rendered  */
     const [projectsAdded, setProjectsAdded] = useState<boolean>(false);
 
-    /*
-        AttacheDetails Managed State
-    */
+    /*  AttacheDetails Fragment Managed State  */
     const [attacheFormState, setAttacheFormState] = useState<AttacheFormData>(AttacheDetailsDefaultFormData);
     const [attacheDetailsNameValidated, setAttacheDetailsNameValidated] = useState<boolean>(false);
-    // Current component only
+
+    /* AttacheListState Provider Used to update the AttacheList component without forcing a page refresh  */
+    const [, dispatch] = useAttacheListState();
+
     const isMounted: boolean | null = useIsMounted();
 
     /*
         Dynamic CSS Styles
-
             Sometimes inline dynamic styles do not load properly,
             TailwindCSS seems to purge the declarations or some properties
             intermittently appear. To fix this, all styles are declared in
             the ./styles.ts file and imported into the component. We can then
             decide here which styles to use based on the current state of the
             component.
-       */
+    */
 
     const footerStyle = footerStyles.container + ` ${currentStep > 1 ?
         footerStyles.currentStepGreaterThan1 :
@@ -69,9 +71,7 @@ export default function CreateNewAttache(props: {
 
     const backButtonStyles = btnStyles + ` ${formStyles.backButton}`;
 
-    /*
-        Event Handlers
-    */
+    /*  Event Handlers  */
 
     // Add Project Inputs
     const handleAddProjectStateChange = (e: React.SyntheticEvent) => {
@@ -139,7 +139,7 @@ export default function CreateNewAttache(props: {
         e?.preventDefault();
         e?.stopPropagation();
 
-        const attache = await API.createAttache({
+        const attache = await AdminAPI.createAttache({
             ...attacheState,
             details: {
                 ...attacheFormState
@@ -159,7 +159,8 @@ export default function CreateNewAttache(props: {
 
             // close the form
             props?.closeForm();
-            // TODO: Update project state, not currently implemented
+            // update the list state
+            dispatch({ type: SET_LIST_STATE, payload: attache._id });
         }
     };
 
@@ -185,17 +186,13 @@ export default function CreateNewAttache(props: {
         );
     };
 
-    /*
-     * Initial State
-     */
+    /* Initial State */
     useEffect(() => {
         setCurrentStep(currentStep === 0 ? 1 : currentStep);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    /**
-     * Validates inputs for AddProject Fragment
-     */
+    /* Validates inputs for AddProject Fragment */
     useEffect(() => {
         isMounted && setValidProjectInputs(
             [repoNameValidated, repoUrlValidated].every(Boolean)

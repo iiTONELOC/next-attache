@@ -75,6 +75,6 @@ userSchema.methods.isCorrectPassword = async function (password: string) {
     return bcrypt.compare(password, this.password);
 };
 
-const User = model<UserInterface>('User', userSchema);
+const User = models['User'] ? model<UserInterface>('User') : model<UserInterface>('User', userSchema);
 
-export default models['User'] || User;
+export default User;

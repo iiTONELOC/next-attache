@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import API from '../../utils/API';
+import AdminAPI from '../../utils/API/AdminAPI';
 import FormContainer from './FormContainer';
 import { adminSignUpProps, errorType } from '../../types';
 import { isFormValidated, timeOutInMilliseconds } from './Login';
@@ -54,7 +54,7 @@ export default function SignUpForm() {
 
         if (isFormValidated(formState.password || '')) {
             try {
-                const response = await API.adminSignUp(newUser);
+                const response = await AdminAPI.signUp(newUser);
                 const token = response?.data?.token;
                 if (!token) {
                     const { error } = response;

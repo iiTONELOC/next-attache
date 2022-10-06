@@ -1,15 +1,9 @@
 import { useState } from 'react';
-import API from '../../utils/API';
+import { errorType } from '../../types';
 import FormContainer from './FormContainer';
+import AdminAPI from '../../utils/API/AdminAPI';
 import { UsernameInput, PasswordInput } from './inputs';
 import { HiLockClosed, HiExclamationCircle as AlertIcon } from 'react-icons/hi';
-import { errorType } from '../../types';
-
-type FormState = {
-    email?: string,
-    password?: string,
-    username?: string
-};
 
 export const timeOutInMilliseconds = 3500;
 export const minPassLength = 18;
@@ -39,6 +33,7 @@ export default function LoginForm() {
 
     const handleErrorMessage: (message: string) => void = message => {
         setErrorMessage(message);
+
         setTimeout(() => {
             setErrorMessage(null);
         }, timeOutInMilliseconds);
@@ -55,10 +50,10 @@ export default function LoginForm() {
         if (isFormValidated(formState.password)) {
             try {
                 // will automatically redirect to /admin if successful
-                const response = await API.adminLogin(user);
+                const response = await AdminAPI.login(user);
+
                 if (!response?.data?.token) {
                     const { error } = response;
-
                     error && handleErrorMessage(error.message);
                 }
             } catch (error) {

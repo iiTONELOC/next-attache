@@ -37,39 +37,56 @@ class AuthService {
             const oneThousand = 1000;
             const exp = decoded?.exp;
             if (exp && exp < Date.now() / oneThousand) {
+                this.clearToken();
                 return true;
             } else {
+                // token is not expired
                 return false;
             }
         } catch (err) {
-            return false;
+            // error, default should be to deny access
+            return true;
         }
     }
 
     // retrieve token from localStorage
     getToken(): string | null {
         // Retrieves the user token from localStorage
-        return localStorage.getItem(this.#tokenName);
+        if (typeof window !== 'undefined') {
+            return localStorage?.getItem(this.#tokenName);
+        }
+        return null;
     }
 
     // set token to localStorage and reload page to homepage
     login(token: string) {
+
         const timeToWaitInMs = 250;
 
-        // Saves user token to localStorage
-        localStorage.setItem(this.#tokenName, token);
+        if (token && typeof token === 'string' && !this.isTokenExpired(token)) {
+            localStorage.setItem(this.#tokenName, token);
 
-        setTimeout(() => {
-            window.location.assign(`/admin/dashboard`);
-            return true;
-        }, timeToWaitInMs);
+            setTimeout(() => {
+                window.location.assign(`/admin/dashboard`);
+                return true;
+            }, timeToWaitInMs);
+        }
+    }
+
+    clearToken() {
+        localStorage?.removeItem(this.#tokenName);
     }
 
     // clear token from localStorage and force logout with reload
     logout() {
         // Clear user token and profile data from localStorage
-        localStorage.removeItem(this.#tokenName);
+        this.clearToken();
         window.location.assign(`/`);
+    }
+
+    forceSignIn() {
+        this.clearToken();
+        window.location.assign(`/admin/login`);
     }
 }
 
