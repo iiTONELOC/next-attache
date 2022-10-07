@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 
 const componentStyles = {
     link: ` w-full md:w-auto flex flex-row justify-center items-center bg-black text-gray-100
-            p-3 rounded-md hover:bg-purple-900 hover:rounded:lg hover:cursor-pointer text-lg tracking-wide`,
+            p-3 rounded-md hover:bg-purple-900 hover:rounded:lg hover:cursor-pointer text-lg
+            tracking-wide text-shadow`,
     active: ` bg-purple-800 italic underline underline-offset-4`
 };
 

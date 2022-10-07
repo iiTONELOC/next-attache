@@ -15,7 +15,7 @@ const componentStyles = {
     footer: 'w-full h-auto bg-zinc-900 flex flex-wrap flex-row justify-center items-center gap-2 p-3',
     linkSection: 'w-full h-auto flex flex-wrap flex-row justify-center items-center gap-8',
     footerLink: 'text-gray-300 hover:text-purple-600 hover:cursor-pointer',
-    copyWrite: 'text-gray-300 text-sm',
+    copyWrite: 'text-gray-300 text-sm text-shadow',
     linkIcon: 'h-8 w-8'
 };
 

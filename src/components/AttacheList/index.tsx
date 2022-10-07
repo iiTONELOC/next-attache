@@ -5,7 +5,7 @@ import { useAttacheListState } from '../../providers';
 import { useIsLandscape, useIsMounted } from '../../hooks';
 
 
-export default function AttacheList(props: { id: string[] }): JSX.Element | null { //NOSONAR
+export default function AttacheList(props: { id: string[] }): JSX.Element { //NOSONAR
     const [attacheListState, dispatch] = useAttacheListState();
     const { isLandscape } = useIsLandscape();
     const isMounted = useIsMounted();
@@ -14,7 +14,11 @@ export default function AttacheList(props: { id: string[] }): JSX.Element | null
     const [containerHeight, setContainerHeight] = useState(setHeight());
 
     const styles = {
-        ul: `w-5/6 flex bg-zinc-900 p-3 rounded-md flex-col gap-3 items-center justify-start ${containerHeight} overflow-y-scroll p-2`,
+        container: `w-full sm:w-5/6 2xl:w-4/6 bg-zinc-900 flex flex-col justify-center items-center rounded-md ${containerHeight} overflow-y-auto`,
+        table: `table-fixed w-full rounded-md ${containerHeight} overflow-y-scroll tracking-wide`,
+        thead: 'w-full bg-zinc-800',
+        thTitle: 'text-left p-5 text-shadow',
+        tbody: 'w-full'
     };
 
     const handleIDs = () => {
@@ -40,13 +44,25 @@ export default function AttacheList(props: { id: string[] }): JSX.Element | null
     }, [isLandscape]);
 
     return isMounted && attacheListState.attaches.length > 0 ? (
-        <ul className={styles.ul}>
-            {attacheListState.attaches.map((attache: string) => (
-                <ListItem
-                    key={String(attache)}
-                    id={attache}
-                />
-            ))}
-        </ul>
-    ) : <>    </>;
+        <section className={styles.container}>
+            <table className={styles.table}>
+                <thead className={styles.thead}>
+                    <tr>
+                        <th className={styles.thTitle}>Name</th>
+                        <th className={styles.thTitle}>Created At</th>
+                        <th className={styles.thTitle}>Notes</th>
+                        <th className='p-2 text-center'>Actions</th>
+                    </tr>
+                </thead>
+                <tbody className={styles.tbody}>
+                    {attacheListState.attaches.map((attache: string) => (
+                        <ListItem
+                            key={String(attache)}
+                            id={attache}
+                        />
+                    ))}
+                </tbody>
+            </table>
+        </section>
+    ) : <>  </>;
 }

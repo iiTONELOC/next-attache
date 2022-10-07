@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import API from '../../utils/API';
 import Image from 'next/image';
 
-const footerIconClasses = 'text-2xl text-purple-500 hover:text-gray-300 hover:scale-110 transition duration-300 ease-in-out';
+const footerIconClasses = 'text-shadow text-2xl text-purple-500 hover:text-gray-300 hover:scale-110 transition duration-300 ease-in-out';
 
 interface FooterIcons {
     icon: JSX.Element;
@@ -76,7 +76,7 @@ export default function Project(props: { projectName: string }): JSX.Element | n
             onMouseLeave={handleHover}
         >
             {/* Title */}
-            <h1 className={'decoration-gray-400 underline underline-offset-4 text-gray-100 my-2  ' + emeraldOnHover} >{formatRepoName(projectName)}</h1>
+            <h1 className={'decoration-gray-400 underline underline-offset-4 text-gray-100 my-2 text-shadow ' + emeraldOnHover} >{formatRepoName(projectName)}</h1>
 
 
             {!errors ? (
@@ -100,7 +100,7 @@ export default function Project(props: { projectName: string }): JSX.Element | n
 
                     {/* Description container */}
                     <section className='w-5/6 flex flex-wrap flex-row justify-center items-center'>
-                        <p className='tracking-wide text-justify p-2 text-base text-gray-300'>{description}</p>
+                        <p className='tracking-wide text-justify p-2 text-base text-gray-300 text-shadow'>{description}</p>
                     </section>
 
                     {/* Card footer with icons */}
