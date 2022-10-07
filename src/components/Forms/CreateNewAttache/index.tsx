@@ -1,11 +1,11 @@
 import { formStyles } from './styles';
 import { useEffect, useState } from 'react';
 import { useIsMounted } from '../../../hooks';
-import { SET_LIST_STATE } from '../../../actions';
 import AdminAPI from '../../../utils/API/AdminAPI';
 import { FormInputState, AttacheState } from './types';
 import { useAttacheListState } from '../../../providers';
 import { dashboardProps } from '../../../pages/admin/dashboard';
+import { SET_LIST_STATE, ADD_TO_LIST_CACHE } from '../../../actions';
 import {
     AddProjects,
     AttacheDetails,
@@ -161,6 +161,8 @@ export default function CreateNewAttache(
             props?.closeForm();
             // update the list state
             dispatch({ type: SET_LIST_STATE, payload: attache._id });
+            // add the attache data to the list cache
+            dispatch({ type: ADD_TO_LIST_CACHE, payload: attache });
         }
     };
 

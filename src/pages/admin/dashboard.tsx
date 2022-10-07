@@ -75,35 +75,34 @@ export default function Dashboard(props: dashboardProps): JSX.Element | null { /
                 </button>
             )
             }
-            <AttacheListStateProvider>
-                <section className={pageStyles.formContainer}>
-                    {showForm ? (
-                        <>
-                            <header className={pageStyles.formHeader}>
-                                <h2 className={pageStyles.formTitle}>
-                                    Creating Attaché
-                                </h2>
-                                <CloseIcon
-                                    className={pageStyles.sectionIcon}
-                                    onClick={() => setShowForm(!showForm)}
-                                />
-                            </header>
 
-                            <CreateNewAttache
-                                repoNames={repoNames || []}
-                                closeForm={() => setShowForm(!showForm)} />
+            <section className={pageStyles.formContainer}>
+                {showForm ? (
+                    <>
+                        <header className={pageStyles.formHeader}>
+                            <h2 className={pageStyles.formTitle}>
+                                Creating Attaché
+                            </h2>
+                            <CloseIcon
+                                className={pageStyles.sectionIcon}
+                                onClick={() => setShowForm(!showForm)}
+                            />
+                        </header>
 
-                        </>
-                    ) : null
-                    }
+                        <CreateNewAttache
+                            repoNames={repoNames || []}
+                            closeForm={() => setShowForm(!showForm)} />
+
+                    </>
+                ) : null
+                }
+            </section>
+
+            {!showForm && (
+                <section className={pageStyles.attacheListContainer}>
+                    <AttacheList id={props.createdAttaches} />
                 </section>
-
-                {!showForm && (
-                    <section className={pageStyles.attacheListContainer}>
-                        <AttacheList id={props.createdAttaches} />
-                    </section>
-                )}
-            </AttacheListStateProvider>
+            )}
 
         </main>
     ) : (
