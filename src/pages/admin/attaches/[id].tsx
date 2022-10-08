@@ -11,6 +11,8 @@ export type attachePageProps = {
 
 const styles = {
     container: ' flex flex-col items-center justify-start h-full py-2 gap-3 mb-5',
+    header: 'w-4/6 flex flex-row justify-between items-end gap-3',
+    id: 'hover:scale-105 transform transition duration-300 ease-in-out',
     detailsSection: 'w-full bg-black flex flex-col items-center justify-start p-4',
     headerTitle: 'text-4xl text-gray-200 font-bold',
     detailDiv: 'w-4/6 bg-zinc-900 flex flex-wrap flex-row items-center justify-start mt-5 rounded-md text-justify tracking-wide',
@@ -34,8 +36,11 @@ export default function Attache(props: attachePageProps) { //NOSONAR
 
 
             <section className={styles.detailsSection}>
-                <header>
+                <header className={styles.header}>
                     <h1 className={styles.headerTitle}>{name}</h1>
+                    <p
+                        className={styles.id}
+                    >{`id: ${attache._id}`} </p>
                 </header>
 
                 <div className={styles.detailDiv}>

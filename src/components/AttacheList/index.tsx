@@ -51,7 +51,7 @@ export default function AttacheList(props: { id: string[] }): JSX.Element { //NO
                         <th className={styles.thTitle}>Name</th>
                         <th className={styles.thTitle}>Created At</th>
                         <th className={styles.thTitle}>Notes</th>
-                        <th className='p-2 text-center'>Actions</th>
+                        <th className={styles.thTitle}>Actions</th>
                     </tr>
                 </thead>
                 <tbody className={styles.tbody}>

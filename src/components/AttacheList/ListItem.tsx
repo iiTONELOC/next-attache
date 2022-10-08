@@ -3,9 +3,7 @@ import { useAttacheListState } from '../../providers';
 import { IsMobile, useIsMounted } from '../../hooks';
 import { ADD_TO_LIST_CACHE } from '../../actions';
 import AdminAPI from '../../utils/API/AdminAPI';
-import { useEffect, useState } from 'react';
-
-
+import React, { useEffect, useState } from 'react';
 
 
 export default function ListItem(props: { id: string }) {
@@ -22,7 +20,8 @@ export default function ListItem(props: { id: string }) {
             container: 'flex flex-row justify-center items-center gap-3 text-gray-400',
             view: 'hover:text-emerald-400 text-shadow',
             edit: 'hover:text-yellow-400 text-shadow',
-            delete: 'hover:text-red-500 text-shadow'
+            delete: 'hover:text-red-500 text-shadow',
+            info: 'hover:text-cyan-500 text-shadow'
         }
     };
 
@@ -40,6 +39,14 @@ export default function ListItem(props: { id: string }) {
         }
     };
 
+    const copyIdToClipboard = (e: React.SyntheticEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = props.id;
+        navigator.clipboard.writeText(id);
+
+    };
+
     useEffect(() => {
         if (isMounted) {
             const existsInCache = attacheListState['cache'][props.id];
@@ -52,6 +59,7 @@ export default function ListItem(props: { id: string }) {
 
     useEffect(() => {
         if (isMounted && createdAt !== undefined) {
+
             setDisplayDate(formatDateTime(createdAt));
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -77,8 +85,9 @@ export default function ListItem(props: { id: string }) {
                         className={styles.tdActions.view}
                         onClick={() => window.location.assign(`/admin/attaches/${props.id}`)}
                     >View</button>
-                    <button className={styles.tdActions.edit}>Edit</button>
-                    <button className={styles.tdActions.delete}>Delete</button>
+                    <button className={styles.tdActions.edit} onClick={() => alert('Coming Soon')}>Edit</button>
+                    <button className={styles.tdActions.delete} onClick={() => alert('Coming Soon')}>Delete</button>
+                    <button className={styles.tdActions.info} onClick={copyIdToClipboard}>Copy ID</button>
                 </span>
             </td>
         </tr>
