@@ -1,7 +1,7 @@
 import defaultUserSettings from '../../../attache-defaults.json';
 import { useState, useEffect } from 'react';
 import WithToolTip from '../WithToolTip';
-import { IsMobile, useIsMounted } from '../../hooks';
+import { IsMobile, useAttacheVersion, useIsMounted } from '../../hooks';
 import { MenuIcon } from '../Icons';
 import Auth from '../../utils/Auth';
 import NavLink from '../NavLink';
@@ -28,24 +28,7 @@ type linkType = {
     onClick?: Function
 };
 
-const links: linkType[] = [
-    { name: 'About', to: '/' },
-    { name: 'Projects', to: '/projects' },
-    { name: 'Contact', to: '/contact' },
-    { name: 'Resume', to: '/resume' }
-];
 
-const adminLinks: linkType[] = [
-    { name: 'Dashboard', to: '/admin/dashboard' },
-    { name: 'Attachés', to: '/admin/attache' },
-    {
-        name: 'Logout', onClick: (e: React.SyntheticEvent) => {
-            e.preventDefault();
-            e.stopPropagation();
-            Auth.logout();
-        }
-    }
-];
 
 const controlAltL = (e: KeyboardEvent): void => {
     if (e.key === 'l' && e.ctrlKey && e.altKey) {
@@ -53,13 +36,33 @@ const controlAltL = (e: KeyboardEvent): void => {
         const loggedIn = Auth.loggedIn();
         loggedIn ? Auth.logout() : window.location.replace('/admin/login');
     }
-}
+};
 
 export default function NavBar(): JSX.Element | null { // NOSONAR
     const { isMobile } = IsMobile();
     const isMounted = useIsMounted();
     const [isOpen, setIsOpen] = useState<boolean>(!isMobile);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+    const { attacheVersion } = useAttacheVersion();
+    const links: linkType[] = [
+        { name: 'About', to: '/' },
+        { name: 'Projects', to: attacheVersion ? `/projects/${attacheVersion}` : '/projects' },
+        { name: 'Contact', to: '/contact' },
+        { name: 'Resume', to: '/resume' }
+    ];
+
+    const adminLinks: linkType[] = [
+        { name: 'Projects', to: '/projects' },
+        { name: 'Dashboard', to: '/admin/dashboard' },
+        { name: 'Attachés', to: '/admin/attaches' },
+        {
+            name: 'Logout', onClick: (e: React.SyntheticEvent) => {
+                e.preventDefault();
+                e.stopPropagation();
+                Auth.logout();
+            }
+        }
+    ];
 
     useEffect(() => {
         setIsAuthenticated(Auth.loggedIn());

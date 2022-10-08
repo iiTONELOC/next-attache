@@ -377,7 +377,7 @@ export default class GitHubAPI {
                 const readmeURL = readmeParser('screenshot', readmeText);
 
                 // return a placeholder if no screenshot is found
-                const screenshotUrl = readmeURL ? SCREENSHOT_URL_BASE_PATH + readmeURL : 'https://via.placeholder.com/150';
+                const screenshotUrl = readmeURL ? SCREENSHOT_URL_BASE_PATH + readmeURL : (await this.getAvatarURL()).data.avatar_url;
 
                 return {
                     data: { screenshotUrl },

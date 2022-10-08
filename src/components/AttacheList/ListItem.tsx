@@ -36,7 +36,7 @@ export default function ListItem(props: { id: string }) {
         if (isMobile) {
             return currentDate.split(',')[0];
         } else {
-            return currentDate.replace(',', '@');
+            return currentDate.replace(',', ' @');
         }
     };
 
@@ -73,7 +73,10 @@ export default function ListItem(props: { id: string }) {
 
             <td className={styles.td}>
                 <span className={styles.tdActions.container}>
-                    <button className={styles.tdActions.view}>View</button>
+                    <button
+                        className={styles.tdActions.view}
+                        onClick={() => window.location.assign(`/admin/attaches/${props.id}`)}
+                    >View</button>
                     <button className={styles.tdActions.edit}>Edit</button>
                     <button className={styles.tdActions.delete}>Delete</button>
                 </span>

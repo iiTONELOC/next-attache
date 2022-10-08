@@ -13,7 +13,7 @@ const createAttache = async (props: Partial<AttacheInterface>): Promise<AttacheD
 const getAttacheIds = async (): Promise<Partial<AttacheData>[]> => tryCatch(async () => Attache.find().select('_id'));
 
 // Get an attache by id
-const getAttacheById = async (id: string): Promise<AttacheData> => tryCatch(async () => Attache.findById({ _id: id }));
+const getAttacheById = async (id: string): Promise<AttacheData> => tryCatch(async () => Attache.findById({ _id: id }).populate({ path: 'projects' }).select('name'));
 
 export { createAttache, getAttacheIds, getAttacheById };
 

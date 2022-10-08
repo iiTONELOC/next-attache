@@ -1,7 +1,8 @@
 import NavBar from './NavBar';
 import Footer from './Footer';
 import Layout from './Layout';
-import Project from './Project';
+import Projects from './Projects';
+import ProjectCard from './ProjectCard';
 import WithToolTip from './WithToolTip';
 import AttacheList from './AttacheList';
 import {
@@ -14,10 +15,11 @@ export {
     NavBar,
     Footer,
     Layout,
-    Project,
+    Projects,
     LoginForm,
     SignUpForm,
     AttacheList,
     WithToolTip,
+    ProjectCard,
     CreateNewAttache
 };

@@ -1,10 +1,10 @@
-import type { apiResponseData, errorType, repoData } from '../../types';
-import { useIsMounted, useHovered } from '../../hooks';
+import type { errorType, repoData } from '../../types';
+import { useIsMounted, useHovered, useProjectData } from '../../hooks';
 import { IoRocketOutline } from 'react-icons/io5';
 import { BiMoviePlay } from 'react-icons/bi';
 import { VscGithub } from 'react-icons/vsc';
 import { useEffect, useState } from 'react';
-import API from '../../utils/API';
+
 import Image from 'next/image';
 
 const footerIconClasses = 'text-shadow text-2xl text-purple-500 hover:text-gray-300 hover:scale-110 transition duration-300 ease-in-out';
@@ -25,38 +25,28 @@ const formatRepoName: Function = (repoName: string): string => {
     return splitName.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 };
 
-export default function Project(props: { projectName: string }): JSX.Element | null {// NOSONAR
+export default function ProjectCard(props: { projectName?: string, project?: repoData }): JSX.Element | null {// NOSONAR
+    const { data, loading, error } = useProjectData({ searchByName: props.projectName, project: props.project });
     const [apiData, setApiData] = useState<repoData | null>(null);
     const [errors, setErrors] = useState<errorType>(null);
-
-    const { projectName } = props;
     const isMounted = useIsMounted();
     const { isHovered, handleHover } = useHovered();
+
+    let { projectName } = props;
+    projectName === undefined && (projectName = props?.project?.name);
 
     const { screenshotUrl, description, demoUrl, liveUrl, repoUrl } = apiData || {};
 
     // Fetch data from API
     useEffect(() => {
-        if (isMounted) {
-            (async () => {
-                try {
-                    const response: apiResponseData = await API.getRepo(props.projectName);
-                    const { data, error } = response;
-                    data && setApiData(data);
-                    if (error) {
-                        /*@ts-ignore*/
-                        throw new Error(error?.message || 'An error occurred');
-                    }
+        data && setApiData(data);
+    }, [isMounted, data]);
 
-                } catch (error) {
-                    setErrors(`Could not fetch repo data for ${projectName}: ` + error);
-                }
-            })();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isMounted, projectName]);
+    useEffect(() => {
+        error && setErrors(error);
+    }, [error]);
 
-    if (!isMounted) {
+    if (!isMounted || loading) {
         return null;
     }
 

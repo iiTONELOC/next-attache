@@ -38,7 +38,6 @@ dbConnection();
 export const handleProjectLookUp = async (
     req: NextApiRequest,
     res: NextApiResponse,
-    updateExisting = false
 ) => {
     const { name, liveUrlType } = req.query;
 
@@ -51,16 +50,16 @@ export const handleProjectLookUp = async (
         // handler where to look for the liveUrl
         if (liveUrlType === 'dynamic') {
             // Not currently used, but will be used in the future
-            if (updateExisting) {
-                const gitHubData = await gitHubAPI.getRepoByName(name as string);
-                const { data } = gitHubData;
 
-                const updatedRepo = await updateProjectBy.name(name as string, {
-                    ...data
-                });
-                return res.status(HttpStatus.OK).json({ data: updatedRepo._doc });
-            }
-            return res.status(HttpStatus.OK).json({ data: repoInDb });
+            const gitHubData = await gitHubAPI.getRepoByName(name as string);
+            const { data } = gitHubData;
+
+            const updatedRepo = await updateProjectBy.name(name as string, {
+                ...data
+            });
+            return res.status(HttpStatus.OK).json({ data: updatedRepo._doc });
+
+
 
         } else {
             // For Pinned Repos
