@@ -1,16 +1,19 @@
 import '../styles/globals.css';
 import { Layout } from '../components';
 import type { AppProps } from 'next/app';
-import { ProjectCacheProvider } from '../providers/AttacheProjectCache';
+import { VersionProvider, ProjectCacheProvider } from '../providers';
 
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {// NOSONAR
 
   return (
-    <ProjectCacheProvider>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
-    </ProjectCacheProvider>
+    <VersionProvider>
+      <ProjectCacheProvider>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </ProjectCacheProvider>
+    </VersionProvider>
+
   );
 }
 

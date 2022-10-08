@@ -2,9 +2,9 @@ import { createContext, useContext, useReducer } from 'react';
 import { RESET_PROJECT_CACHE, ADD_PROJECT_TO_CACHE, REMOVE_PROJECT_FROM_CACHE } from '../actions';
 
 // Create our context
-const ListStoreContext = createContext<any>(null); //NOSONAR
+const projectStoreContext = createContext<any>(null); //NOSONAR
 // Get the provider
-const { Provider } = ListStoreContext;
+const { Provider } = projectStoreContext;
 
 // Initial State
 const defaultState = {
@@ -50,7 +50,7 @@ function ProjectCacheProvider({ value = [], ...props }) {//NOSONAR
 }
 
 // consumer
-const useProjectCache = () => useContext(ListStoreContext);
+const useProjectCache = () => useContext(projectStoreContext);
 
 // export the provider and consumer
 export { ProjectCacheProvider, useProjectCache };

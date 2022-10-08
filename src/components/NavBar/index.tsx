@@ -1,11 +1,12 @@
 import defaultUserSettings from '../../../attache-defaults.json';
 import { useState, useEffect } from 'react';
 import WithToolTip from '../WithToolTip';
-import { IsMobile, useAttacheVersion, useIsMounted } from '../../hooks';
+import { IsMobile, useIsMounted } from '../../hooks';
 import { MenuIcon } from '../Icons';
 import Auth from '../../utils/Auth';
 import NavLink from '../NavLink';
 import Link from 'next/link';
+import { useVersionState } from '../../providers';
 
 const { navHeading } = defaultUserSettings;
 
@@ -43,10 +44,14 @@ export default function NavBar(): JSX.Element | null { // NOSONAR
     const isMounted = useIsMounted();
     const [isOpen, setIsOpen] = useState<boolean>(!isMobile);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    const { attacheVersion } = useAttacheVersion();
+
+    const [attacheVersion,] = useVersionState();
+    const { version } = attacheVersion;
+
+
     const links: linkType[] = [
         { name: 'About', to: '/' },
-        { name: 'Projects', to: attacheVersion ? `/projects/${attacheVersion}` : '/projects' },
+        { name: 'Projects', to: version !== '' ? `/projects/${version}` : '/projects' },
         { name: 'Contact', to: '/contact' },
         { name: 'Resume', to: '/resume' }
     ];
@@ -65,11 +70,13 @@ export default function NavBar(): JSX.Element | null { // NOSONAR
     ];
 
     useEffect(() => {
-        setIsAuthenticated(Auth.loggedIn());
-
-        setIsOpen(!isMobile);
+        if (isMounted) {
+            setIsAuthenticated(Auth.loggedIn());
+            setIsOpen(!isMobile);
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [isMounted]);
+
 
     useEffect(() => {
         if (isMounted) {
