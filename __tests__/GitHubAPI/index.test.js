@@ -4,12 +4,12 @@ import {
 } from '../../lib/utils';
 
 import GitHubAPI from '../../lib/GitHubAPI';
+
 const covidMaster = 'covid-master';
 
 describe('GitHubAPI', () => {
     it('Instantiates a new GitHubAPI Class', () => {
         const gitHubAPI = new GitHubAPI();
-
         expect(gitHubAPI).toBeInstanceOf(GitHubAPI);
     });
 
@@ -95,8 +95,8 @@ describe('GitHubAPI', () => {
             'dashboard',
             'employee-tracker',
             'budget-tracker',
-            'tailstrap',
-            'rusty_wizard'
+            'rusty_wizard',
+            'Flashtastic'
         ];
 
         if (newCredentials) {
@@ -115,6 +115,30 @@ describe('GitHubAPI', () => {
         expect.assertions(4);
     });
 
+    it('Can connect to GitHub and retrieve a list of all repo names', async () => {
+        // we need to read our login info from the .env file
+        // and write it to the test.json file so that we can
+        // actually make an API call to GitHub
+        const newCredentials = await writeEnvDataToTestJson();
+
+        // list of my pinned repos to test against
+
+        if (newCredentials) {
+            const gitHubAPI = new GitHubAPI();
+            // now that the class has been instantiated, we can
+            // reset the test.json file to its original state
+            resetTestJson();
+
+            const repos = await gitHubAPI.getAllRepoNames();
+
+            expect(repos.ok).toBeTruthy();
+            expect(repos.status).toEqual(200);
+            expect(repos.data.length).toEqual(61);
+            expect(repos.errors).toBeUndefined();
+        }
+        expect.assertions(4);
+    });
+
     it('Can connect to GitHub and retrieve a repo by name', async () => {
         const newCredentials = await writeEnvDataToTestJson();
 
@@ -128,14 +152,17 @@ describe('GitHubAPI', () => {
                 data: {
                     name: covidMaster,
                     size: 35637,
-                    url: 'https://github.com/iiTONELOC/covid-master',
+                    demoUrl: '',
+                    liveUrl: 'https://iiTONELOC.github.io/covid-master',
+                    screenshotUrl: 'https://raw.githubusercontent.com/iiTONELOC/covid-master/main/assets/images/boredinthehousegif.gif',
+                    repoUrl: 'https://github.com/iiTONELOC/covid-master',
                     license: 'MIT License',
                     description: 'Bored in the House is an interactive web application that presents meal recipes, drink recipes, and movies based on user input. ',
-                    top_language: 'JavaScript',
-                    created_at: '2021-02-02T03:35:50Z',
-                    updated_at: '2021-11-11T04:05:57Z',
-                    open_issues: 0,
-                    clone_url: 'https://github.com/iiTONELOC/covid-master.git'
+                    topLanguage: 'JavaScript',
+                    createdAt: '2021-02-02T03:35:50Z',
+                    updatedAt: '2021-11-11T04:05:57Z',
+                    openIssues: 0,
+                    cloneUrl: 'https://github.com/iiTONELOC/covid-master.git'
                 },
                 status: 200,
                 ok: true,
@@ -183,7 +210,7 @@ describe('GitHubAPI', () => {
 
         const expectedData = {
             data: {
-                screenshotURL: 'https://raw.githubusercontent.com/iiTONELOC/covid-master/main/assets/images/boredinthehousegif.gif'
+                screenshotUrl: 'https://raw.githubusercontent.com/iiTONELOC/covid-master/main/assets/images/boredinthehousegif.gif'
             },
             status: 200,
             ok: true,
@@ -214,5 +241,45 @@ describe('GitHubAPI', () => {
             expect(avatar.data.avatar_url).toEqual('https://avatars.githubusercontent.com/u/75545909?v=4');
         }
         expect.assertions(2);
+    });
+
+    it('Can return the link to the demo video from the README', async () => {
+        const newCredentials = await writeEnvDataToTestJson();
+
+        const expectedData = {
+            data: {
+                demoUrl: 'https://drive.google.com/file/d/1_rLpuJNYqfKFYjpfh1-PHcIBcDm9GDr8/view'
+            },
+            status: 200,
+            ok: true,
+            errors: []
+        };
+
+        if (newCredentials) {
+            const gitHubAPI = new GitHubAPI();
+            resetTestJson();
+
+            const demoURL = await gitHubAPI.getDemoURL('employee-tracker');
+
+            expect(demoURL).toBeDefined();
+            expect(demoURL).toEqual(expectedData);
+        }
+    });
+
+    it('Can return the live URL link for the repo from the JSON settings', async () => {
+        const newCredentials = await writeEnvDataToTestJson();
+
+        const expectedData = 'https://i-dash.herokuapp.com/';
+
+        if (newCredentials) {
+            const gitHubAPI = new GitHubAPI();
+            resetTestJson();
+
+            const liveUrl = await gitHubAPI.getLiveUrl('dashboard', 'pinned');
+            const { data } = liveUrl;
+
+            expect(liveUrl).toBeDefined();
+            expect(data.liveUrl).toEqual(expectedData);
+        }
     });
 });

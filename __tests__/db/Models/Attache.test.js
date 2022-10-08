@@ -1,5 +1,5 @@
 import connect from '../../../lib/db/connection';
-import { Attache } from '../../../lib/db/models';
+import { Attache } from '../../../lib/db/Models';
 
 let db;
 
@@ -9,6 +9,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+    await Attache.deleteMany({});
     await db.close();
 });
 

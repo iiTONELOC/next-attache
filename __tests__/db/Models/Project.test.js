@@ -1,5 +1,5 @@
 import connect from '../../../lib/db/connection';
-import { Project } from '../../../lib/db/models';
+import { Project } from '../../../lib/db/Models';
 
 let db;
 
@@ -20,6 +20,7 @@ const testProjectData = {
     repoUrl: 'test.com',
     liveUrl: 'test.com',
     cloneUrl: 'test.com',
+    demoUrl: 'test.com',
     createdAt: Date.now().toString(),
     updatedAt: Date.now().toString(),
     openIssues: 0,
@@ -36,6 +37,7 @@ describe('Project Model', () => {
         expect(project.size).toBe(testProjectData.size);
         expect(project.license).toBe(testProjectData.license);
         expect(project.repoUrl).toBe(testProjectData.repoUrl);
+        expect(project.demoUrl).toBe(testProjectData.demoUrl);
         expect(project.liveUrl).toBe(testProjectData.liveUrl);
         expect(project.cloneUrl).toBe(testProjectData.cloneUrl);
         expect(project.createdAt).toBe(testProjectData.createdAt);

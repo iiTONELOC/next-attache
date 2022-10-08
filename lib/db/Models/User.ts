@@ -1,8 +1,8 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 import { ProjectCollectionType } from './Project';
 import bcrypt from 'bcrypt';
 
-interface UserInterface {
+export interface UserInterface {
     name: string;
     email: string;
     password: string;
@@ -10,6 +10,16 @@ interface UserInterface {
     pinnedProjects: ProjectCollectionType;
     attacheCase: ProjectCollectionType;
 }
+
+export type UserModel = {
+    _id: Schema.Types.ObjectId;
+    name: string;
+    email: string;
+    password: string;
+    avatar?: string;
+    pinnedProjects: ProjectCollectionType;
+    attacheCase: ProjectCollectionType;
+};
 
 const defaultRounds = 10;
 
@@ -54,7 +64,7 @@ const userSchema = new Schema<UserInterface>({
 /*istanbul ignore next */
 userSchema.pre('save', async function (next) {
     if (this.isNew || this.isModified('password')) {
-        const saltRounds = process.env.SALT_ROUNDS || defaultRounds;
+        const saltRounds = process.env.SALT_ROUNDS ? parseInt(process.env.SALT_ROUNDS, 10) : defaultRounds;
         this.password = await bcrypt.hash(this.password, saltRounds);
     }
 
@@ -65,6 +75,6 @@ userSchema.methods.isCorrectPassword = async function (password: string) {
     return bcrypt.compare(password, this.password);
 };
 
-const User = model('User', userSchema);
+const User = models['User'] ? model<UserInterface>('User') : model<UserInterface>('User', userSchema);
 
 export default User;

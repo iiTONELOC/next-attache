@@ -1,17 +1,31 @@
+import fetch from 'node-fetch';
 import { readFileSync } from 'fs';
-import fetch from 'node-fetch'; //NOSONAR
-import { headers } from './helpers';
-import { repoByName } from './types';
 import { APIResponseData } from './interfaces';
+import { headers, readmeParser } from './helpers';
+import repoDefaults from '../../attache-defaults.json';
+import dynamicDefaults from '../../attache-dynamic.json';
 import {
     filename, creationErrorPrefix, restRepoEndPoint,
     gitHubAPIUrl, graphQLRequestURL
 } from './constants';
 
+interface DemoOptions {
+    GITHUB: string,
+    DEMO: string,
+    NONE: string
+}
+
+export const demoOptions: DemoOptions = {
+    GITHUB: 'GITHUB',
+    DEMO: 'DEMO',
+    NONE: 'NONE'
+};
+
 
 export default class GitHubAPI {
     user: string;
     #auth: string;
+    #readmeCache: { [key: string]: string };
 
     constructor() {
         // istanbul ignore next
@@ -32,6 +46,7 @@ export default class GitHubAPI {
 
         this.user = username;
         this.#auth = authenticate;
+        this.#readmeCache = {};
     }
 
     /**
@@ -80,6 +95,51 @@ export default class GitHubAPI {
     }
 
     /**
+    * Retrieve a list of the first 100 repositories
+    * returns an object with the following properties:
+    * ```js
+    * {
+    *   data: ['repo1name', 'repo2name', ...'lastRepoName'], // array of strings containing repo names
+    *   errors: [], // array of graphql error objects
+    *   ok: boolean, // true if the request was successful
+    *   status: number // the status code of the response
+    * }
+    * ```
+    */
+    async getAllRepoNames(): Promise<APIResponseData> {
+        try {
+            // Have to use the GraphQL API over the REST API to get the pinned repos
+            const query = `query{user(login:"${this.user}"){repositories(first:100) {nodes{name}}}}`;
+
+            const graphRes = await fetch(graphQLRequestURL, {
+                method: 'POST',
+                headers: headers(this.#auth),
+                body: JSON.stringify({ query })
+            });
+
+            const graphData = await graphRes.json();
+            const { data, errors } = graphData;
+
+            const repoNames = data?.user?.repositories.nodes?.map(
+                (repo: { name?: string; }) => repo?.name) || [];
+
+            return {
+                data: repoNames,
+                status: graphRes.status,
+                ok: graphRes.ok,
+                errors
+            };
+        } catch (error) {
+            return {
+                data: [],
+                status: 500,
+                ok: false,
+                errors: [error]
+            };
+        }
+    }
+
+    /**
      * Get information about a repo by name
      * @param repoName the name of the repo to look up
      * @returns
@@ -103,7 +163,7 @@ export default class GitHubAPI {
         }
     * ```
      */
-    async getRepoByName(repoName: string): Promise<APIResponseData> {
+    async getRepoByName(repoName: string, liveUrlType?: 'pinned' | 'dynamic'): Promise<APIResponseData> {
 
         try {
             const URL = gitHubAPIUrl + restRepoEndPoint(this.user, repoName);
@@ -113,20 +173,31 @@ export default class GitHubAPI {
                 headers: headers(this.#auth)
             });
 
-            const data: repoByName = await res.json();
+            const data = await res.json();
+
+            // need to fetch more data than this endpoint provides
+
+            const repoScreenshot = await this.getRepoScreenshot(repoName);
+            const demoUrl = await this.getDemoURL(repoName);
+            const liveUrl = await this.getLiveUrl(repoName, liveUrlType || 'pinned');
+
+            this.clearItemFromCache(repoName);
 
             return {
                 data: {
                     name: data.name,
                     size: data.size,
-                    url: data.html_url,
+                    repoUrl: data.html_url,
                     license: data.license?.name,
                     description: data.description,
-                    top_language: data.language,
-                    created_at: data.created_at,
-                    updated_at: data.updated_at,
-                    open_issues: data.open_issues,
-                    clone_url: data.clone_url
+                    topLanguage: data.language,
+                    createdAt: data.created_at,
+                    updatedAt: data.updated_at,
+                    openIssues: data.open_issues,
+                    cloneUrl: data.clone_url,
+                    liveUrl: liveUrl.data.liveUrl,
+                    screenshotUrl: repoScreenshot.data.screenshotUrl,
+                    demoUrl: demoUrl.data.demoUrl || ''
                 },
                 status: res.status,
                 ok: res.ok,
@@ -174,7 +245,7 @@ export default class GitHubAPI {
     }
 
     /**
-     * Retrieves the readme of a repository
+     * Retrieves the URLs to download or view the readme of a repository
      * @param repoName the name of the repo to look up
      * @returns
      * ```js
@@ -216,12 +287,69 @@ export default class GitHubAPI {
     }
 
     /**
-     * Retrieves the URL for the user's README
+    * Retrieves the readme of a repository
+    * @param repoName the name of the repo to look up
+    * @returns
+    * ```js
+    * {
+           data: {
+               readme: 'string',
+           },
+           status: res.status,
+           ok: res.ok,
+           errors: []
+       }
+   * ```
+    */
+    async getRepoReadmeAsText(repoName: string): Promise<APIResponseData> {
+        if (!this.#readmeCache[repoName]) {
+            try {
+                const readme: APIResponseData = await this.getRepoReadme(repoName);
+
+                if (readme.ok) {
+                    const readmeData = await fetch(readme.data.download_url);
+                    const readmeText = await readmeData.text();
+                    this.#readmeCache[repoName] = readmeText;
+
+                    return {
+                        data: { readme: readmeText },
+                        status: readme.status,
+                        ok: readme.ok,
+                        errors: readme.errors
+                    };
+                } else {
+                    return {
+                        data: {},
+                        status: readme.status,
+                        ok: readme.ok,
+                        errors: readme.errors
+                    };
+                }
+            } catch (error) {
+                return {
+                    data: {},
+                    status: 500,
+                    ok: false,
+                    errors: [error]
+                };
+            }
+        } else {
+            return {
+                data: { readme: this.#readmeCache[repoName] },
+                status: 200,
+                ok: true,
+                errors: []
+            };
+        }
+    }
+
+    /**
+     * Retrieves the URL for the user's screenshot
      * @param repoName the name of the repo to look up
      * @returns
      * ```js
      * {
-            data: {screenshotURL: 'url'},
+            data: {screenshotUrl: 'url'},
             status: res.status,
             ok: res.ok,
             errors: []
@@ -230,30 +358,29 @@ export default class GitHubAPI {
      */
     async getRepoScreenshot(repoName: string): Promise<APIResponseData> {
         try {
+            // We need the download_url here so we can take advantage of the other ReadMe retrievers
+            // but we can still cache the readme text here to avoid making multiple requests
             const readme = await this.getRepoReadme(repoName);
-            const screenShotRegex = /# Screenshot.+\n+!\[.+\]\(.+\)/g;
-            const downloadURL = readme.data.download_url.replace('README.md', '');
 
             if (readme.ok) {
+                // README screenshots should contain a relative path only we need to build the full URL
+                const SCREENSHOT_URL_BASE_PATH = readme.data.download_url.replace('README.md', '');
+
+                // download the RAW README file
                 const readmeData = await fetch(readme.data.download_url);
                 const readmeText = await readmeData.text();
 
-                // capture the screenshot section of the readme
-                const screenshotMatch = readmeText.match(screenShotRegex);
+                // cache the readme text
+                !this.#readmeCache[repoName] && (this.#readmeCache[repoName] = readmeText);
 
-                // remove all extra spacing and newlines
-                const screenshotRaw = screenshotMatch?.[0].replace(/\s+/g, '');
+                // parse the README for a screenshot
+                const readmeURL = readmeParser('screenshot', readmeText);
 
-                // capture the relative path to the screenshot
-                const scrnShotPath = screenshotRaw?.match(/\(.+\)/g)?.[0];
-
-                // remove the parenthesis and the "./" from the path
-                const screenshotURL = downloadURL + scrnShotPath?.replace('(', '')
-                    .replace(')', '')
-                    .replace('./', '');
+                // return a placeholder if no screenshot is found
+                const screenshotUrl = readmeURL ? SCREENSHOT_URL_BASE_PATH + readmeURL : (await this.getAvatarURL()).data.avatar_url;
 
                 return {
-                    data: { screenshotURL },
+                    data: { screenshotUrl },
                     status: readme.status,
                     ok: readme.ok,
                     errors: readme.errors
@@ -275,6 +402,109 @@ export default class GitHubAPI {
             };
         }
     }
+
+    /**
+    * Retrieves the URL for the user's Demo video
+    * @param repoName the name of the repo to look up
+    * @returns
+    * ```js
+    * {
+            data: {demoURL: 'url'},
+            status: res.status,
+            ok: res.ok,
+            errors: []
+        }
+   * ```
+    */
+    async getDemoURL(repoName: string): Promise<APIResponseData> {
+        try {
+            // should pull a cached readme if it exists or fetch a new one
+            const readme = await this.getRepoReadmeAsText(repoName);
+
+            if (readme.ok) {
+                const demoUrl = readmeParser('demo', readme.data.readme);
+
+                return {
+                    data: { demoUrl },
+                    status: readme.status,
+                    ok: readme.ok,
+                    errors: readme.errors
+                };
+            } else {
+                return {
+                    data: {},
+                    status: readme.status,
+                    ok: readme.ok,
+                    errors: readme.errors
+                };
+            }
+        } catch (error) {
+            return {
+                data: {},
+                status: 500,
+                ok: false,
+                errors: [error]
+            };
+        }
+    }
+
+    /**
+ * Retrieves the URL for the live deployment
+ * @param repoName the name of the repo to look up
+ * @returns
+ * ```js
+ * {
+            data: {liveUrl: 'url' | demoURL: 'url'},
+            status: res.status,
+            ok: res.ok,
+            errors: []
+        }
+* ```
+ */
+    async getLiveUrl(repoName: string, type: 'pinned' | 'dynamic'): Promise<APIResponseData> {
+        try {
+            const { pinned } = Object.create(repoDefaults);
+            const { otherRepos } = Object.create(dynamicDefaults);
+
+            const repo = type === 'pinned' ? pinned[repoName] : otherRepos[repoName];
+
+            if (repo) {
+                const { liveUrl } = repo;
+                const _data = { liveUrl: {} };
+
+                switch (liveUrl) {
+                    case demoOptions.GITHUB:
+                        _data.liveUrl = `https://${this.user}.github.io/${repoName}`;
+                        break;
+                    case demoOptions.NONE:
+                        _data.liveUrl = '';
+                        break;
+                    case demoOptions.DEMO:
+                        _data.liveUrl = '';
+                        break;
+                    default:
+                        _data.liveUrl = liveUrl;
+                }
+
+                return {
+                    data: _data,
+                    status: 200,
+                    ok: true,
+                    errors: []
+                };
+            } else {
+                throw new Error('Repo not found');
+            }
+        } catch (error) {
+            return {
+                data: {},
+                status: 500,
+                ok: false,
+                errors: [error]
+            };
+        }
+    }
+
 
     /**
     * Retrieves the URL for the user's Avatar
@@ -316,5 +546,13 @@ export default class GitHubAPI {
                 errors: [error]
             };
         }
+    }
+
+    clearItemFromCache(item: string): void {
+        delete this.#readmeCache[item];
+    }
+
+    clearCache(): void {
+        this.#readmeCache = {};
     }
 }

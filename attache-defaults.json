@@ -1,0 +1,29 @@
+{
+    "name": "Anthony",
+    "portfolioTitle": "Anthony's Portfolio",
+    "email": "AnthonyTropeano@protonmail.com",
+    "linkedIn": "anthony-t-29353b201",
+    "navHeading": "Anthony T",
+    "aboutHeading": "Always Learning",
+    "about": "Full Stack Web Developer with proven experience as a project manager. Skills in HTML, CSS, JavaScript, React.js, RWD, and agile development. Passionate about solving problems and providing meaningful web applications with a mobile-first approach that improve the lives of those around me",
+    "pinned": {
+        "covid-master": {
+            "liveUrl": "GITHUB"
+        },
+        "dashboard": {
+            "liveUrl": "https://i-dash.herokuapp.com/"
+        },
+        "employee-tracker": {
+            "liveUrl": "DEMO"
+        },
+        "budget-tracker": {
+            "liveUrl": "https://thawing-savannah-19799.herokuapp.com/"
+        },
+        "rusty_wizard": {
+            "liveUrl": "NONE"
+        },
+        "Flashtastic": {
+            "liveUrl": "GITHUB"
+        }
+    }
+}

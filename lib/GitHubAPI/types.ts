@@ -5,14 +5,15 @@ export type authHeaders = {
 
 export type repoByName = {
     name: string,
-    html_url: string,
+    htmlUrl: string,
     description: string,
     language: string,
-    created_at: string,
-    updated_at: string,
-    open_issues: string,
-    clone_url: string,
+    createdAt: string,
+    updatedAt: string,
+    openIssues: string,
+    cloneUrl: string,
     size: number,
-    commits_url: string,
+    commitUrl: string,
+    repoUrl: string,
     license: { name: string }
 };
