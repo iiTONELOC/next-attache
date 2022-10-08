@@ -1,5 +1,8 @@
 # &#128278; Attaché
 
+# Screenshot
+![screenshot](./assets/screenshot.png)
+
 ## &#128679; Coming Soon &#128679;
 
 ### &#128188;  *Portfolio and Resume Manager for Next.js*
