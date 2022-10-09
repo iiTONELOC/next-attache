@@ -1,5 +1,5 @@
-import AttacheInput from '../../../inputs/attache/AttacheInput';
-import { inputTypes, AttacheInputProps } from '../../../inputs/attache/types';
+import Input from '../../../inputs/Input';
+import { inputTypes, InputProps } from '../../../inputs/attache/types';
 
 const acceptableNonUrls: string[] = [
     'GITHUB',
@@ -12,7 +12,7 @@ const urlRegex = /^(https):\/\/[^ "]+$/;
 
 export default function RepoLiveUrlInput({
     onChange, currentValue, setValidated
-}: AttacheInputProps): JSX.Element {
+}: InputProps): JSX.Element {
     const liveUrl = 'liveUrl';
 
     const validate = (
@@ -34,7 +34,7 @@ export default function RepoLiveUrlInput({
     };
 
     return (
-        <AttacheInput
+        <Input
             type='text'
             id={liveUrl}
             name={liveUrl}

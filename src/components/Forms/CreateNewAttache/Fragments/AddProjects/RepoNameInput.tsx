@@ -1,13 +1,13 @@
 import { useIsMounted } from '../../../../../hooks';
-import AttacheInput from '../../../inputs/attache/AttacheInput';
-import { AttacheInputProps, inputTypes } from '../../../inputs/attache/types';
+import Input from '../../../inputs/Input';
+import { InputProps, inputTypes } from '../../../inputs/attache/types';
 
 export default function RepoNameInput({ //NOSONAR
     onChange,
     currentValue,
     setValidated,
     availableRepos
-}: AttacheInputProps
+}: InputProps
 ): JSX.Element | null {
     const isMounted = useIsMounted();
     const validate = (
@@ -39,7 +39,7 @@ export default function RepoNameInput({ //NOSONAR
     };
 
 
-    return isMounted ? <AttacheInput
+    return isMounted ? <Input
         type='text'
         name='name'
         id='repoName'

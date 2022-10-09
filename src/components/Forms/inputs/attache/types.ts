@@ -17,8 +17,8 @@ export type inputTypes = {
      * Requires the following parameters:
      * @param e - the event
      * @param setValidated - the setValidated function from the grandparent component
-     * @param setError - the setError function from the AttacheInput component
-     * @param clearError - the clearError function from the AttacheInput component
+     * @param setError - the setError function from the Input component
+     * @param clearError - the clearError function from the Input component
      * @example
      * ```js
      *      // Validates that the repo name has at least 3 characters
@@ -50,7 +50,7 @@ export type inputTypes = {
     ) => void;
 };
 
-export type AttacheInputProps = {
+export type InputProps = {
     currentValue: inputTypes['currentValue'],
     setValidated: inputTypes['setValidated'],
     onChange: inputTypes['onChange'];

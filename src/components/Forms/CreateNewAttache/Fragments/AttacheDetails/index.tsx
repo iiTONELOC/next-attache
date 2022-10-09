@@ -2,7 +2,7 @@ import { AttacheFormHeader } from '../../Header';
 import { AttacheNameInput } from './AttacheNameInput';
 import { AttacheNotesInput } from './AttacheNotesInput';
 import { BackButton, SubmitAttache } from '../../FormButtons';
-import { AttacheInputProps } from '../../../inputs/attache/types';
+import { InputProps } from '../../../inputs/attache/types';
 
 import { formStyles } from '../../styles';
 
@@ -24,10 +24,10 @@ export type AttacheDetailsProps = {
     footerClassNames: string;
     currentNotesValue?: string;
     currentResumeValue?: string;
-    onChange: AttacheInputProps['onChange'];
+    onChange: InputProps['onChange'];
     goBack: () => void;
     createAttache: (e: React.SyntheticEvent) => void;
-    setNameValidated: AttacheInputProps['setValidated'];
+    setNameValidated: InputProps['setValidated'];
 };
 
 export function AttacheDetails(props: AttacheDetailsProps) {

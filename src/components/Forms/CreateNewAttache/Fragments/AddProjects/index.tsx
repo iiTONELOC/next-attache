@@ -4,7 +4,7 @@ import { AttacheFormHeader } from '../../Header';
 import { maxNumProjects } from '../../constants';
 import RepoLiveUrlInput from './RepoLiveUrlInput';
 import { AttacheAddProjectButton } from '../../FormButtons';
-import { AttacheInputProps } from '../../../inputs/attache/types';
+import { InputProps } from '../../../inputs/attache/types';
 
 
 export type AddProjectProps = {
@@ -14,11 +14,11 @@ export type AddProjectProps = {
     footerClassNames: string,
     addBtnClassNames: string,
     backBtnClassNames: string,
-    availableRepoNames: AttacheInputProps['availableRepos'],
-    onNameChange: AttacheInputProps['onChange'],
-    onUrlChange: AttacheInputProps['onChange'],
-    setNameValidated: AttacheInputProps['setValidated'],
-    setUrlValidated: AttacheInputProps['setValidated'],
+    availableRepoNames: InputProps['availableRepos'],
+    onNameChange: InputProps['onChange'],
+    onUrlChange: InputProps['onChange'],
+    setNameValidated: InputProps['setValidated'],
+    setUrlValidated: InputProps['setValidated'],
     handleGoBackProject: () => void,
     handleAddProject: (e: React.SyntheticEvent) => void,
     handleFinishProjects(e: React.SyntheticEvent): void

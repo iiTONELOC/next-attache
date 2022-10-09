@@ -1,16 +1,16 @@
 import { useIsMounted } from '../../../../../hooks';
-import AttacheInput from '../../../inputs/attache/AttacheInput';
-import { AttacheInputProps } from '../../../inputs/attache/types';
+import Input from '../../../inputs/Input';
+import { InputProps } from '../../../inputs/attache/types';
 
 export function AttacheNotesInput({ //NOSONAR
     onChange,
     currentValue,
     setValidated
-}: AttacheInputProps
+}: InputProps
 ): JSX.Element | null {
     const isMounted = useIsMounted();
 
-    return isMounted ? <AttacheInput
+    return isMounted ? <Input
         type='text'
         name='notes'
         id='attacheNotes'

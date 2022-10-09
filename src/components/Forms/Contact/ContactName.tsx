@@ -1,11 +1,11 @@
-import { useIsMounted } from '../../../../../hooks';
-import Input from '../../../inputs/Input';
-import { InputProps, inputTypes } from '../../../inputs/attache/types';
+import Input from '../inputs/Input';
+import { useIsMounted } from '../../../hooks';
+import { InputProps, inputTypes } from '../inputs/attache/types';
 
-export function AttacheNameInput({ //NOSONAR
+export default function ContactNameInput({ //NOSONAR
     onChange,
     currentValue,
-    setValidated
+    setValidated,
 }: InputProps
 ): JSX.Element | null {
     const isMounted = useIsMounted();
@@ -20,11 +20,11 @@ export function AttacheNameInput({ //NOSONAR
         const len = value.length;
 
         if (len === 0) {
-            _setError('An attaché name is required');
+            _setError('A name is required');
             setValidated(false);
             _clearError();
         } else if (len > 0 && len <= 2) {
-            _setError('Attaché names must be at least 3 characters');
+            _setError('Names must be at least 3 characters');
             setValidated(false);
             _clearError();
         } else {
@@ -33,18 +33,17 @@ export function AttacheNameInput({ //NOSONAR
         }
     };
 
-
     return isMounted ? <Input
         type='text'
         name='name'
-        id='attacheName'
+        id='contactName'
         required={true}
         autoComplete='off'
         onChange={onChange}
         validate={validate}
         currentValue={currentValue}
         setValidated={setValidated}
-        placeholder='Enter an attache name'
-        description='Enter a name for your attaché'
+        placeholder={`What's your name?`}
+        description='Your name'
     /> : null;
 }
