@@ -42,7 +42,7 @@ export default function Email_Input({ //NOSONAR
 
     return isMounted ? <Input
         type='text'
-        name='email'
+        name='user_email'
         id='contactEmail'
         required={true}
         autoComplete='off'

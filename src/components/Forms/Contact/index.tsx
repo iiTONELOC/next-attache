@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
-import FormContainer from '../FormContainer';
-import ContactNameInput from './ContactName';
-import { useIsMounted } from '../../../hooks';
+import { useState, useEffect, useRef } from 'react';
 import Email_Input from '../inputs/Email_Input';
 import ContactMessage from './ContactMessage';
+import { useIsMounted } from '../../../hooks';
+import ContactNameInput from './ContactName';
+import FormContainer from '../FormContainer';
+import emailjs from '@emailjs/browser';
 import styles from './styles';
 
-
 const defaultFormState = {
-    name: '',
-    email: '',
+    user_name: '',
+    user_email: '',
     message: ''
 };
 
@@ -25,6 +25,9 @@ export default function ContactForm() { //NOSONAR
     const [messageValidated, setMessageValidated] = useState<boolean>(false);
     const [emailValidated, setEmailValidated] = useState<boolean>(false);
     const [nameValidated, setNameValidated] = useState<boolean>(false);
+    const [showMessage, setShowMessage] = useState<boolean>(false);
+    const [message, setMessage] = useState<string | null>(null);
+    const [sendError, setSendError] = useState<boolean | null>(null);
 
     const isFormValidated = () => [messageValidated, emailValidated, nameValidated].every(Boolean);
 
@@ -45,14 +48,39 @@ export default function ContactForm() { //NOSONAR
         setNameValidated(false);
     };
 
+    const emailJsFormRef = useRef<HTMLFormElement>(null);
+
+    const displayMessage = (message: string) => {
+        setMessage(message);
+        setShowMessage(true);
+
+        setTimeout(() => {
+            setShowMessage(false);
+            setMessage(null);
+        }, 5000);
+    };
+
     const handleSubmitForm = (e: React.SyntheticEvent) => {
         e.preventDefault();
         e.stopPropagation();
 
         if (formValidated) {
-            alert('Form submitted!');
-            resetState();
-            window.location.assign('/');
+            try {//NOSONAR
+                emailjs.sendForm(
+                    process.env.NEXT_PUBLIC_EMAIL_SERVICE_ID || '',
+                    process.env.NEXT_PUBLIC_EMAIL_TEMPLATE_ID || '',
+                    emailJsFormRef.current || '',
+                    process.env.NEXT_PUBLIC_EMAIL_PUB_TOKEN || ''
+                ).then(_ => {
+                    displayMessage('Email sent successfully!');
+                    resetState();
+                    setTimeout(() => { window.location.assign('/') }, 3500);
+                });
+            } catch (error) {
+                setSendError(true);
+                displayMessage('There was an error sending your email. Please try again later.');
+            }
+
         }
     };
 
@@ -99,18 +127,18 @@ export default function ContactForm() { //NOSONAR
 
     return (
         isMounted ? (
-            <FormContainer>
+            <FormContainer _ref={emailJsFormRef}>
                 <h1 className={styles.title}>{`Let's get in touch!`}</h1>
-
+                {showMessage ? (<h2 className={!sendError ? 'text-emerald-500' : 'text-red-500'}> {message} </h2>) : <></>}
                 <ContactNameInput
                     onChange={handleFormStateChange}
-                    currentValue={formState.name}
+                    currentValue={formState.user_name}
                     setValidated={setNameValidated}
                 />
 
                 <Email_Input
                     onChange={handleFormStateChange}
-                    currentValue={formState.email}
+                    currentValue={formState.user_email}
                     setValidated={setEmailValidated}
                 />
 

@@ -5,7 +5,7 @@ import { InputProps, inputTypes } from '../inputs/attache/types';
 export default function ContactNameInput({ //NOSONAR
     onChange,
     currentValue,
-    setValidated,
+    setValidated
 }: InputProps
 ): JSX.Element | null {
     const isMounted = useIsMounted();
@@ -35,7 +35,7 @@ export default function ContactNameInput({ //NOSONAR
 
     return isMounted ? <Input
         type='text'
-        name='name'
+        name='user_name'
         id='contactName'
         required={true}
         autoComplete='off'
