@@ -25,8 +25,20 @@ const formatRepoName: Function = (repoName: string): string => {
     return splitName.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 };
 
-export default function ProjectCard(props: { projectName?: string, project?: repoData }): JSX.Element | null {// NOSONAR
-    const { data, loading, error } = useProjectData({ searchByName: props.projectName, project: props.project });
+export default function ProjectCard(
+    props: {
+        projectName?: string,
+        project?: repoData,
+        dynamic?: boolean
+    }
+): JSX.Element | null {// NOSONAR
+    const { data, loading, error } = useProjectData(
+        {
+            searchByName: props.projectName,
+            project: props.project,
+            dynamic: props.dynamic
+        }
+    );
     const [apiData, setApiData] = useState<repoData | null>(null);
     const [errors, setErrors] = useState<errorType>(null);
     const isMounted = useIsMounted();

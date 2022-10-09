@@ -25,7 +25,7 @@ const FeaturedAttacheProjects = (props: propTypes): JSX.Element | null => {
                 <title>{`${DefaultUserSettings.name}'s Portfolio - Projects`}</title>
             </Head>
 
-            <ProjectsComponent names={projectNames} />
+            <ProjectsComponent names={projectNames} dynamic={true} />
         </main>
     );
 };

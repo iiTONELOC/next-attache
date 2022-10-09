@@ -17,13 +17,16 @@ class API {
         });
     }
 
-    async getRepo(repoName: string): Promise<apiResponseData> {
-        return _query(`repo/${repoName}`, this.headers, API_PREFIX);
+    async getRepo(repoName: string, dynamic = false): Promise<apiResponseData> {
+        const endpoint = dynamic ? `repo/${repoName}?liveUrlType=dynamic` : `repo/${repoName}`;
+        return _query(endpoint, this.headers, API_PREFIX);
     }
+
 
     async getRepoNames() {
         return _query(`repo/names`, this.headers, API_PREFIX);
     }
+
 
     async getAvatar() {
         return _query(`avatar`, this.headers, API_PREFIX);

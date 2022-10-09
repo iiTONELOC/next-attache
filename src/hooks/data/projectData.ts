@@ -1,7 +1,7 @@
 import API from '../../utils/API';
 import useIsMounted from '../isMounted';
 import { useState, useEffect } from 'react';
-import { errorType, repoData, } from '../../types';
+import { errorType, repoData } from '../../types';
 import { ADD_PROJECT_TO_CACHE } from '../../actions';
 import { useProjectCache } from '../../providers/AttacheProjectCache';
 
@@ -9,9 +9,10 @@ import { useProjectCache } from '../../providers/AttacheProjectCache';
 export default function useProjectData(props: {
     searchByName?: string;
     project?: repoData;
+    dynamic?: boolean;
 }) {
     const isMounted = useIsMounted();
-    const { searchByName, project } = props;
+    const { searchByName, project, dynamic } = props;
     const [loading, setLoading] = useState(true);
     const [error, setErrors] = useState<errorType>(null);
     const [_data, setData] = useState<repoData | null>(null);
@@ -19,16 +20,19 @@ export default function useProjectData(props: {
 
 
     const getProjectData = () => {
-        API.getRepo(searchByName || '').then(_res => {
+
+        API.getRepo(searchByName || '', dynamic).then(_res => {
             const { data, error } = _res;
 
             data && dispatch({ type: ADD_PROJECT_TO_CACHE, payload: data });
 
             if (error) { // NOSONAR
+
                 throw new Error(error?.message || 'An error occurred');
             }
         });
     };
+
 
     useEffect(() => {
         if (isMounted && searchByName) {
@@ -56,7 +60,7 @@ export default function useProjectData(props: {
             setLoading(false);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isMounted, searchByName, project, projectState]);
+    }, [isMounted, searchByName, project]);
 
 
     return {
@@ -64,4 +68,6 @@ export default function useProjectData(props: {
         error,
         data: _data
     };
+
 }
+

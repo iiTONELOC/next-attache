@@ -38,7 +38,7 @@ export default async function withAdminAuth(
 
     const { headers } = req;
     const { authorization } = headers;
-
+    console.log('WITH ADMIN AUTH')
     if (authorization) {
         const token = extractToken(authorization);
         try {

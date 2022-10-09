@@ -3,6 +3,7 @@ import ProjectCard from '../ProjectCard';
 
 export type componentProps = {
     names?: string[];
+    dynamic?: boolean;
 };
 
 
@@ -14,14 +15,19 @@ const styles = {
 export default function ProjectsComponent(props: componentProps) {
     const [projectState,] = useProjectCache();
 
-    const { names } = props;
+    const { names, dynamic } = props;
 
     return (
         <section className={styles.projectSection}>
             {names?.map((repoName, index) => {
                 return (
                     <div className={styles.div} key={index}>
-                        {projectState.projects[repoName] ? <ProjectCard project={projectState.projects[repoName]} /> : <ProjectCard projectName={repoName} />}
+                        {projectState.projects[repoName] ? (
+                            <ProjectCard
+                                project={projectState.projects[repoName]}
+                                dynamic={dynamic}
+                            />
+                        ) : <ProjectCard projectName={repoName} dynamic={dynamic} />}
                     </div>
                 );
             })}

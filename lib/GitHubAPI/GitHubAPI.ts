@@ -179,7 +179,7 @@ export default class GitHubAPI {
 
             const repoScreenshot = await this.getRepoScreenshot(repoName);
             const demoUrl = await this.getDemoURL(repoName);
-            const liveUrl = await this.getLiveUrl(repoName, liveUrlType || 'pinned');
+            const liveUrl = await this.getLiveURLForPinned(repoName, liveUrlType || 'pinned');
 
             this.clearItemFromCache(repoName);
 
@@ -461,7 +461,7 @@ export default class GitHubAPI {
         }
 * ```
  */
-    async getLiveUrl(repoName: string, type: 'pinned' | 'dynamic'): Promise<APIResponseData> {
+    async getLiveURLForPinned(repoName: string, type: 'pinned' | 'dynamic'): Promise<APIResponseData> {
         try {
             const { pinned } = Object.create(repoDefaults);
             const { otherRepos } = Object.create(dynamicDefaults);

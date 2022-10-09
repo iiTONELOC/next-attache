@@ -50,7 +50,7 @@ export default function Attache(props: attachePageProps) { //NOSONAR
                 </div>
             </section>
 
-            <ProjectsComponent names={projectNames} />
+            <ProjectsComponent dynamic={true} names={projectNames} />
 
         </main>
 
