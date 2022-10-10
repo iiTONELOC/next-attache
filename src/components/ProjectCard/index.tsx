@@ -25,13 +25,13 @@ const formatRepoName: Function = (repoName: string): string => {
     return splitName.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 };
 
-export default function ProjectCard(
+export default function ProjectCard( // NOSONAR
     props: {
         projectName?: string,
         project?: repoData,
         dynamic?: boolean
     }
-): JSX.Element | null {// NOSONAR
+): JSX.Element | null {
     const { data, loading, error } = useProjectData(
         {
             searchByName: props.projectName,
@@ -71,7 +71,7 @@ export default function ProjectCard(
 
     const emeraldOnHover = isHovered ? 'text-emerald-400' : '';
 
-    return (
+    return isMounted ? (
         <article
             className={`w-full h-full hover:bg-zinc-800 bg-zinc-800/75 hover:scale-105 rounded-lg p-2 flex flex-col justify-start items-center`}
             onMouseEnter={handleHover}
@@ -86,17 +86,14 @@ export default function ProjectCard(
                     {/* Image container */}
                     <div className='w-full  p-1 h-40 overflow-hidden  rounded-t-md'>
                         <div className='relative h-[152px] overflow-hidden rounded-t-md'>
-                            {typeof window !== 'undefined' ? (
-                                <Image
-                                    className='text-base'
-                                    objectFit='cover'
-                                    layout='fill'
-                                    src={screenshotUrl || '/images/default-img.jpg'}
-                                    alt={projectName}
-                                />
-                            ) :
-                                (<p>Loading...</p>)
-                            }
+                            <Image
+                                priority={true}
+                                className='text-base'
+                                objectFit='cover'
+                                layout='fill'
+                                src={screenshotUrl || '/images/default-img.jpg'}
+                                alt={projectName}
+                            />
                         </div>
                     </div>
 
@@ -133,5 +130,5 @@ export default function ProjectCard(
                 <p>{errors}</p>
             )}
         </article>
-    );
+    ) : <></>;
 }

@@ -1,9 +1,8 @@
 import Head from 'next/head';
 import Image from 'next/image';
 import { useIsMounted } from '../hooks';
-import GitHubAPI from '../../lib/GitHubAPI';
+import { useAvatarState } from '../providers';
 import DefaultUserSettings from '../../attache-defaults.json';
-
 
 const pageStyles = {
     main: 'w-full h-full flex flex-col justify-start gap-y-10 items-center mb-10 rounded-b-lg',
@@ -17,19 +16,16 @@ const pageStyles = {
     imgHeight: 200
 };
 
-const About = (props: { avatar_url: string }): JSX.Element | null => {
+const About = (): JSX.Element => { // NOSONAR
     const isMounted = useIsMounted();
-
-    if (!isMounted) {
-        return null;
-    }
+    const [avatarUrl,] = useAvatarState();
 
 
-    return (
+    return isMounted ? (
         <main className={pageStyles.main}>
             <Head>
                 <title>{`${DefaultUserSettings.name}'s Portfolio - About`}</title>
-                <link rel="icon" href={props?.avatar_url} />
+                {avatarUrl !== '' && <link rel="icon" href={avatarUrl} />}
                 <meta name="viewport" content="initial-scale=1.0, width=device-width" />
             </Head>
 
@@ -39,10 +35,11 @@ const About = (props: { avatar_url: string }): JSX.Element | null => {
                 <span className={pageStyles.imgSpan}>
                     <Image
                         alt='Avatar'
+                        priority={true}
                         width={pageStyles.imgWidth}
                         height={pageStyles.imgHeight}
                         className='rounded-full'
-                        src={props?.avatar_url}
+                        src={avatarUrl !== '' ? avatarUrl : '/images/default-img.jpg'}
                     />
                 </span>
                 <p className={pageStyles.codeText}>{'/'}</p>
@@ -60,17 +57,9 @@ const About = (props: { avatar_url: string }): JSX.Element | null => {
                 }</p>
             </section>
         </main>
-    );
+    ) : <></>;
 };
 
-export async function getStaticProps() {
-    const gitHubApi = new GitHubAPI();
-    const { data } = await gitHubApi.getAvatarURL();
-
-    return {
-        props: { avatar_url: data?.avatar_url }
-    };
-}
 
 
 export default About;
