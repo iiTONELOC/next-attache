@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Email_Input from '../inputs/Email_Input';
+import ReCAPTCHA from 'react-google-recaptcha';
 import ContactMessage from './ContactMessage';
 import { useIsMounted } from '../../../hooks';
 import ContactNameInput from './ContactName';
@@ -7,10 +8,12 @@ import FormContainer from '../FormContainer';
 import emailjs from '@emailjs/browser';
 import styles from './styles';
 
+
 const defaultFormState = {
     user_name: '',
     user_email: '',
-    message: ''
+    message: '',
+    g_recaptcha_response: ''
 };
 
 type formButton = {
@@ -24,10 +27,12 @@ export default function ContactForm() { //NOSONAR
     const [formState, setFormState] = useState<typeof defaultFormState>(defaultFormState);
     const [messageValidated, setMessageValidated] = useState<boolean>(false);
     const [emailValidated, setEmailValidated] = useState<boolean>(false);
+    const [capResponse, setCapResponse] = useState<string | null>(null);
     const [nameValidated, setNameValidated] = useState<boolean>(false);
+    const [sendError, setSendError] = useState<boolean | null>(null);
     const [showMessage, setShowMessage] = useState<boolean>(false);
     const [message, setMessage] = useState<string | null>(null);
-    const [sendError, setSendError] = useState<boolean | null>(null);
+
 
     const isFormValidated = () => [messageValidated, emailValidated, nameValidated].every(Boolean);
 
@@ -42,10 +47,11 @@ export default function ContactForm() { //NOSONAR
 
     const resetState = () => {
         setFormState(defaultFormState);
+        setCapResponse(null);
         setFormValidated(false);
-        setMessageValidated(false);
-        setEmailValidated(false);
         setNameValidated(false);
+        setEmailValidated(false);
+        setMessageValidated(false);
     };
 
     const emailJsFormRef = useRef<HTMLFormElement>(null);
@@ -66,6 +72,12 @@ export default function ContactForm() { //NOSONAR
 
         if (formValidated) {
             try {//NOSONAR
+
+
+                // Add the captcha response token to the form data
+                formState.g_recaptcha_response = capResponse || '';
+
+                // Send the form data to emailjs
                 emailjs.sendForm(
                     process.env.NEXT_PUBLIC_EMAIL_SERVICE_ID || '',
                     process.env.NEXT_PUBLIC_EMAIL_TEMPLATE_ID || '',
@@ -74,7 +86,7 @@ export default function ContactForm() { //NOSONAR
                 ).then(_ => {
                     displayMessage('Email sent successfully!');
                     resetState();
-                    setTimeout(() => { window.location.assign('/') }, 3500);
+                    setTimeout(() => { window.location.assign('/') }, 2000);
                 });
             } catch (error) {
                 setSendError(true);
@@ -151,7 +163,15 @@ export default function ContactForm() { //NOSONAR
                 {
                     formValidated ? (
                         <section className={styles.buttonSection}>
+
+                            <ReCAPTCHA
+                                sitekey={process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY || ''}
+                                onChange={setCapResponse}
+                                theme='dark'
+                            />
+
                             {renderButtons()}
+
                         </section>
                     ) : <></>
                 }
