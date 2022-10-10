@@ -34,7 +34,7 @@ async function writeEnvDataToTestJson(): Promise<boolean | Error> {
     return forkCreateJsonScript(
         [
             `${process.env.GIT_HUB_USERNAME}`,
-            `${process.env.GIT_HUB_ACCESS_TOKEN}`
+            `${process.env.NEXT_PUBLIC_GIT_HUB_ACCESS_TOKEN}`
         ]
     );
 }

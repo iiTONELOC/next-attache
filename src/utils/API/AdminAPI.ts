@@ -9,7 +9,7 @@ import AuthService, { Auth } from '../Auth';
 class AdminAPI {
     private token: string;
     private headers: Headers;
-    private readonly Auth: Auth;
+    private Auth: Auth;
 
     constructor() {
         this.Auth = AuthService;
@@ -60,15 +60,21 @@ class AdminAPI {
 
     async createAttache(formData: AttacheState) {
         const projects = [];
+
         this._updateAuth();
+
         // create the project data for the attache
         // this creates a new entry in the db for the project
         // if exists, we will update existing data.
         for (const project of formData.projectData) {
-
+            // NON ADMIN AUTH TO HIT THE PROJECT/REPO API
+            const headers = new Headers({
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.NEXT_PUBLIC_GIT_HUB_ACCESS_TOKEN}`
+            });
             const currentProject = await _query(
                 `repo/${project.name}?liveUrlType=dynamic`,
-                this.headers,
+                headers,
                 API_PREFIX
             );
 

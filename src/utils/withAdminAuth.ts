@@ -38,7 +38,7 @@ export default async function withAdminAuth(
 
     const { headers } = req;
     const { authorization } = headers;
-    console.log('WITH ADMIN AUTH')
+
     if (authorization) {
         const token = extractToken(authorization);
         try {
@@ -55,6 +55,7 @@ export default async function withAdminAuth(
             if (user) {
                 return callback({ authData: data });
             } else {
+
                 return res.status(HttpStatus.UNAUTHORIZED).json({ error: { message: 'Unauthorized' } });
             }
 

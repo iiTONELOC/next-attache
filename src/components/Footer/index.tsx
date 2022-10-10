@@ -1,8 +1,8 @@
-import gitHubSettings from '../../../.github.config.json';
+
 import userSettings from '../../../attache-defaults.json';
 import { BsGithub, BsLinkedin, BsEnvelope } from 'react-icons/bs';
 
-const { username } = gitHubSettings;
+const username = process.env.NEXT_PUBLIC_GIT_HUB_USERNAME;
 const { linkedIn, email } = userSettings;
 
 type footerLink = {

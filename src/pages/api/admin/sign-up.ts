@@ -1,5 +1,4 @@
 import { UserController } from '../../../../lib/db/controller';
-import gitHubDefaults from '../../../../.github.config.json';
 import { dbConnection } from '../../../../lib/db/connection';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { signToken } from '../../../utils/withAdminAuth';
@@ -21,7 +20,7 @@ export default async function handler(
 
     if (name && password && email) {
         // only allow the default user to create an account
-        const allowedUsername = gitHubDefaults.username;
+        const allowedUsername = process.env.NEXT_PUBLIC_GIT_HUB_USERNAME;
 
         if (name !== allowedUsername) {
             return res.status(HttpStatus.UNAUTHORIZED).json(

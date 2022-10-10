@@ -1,11 +1,12 @@
 # &#128278; Attaché
 
 # Screenshot
+
 ![screenshot](./assets/screenshot.png)
 
 ## &#128679; Coming Soon &#128679;
 
-### &#128188;  *Portfolio and Resume Manager for Next.js*
+### &#128188; _Portfolio and Resume Manager for Next.js_
 
 ## Table of Contents
 
@@ -19,68 +20,70 @@
 
 1. Clone the repository
 
-    ```bash
-    git clone https://github.com/iiTONELOC/next-attache.git
-    ```
+   ```bash
+   git clone https://github.com/iiTONELOC/next-attache.git
+   ```
 
 2. Create the configuration file for the GitHubAPI.
-    1. Authentication is required:
-       1. create a [GitHub access token to authenticate your app](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
-       2. Run the script below replacing `GitHubUsername` with your username and `GitHubAccessToken` with your newly created token.
 
-        ```bash
-        npm run create-github -u GitHubUsername -a GitHubAccessToken
-        ```
+   1. Authentication is required:
+
+      1. create a [GitHub access token to authenticate your app](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
+      2. Run the script below replacing `GitHubUsername` with your username and `GitHubAccessToken` with your newly created token.
+
+      ```bash
+      npm run create-github -u GitHubUsername -a GitHubAccessToken
+      ```
 
 3. Create a .env.test file, be sure to replace username and auth with your GitHub username and previously created auth token.
 
-     *Note*: This step is only necessary if you need to run the tests.
+   _Note_: This step is only necessary if you need to run the tests.
 
-    * ## *`Powershell`*
+   - ## _`Powershell`_
 
-        ```bash
-        echo "GIT_HUB_USERNAME=username`nGIT_HUB_ACCESS_TOKEN=auth" > .env.test
-        ```
+     ```bash
+     echo "GIT_HUB_USERNAME=username`nNEXT_PUBLIC_GIT_HUB_ACCESS_TOKEN=auth" > .env.test
+     ```
 
-    * ## *`Bash`*
+   - ## _`Bash`_
 
-        ```bash
-        echo -e "GIT_HUB_USERNAME=username\nGIT_HUB_ACCESS_TOKEN=auth" > .env.test
-        ```
+     ```bash
+     echo -e "GIT_HUB_USERNAME=username\nNEXT_PUBLIC_GIT_HUB_ACCESS_TOKEN=auth" > .env.test
+     ```
 
 ## Usage
 
 ## &#128187;
 
-- ### *`Development`*
+- ### _`Development`_
 
-    ```bash
-    npm run dev
-    ```
+  ```bash
+  npm run dev
+  ```
 
-- ### *`Tests`*
+- ### _`Tests`_
 
-    ```bash
-    npm run test
-    ```
+  ```bash
+  npm run test
+  ```
 
-- ### *`Lint`*
+- ### _`Lint`_
 
-    ```bash
-    npm run lint
-    ```
+  ```bash
+  npm run lint
+  ```
 
-- ### *`Build`*
+- ### _`Build`_
 
-    ```bash
-    npm run build
-    ```
+  ```bash
+  npm run build
+  ```
 
-- ### *`Start`*
+- ### _`Start`_
 
-    ```bash
-    npm start
-    ```
+  ```bash
+  npm start
+  ```
 
 ## LICENSE
 

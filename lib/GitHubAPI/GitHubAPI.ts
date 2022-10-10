@@ -1,11 +1,10 @@
 import fetch from 'node-fetch';
-import { readFileSync } from 'fs';
 import { APIResponseData } from './interfaces';
 import { headers, readmeParser } from './helpers';
 import repoDefaults from '../../attache-defaults.json';
 import dynamicDefaults from '../../attache-dynamic.json';
 import {
-    filename, creationErrorPrefix, restRepoEndPoint,
+    creationErrorPrefix, restRepoEndPoint,
     gitHubAPIUrl, graphQLRequestURL
 } from './constants';
 
@@ -28,9 +27,9 @@ export default class GitHubAPI {
     #readmeCache: { [key: string]: string };
 
     constructor() {
-        // istanbul ignore next
-        const config = JSON.parse(readFileSync(filename, 'utf8') || '{}');
-        const { username, authenticate } = config;
+
+        const username = process.env.NEXT_PUBLIC_GIT_HUB_USERNAME;
+        const authenticate = process.env.NEXT_PUBLIC_GIT_HUB_ACCESS_TOKEN;
 
         if (!username && authenticate) {
             throw new Error(creationErrorPrefix + ' A username is required');
@@ -44,8 +43,8 @@ export default class GitHubAPI {
             throw new Error(creationErrorPrefix + ' A username and auth token are required');
         }
 
-        this.user = username;
-        this.#auth = authenticate;
+        this.user = username || '';
+        this.#auth = authenticate || '';
         this.#readmeCache = {};
     }
 

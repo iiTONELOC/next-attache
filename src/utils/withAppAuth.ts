@@ -1,4 +1,3 @@
-import gitHubDefaults from '../../.github.config.json';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 
@@ -20,7 +19,7 @@ export const extractToken: Function = (auth: string): string => auth.split(' ')[
 export default function withAppAuth(req: NextApiRequest, res: NextApiResponse, callback: Function) {
     const { headers } = req;
     const { authorization } = headers;
-    const { authenticate } = gitHubDefaults;
+    const authenticate = process.env.NEXT_PUBLIC_GIT_HUB_ACCESS_TOKEN;
 
 
     if (authorization && extractToken(authorization) === authenticate) {
