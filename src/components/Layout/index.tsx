@@ -1,11 +1,9 @@
 import Head from 'next/head';
-import API from '../../utils/API';
 import { NavBar, Footer } from '../index';
 import { useIsMounted } from '../../hooks';
-import { AttacheListStateProvider } from '../../providers';
 import React, { ReactNode, useEffect, useState } from 'react';
 import defaultUserSettings from '../../../attache-defaults.json';
-
+import { AttacheListStateProvider, useAvatarState } from '../../providers';
 
 const { name, portfolioTitle } = defaultUserSettings;
 
@@ -14,30 +12,9 @@ export type LayoutProps = {
 };
 
 export default function Layout({ children }: LayoutProps): JSX.Element {
-    const [avatarSrc, setAvatarSrc] = useState<string>('');
     const [useProvider, setUseProvider] = useState<boolean>(false);
+    const [avatarSrc,] = useAvatarState();
     const isMounted = useIsMounted();
-
-    const getAndSetAvatar = (): void => {
-        API.getAvatar().then(d => {
-            const url = d?.avatar_url;
-            const currUrl = avatarSrc;
-
-            if (url && url !== currUrl) {
-                setAvatarSrc(d.avatar_url);
-                localStorage.setItem('portfolioAvatarSrc', url);
-            }
-        });
-    };
-
-    useEffect(() => {
-        const cacheSrc = localStorage.getItem('portfolioAvatarSrc');
-        cacheSrc && setAvatarSrc(cacheSrc);
-
-        isMounted && getAndSetAvatar();
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isMounted]);
 
     useEffect(() => {
         const location = window.location;
