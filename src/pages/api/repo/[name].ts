@@ -44,22 +44,19 @@ export const handleProjectLookUp = async (
 
     if (repoInDb) {
 
-        if (liveUrlType === 'dynamic') {
-            // get fresh data from GitHub
-            const gitHubData = await gitHubAPI.getRepoByName(name as string, 'dynamic');
-            const { data } = gitHubData;
 
-            // update database with fresh data
-            const updatedRepo = await updateProjectBy.name(name as string, {
-                ...data
-            });
+        // get fresh data from GitHub
+        const gitHubData = await gitHubAPI.getRepoByName(name as string, 'dynamic');
+        const { data } = gitHubData;
 
-            // return updated data to the client
-            return res.status(HttpStatus.OK).json({ data: updatedRepo._doc });
-        }
+        // update database with fresh data
+        const updatedRepo = await updateProjectBy.name(name as string, {
+            ...data
+        });
 
-        // non dynamic request, return data from database
-        return res.status(HttpStatus.OK).json({ data: repoInDb });
+        // return updated data to the client
+        return res.status(HttpStatus.OK).json({ data: updatedRepo._doc });
+
     } else {
         // Repo doesn't exist in database yet let's add it
         const repo = await gitHubAPI.getRepoByName(name as string,
