@@ -4,14 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "npm run create-github",
     "build": "next build",
     "start": "next start",
     "test": "jest --detectOpenHandles",
     "test:coverage": "jest --coverage",
-    "lint": "next lint",
-    "create-github": "node scripts/createGitHubJson.mjs",
-    "delete-db": "npx ts-node scripts/deleteDb.ts"
+    "lint": "next lint"
   },
   "dependencies": {
     "@emailjs/browser": "^3.7.0",
