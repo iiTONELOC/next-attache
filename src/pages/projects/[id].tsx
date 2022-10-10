@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import styles from './styles';
+import { styles } from './index';
 import { useIsMounted } from '../../hooks';
 import { Projects as ProjectsComponent } from '../../components';
 import DefaultUserSettings from '../../../attache-defaults.json';

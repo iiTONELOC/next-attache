@@ -1,9 +1,13 @@
 import Head from 'next/head';
-import styles from './styles';
 import { useIsMounted } from '../../hooks';
 import GitHubAPI from '../../../lib/GitHubAPI';
 import { Projects as ProjectsComponent } from '../../components';
 import DefaultUserSettings from '../../../attache-defaults.json';
+
+export const styles = {
+    main: 'w-full h-full flex flex-wrap flex-row justify-center gap-x-10 items-center mb-10 rounded-b-lg',
+};
+
 
 type propTypes = {
     pinnedRepoNames: string[];
