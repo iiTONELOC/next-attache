@@ -25,8 +25,6 @@ const About = (): JSX.Element => { // NOSONAR
         <main className={pageStyles.main}>
             <Head>
                 <title>{`${DefaultUserSettings.name}'s Portfolio - About`}</title>
-                {avatarUrl !== '' && <link rel="icon" href={avatarUrl} />}
-                <meta name="viewport" content="initial-scale=1.0, width=device-width" />
             </Head>
 
             {/* Avatar with < /> */}
