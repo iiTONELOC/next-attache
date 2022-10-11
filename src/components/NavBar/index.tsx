@@ -1,5 +1,5 @@
 import defaultUserSettings from '../../../attache-defaults.json';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import WithToolTip from '../WithToolTip';
 import { IsMobile, useIsMounted } from '../../hooks';
 import { MenuIcon } from '../Icons';
@@ -48,6 +48,9 @@ export default function NavBar(): JSX.Element | null { // NOSONAR
     const [attacheVersion,] = useVersionState();
     const { version } = attacheVersion;
 
+    const closeNavOnClick = (): void => {
+        isMobile && isOpen && setTimeout(() => setIsOpen(false), 150);
+    };
 
     const links: linkType[] = [
         { name: 'About', to: '/' },
@@ -114,7 +117,7 @@ export default function NavBar(): JSX.Element | null { // NOSONAR
                         <Link href={'/'}>
                             <h1 className={componentStyles.name}>{navHeading}</h1>
                         </Link>
-                        <nav className={componentStyles.navBar + componentStyles.navBarResponsive}>
+                        <nav className={componentStyles.navBar + componentStyles.navBarResponsive} onClick={closeNavOnClick}>
                             {
                                 linksToRender.map(el => <NavLink linkName={el.name} to={el.to} key={el.name} onClick={el.onClick} />)
                             }

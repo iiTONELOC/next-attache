@@ -11,16 +11,6 @@ export type isLandscapeType = {
     isLandscape: boolean;
 };
 
-/**
- * Returns boolean value for whether the viewport should be considered mobile
- *
- * @example
- * ```js
- * import { IsMobile } from './hooks'; // relative path to hooks folder
- *
- * const { isMobile } = IsMobile();
- * ```
- */
 export default function IsLandscape(): isLandscapeType {// NOSONAR
     const [isLandscape, setIsLandscape] = useState<boolean>(false);
 

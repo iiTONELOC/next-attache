@@ -35,7 +35,7 @@ export default function Layout({ children }: LayoutProps): JSX.Element {
             </Head>
             <section className='w-full h-screen flex flex-wrap flex-row justify-center items-start overflow-y-auto'>
                 <div className='w-full h-auto'><NavBar /></div>
-                <div className='w-full h-auto'>
+                <div className='w-full h-auto]'>
                     {isMounted && renderProvider(children)}
                 </div>
                 <div className='w-full h-auto self-end'><Footer /></div>
