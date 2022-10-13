@@ -26,6 +26,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # local env files
+.env
 .env*.local
 .env.test
 
@@ -38,4 +39,4 @@ next-env.d.ts
 
 .github.config.json
 .github.config-test.json
-.vscode
+.vscode+
