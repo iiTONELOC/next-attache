@@ -93,6 +93,8 @@ export default function ProjectCard( // NOSONAR
                                 layout='fill'
                                 src={screenshotUrl && screenshotUrl !== '' ? screenshotUrl : '/images/default-img.jpg'}
                                 alt={projectName}
+                                height={152}
+                                width={300}
                             />
                         </div>
                     </div>

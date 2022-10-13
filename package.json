@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "jest --detectOpenHandles",
+    "env": "node createEnv.mjs",
+    "test": "jest",
     "test:coverage": "jest --coverage",
     "lint": "next lint"
   },
@@ -22,7 +23,8 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-google-recaptcha": "^2.1.0",
-    "react-icons": "^4.4.0"
+    "react-icons": "^4.4.0",
+    "sharp": "^0.31.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",

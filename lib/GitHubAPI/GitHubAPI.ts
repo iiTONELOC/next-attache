@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 import { APIResponseData } from './interfaces';
 import { headers, readmeParser } from './helpers';
 import repoDefaults from '../../attache-defaults.json';
-import dynamicDefaults from '../../attache-dynamic.json';
+
 import {
     creationErrorPrefix, restRepoEndPoint,
     gitHubAPIUrl, graphQLRequestURL
@@ -463,9 +463,8 @@ export default class GitHubAPI {
     async getLiveURLForPinned(repoName: string, type: 'pinned' | 'dynamic'): Promise<APIResponseData> {
         try {
             const { pinned } = Object.create(repoDefaults);
-            const { otherRepos } = Object.create(dynamicDefaults);
 
-            const repo = type === 'pinned' ? pinned[repoName] : otherRepos[repoName];
+            const repo = type === 'pinned' ? pinned[repoName] : '';
 
             if (repo) {
                 const { liveUrl } = repo;
