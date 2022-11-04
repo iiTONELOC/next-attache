@@ -8,6 +8,7 @@ export default async function handler(
     req: NextApiRequest, res: NextApiResponse
 ) {
     const urlData = await gitHubAPI.getAvatarURL();
+
     return res.status(200).json(urlData.data);
 }
 

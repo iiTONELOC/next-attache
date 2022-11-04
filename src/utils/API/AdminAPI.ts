@@ -5,6 +5,7 @@ import { _mutate, _query } from './helpers';
 import { ADMIN_PREFIX, API_PREFIX } from '.';
 import AuthService, { Auth } from '../Auth';
 
+const contentType = 'application/json';
 
 class AdminAPI {
     private token: string;
@@ -15,7 +16,7 @@ class AdminAPI {
         this.Auth = AuthService;
         this.token = this.Auth.getToken() || '';
         this.headers = new Headers({
-            'Content-Type': 'application/json',
+            'Content-Type': contentType,
             'Authorization': `Bearer ${this.token}`
         });
     }
@@ -23,7 +24,7 @@ class AdminAPI {
     private _updateAuth() {
         this.token = this.Auth.getToken() || '';
         this.headers = new Headers({
-            'Content-Type': 'application/json',
+            'Content-Type': contentType,
             'Authorization': `Bearer ${this.token}`
         });
     }
@@ -69,7 +70,7 @@ class AdminAPI {
         for (const project of formData.projectData) {
             // NON ADMIN AUTH TO HIT THE PROJECT/REPO API
             const headers = new Headers({
-                'Content-Type': 'application/json',
+                'Content-Type': contentType,
                 'Authorization': `Bearer ${process.env.NEXT_PUBLIC_GIT_HUB_ACCESS_TOKEN}`
             });
             const currentProject = await _query(

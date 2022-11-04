@@ -1,8 +1,10 @@
 import Head from 'next/head';
 import Image from 'next/image';
+import { Suspense } from 'react';
 import { useIsMounted } from '../hooks';
 import { useAvatarState } from '../providers';
 import DefaultUserSettings from '../../attache-defaults.json';
+
 
 const pageStyles = {
     main: 'w-full h-full flex flex-col justify-start gap-y-10 items-center mb-10 rounded-b-lg',
@@ -18,8 +20,7 @@ const pageStyles = {
 
 const About = (): JSX.Element => { // NOSONAR
     const isMounted = useIsMounted();
-    const [avatarUrl,] = useAvatarState();
-
+    const [avatarUrl] = useAvatarState();
 
     return isMounted ? (
         <main className={pageStyles.main}>
@@ -31,14 +32,16 @@ const About = (): JSX.Element => { // NOSONAR
             <section className={pageStyles.avatarSection}>
                 <p className={pageStyles.codeText + ' ml-5'}>{'<'}</p>
                 <span className={pageStyles.imgSpan}>
-                    <Image
-                        alt='Avatar'
-                        priority={true}
-                        width={pageStyles.imgWidth}
-                        height={pageStyles.imgHeight}
-                        className='rounded-full'
-                        src={avatarUrl !== '' ? avatarUrl : '/images/default-img.jpg'}
-                    />
+                    <Suspense>
+                        <Image
+                            alt='Avatar'
+                            priority={true}
+                            width={pageStyles.imgWidth}
+                            height={pageStyles.imgHeight}
+                            className='rounded-full'
+                            src={avatarUrl !== '' ? avatarUrl : '/images/default-img.jpg'}
+                        />
+                    </Suspense>
                 </span>
                 <p className={pageStyles.codeText}>{'/'}</p>
                 <p className={pageStyles.codeText + ' -ml-3'}>{'>'}</p>

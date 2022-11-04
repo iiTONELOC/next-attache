@@ -27,7 +27,6 @@ export default class GitHubAPI {
     #readmeCache: { [key: string]: string };
 
     constructor() {
-
         const username = process.env.NEXT_PUBLIC_GIT_HUB_USERNAME;
         const authenticate = process.env.NEXT_PUBLIC_GIT_HUB_ACCESS_TOKEN;
 
