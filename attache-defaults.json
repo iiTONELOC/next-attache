@@ -11,7 +11,7 @@
             "liveUrl": "GITHUB"
         },
         "cloudyWeatherAPI": {
-            "liveUrl": "NONE"
+            "liveUrl": "https://cloudyweatherapi.azurewebsites.net"
         },
         "employee-tracker": {
             "liveUrl": "DEMO"
