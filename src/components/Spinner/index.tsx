@@ -6,7 +6,7 @@ export interface ISpinnerProps {
 
 
 export default function Spinner(props: ISpinnerProps): JSX.Element {
-    const textColor = props.textColor || styles.greenText;
+    const textColor = props.textColor || styles.purpleText;
     const spinnerStyles = `${styles.spinner} ${textColor}`;
 
     return (

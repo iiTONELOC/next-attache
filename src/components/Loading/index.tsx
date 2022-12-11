@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import SpinnerStyles from '../Spinner/styles';
 
 
-export default function Loading(): JSX.Element {
-    const [spinnerColor, setSpinnerColor] = useState<string>(SpinnerStyles.greenText);
+export default function Loading(props: { message?: string }): JSX.Element {
+    const [spinnerColor, setSpinnerColor] = useState<string>(SpinnerStyles.purpleText);
 
     const threeSecTimeout = () => setTimeout(() => {
         setSpinnerColor(SpinnerStyles.yellowText);
@@ -40,7 +40,7 @@ export default function Loading(): JSX.Element {
         <div className={styles.container}>
             <h1 className={styles.heading}>
                 <span className={styles.spinnerSpan}>
-                    Loading...
+                    {props.message ? props.message : 'Loading...'}
                     {<Spinner textColor={spinnerColor} />}
                 </span>
             </h1>

@@ -1,7 +1,5 @@
 import { useProjectCache } from '../../providers/AttacheProjectCache';
 import ProjectCard from '../ProjectCard';
-import { Suspense } from 'react';
-import Loading from '../Loading';
 
 export type componentProps = {
     names?: string[];
@@ -21,20 +19,18 @@ export default function ProjectsComponent(props: componentProps) {
 
     return (
         <section className={styles.projectSection}>
-            <Suspense fallback={<Loading />}>
-                {names?.map((repoName, index) => {
-                    return (
-                        <div className={styles.div} key={index}>
-                            {projectState.projects[repoName] ? (
-                                <ProjectCard
-                                    project={projectState.projects[repoName]}
-                                    dynamic={dynamic}
-                                />
-                            ) : <ProjectCard projectName={repoName} dynamic={dynamic} />}
-                        </div>
-                    );
-                })}
-            </Suspense>
+            {names?.map((repoName, index) => {
+                return (
+                    <div className={styles.div} key={index}>
+                        {projectState.projects[repoName] ? (
+                            <ProjectCard
+                                project={projectState.projects[repoName]}
+                                dynamic={dynamic}
+                            />
+                        ) : <ProjectCard projectName={repoName} dynamic={dynamic} />}
+                    </div>
+                );
+            })}
         </section>
     );
 }
