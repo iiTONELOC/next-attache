@@ -10,8 +10,8 @@
         "covid-master": {
             "liveUrl": "GITHUB"
         },
-        "dashboard": {
-            "liveUrl": "https://i-dash.herokuapp.com/"
+        "cloudyWeatherAPI": {
+            "liveUrl": "https://cloudyweatherapi.azurewebsites.net"
         },
         "employee-tracker": {
             "liveUrl": "DEMO"
