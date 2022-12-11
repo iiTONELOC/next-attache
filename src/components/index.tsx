@@ -2,6 +2,8 @@ import NavBar from './NavBar';
 import Footer from './Footer';
 import Layout from './Layout';
 import Resume from './Resume';
+import Loading from './Loading';
+import Spinner from './Spinner';
 import Projects from './Projects';
 import ProjectCard from './ProjectCard';
 import WithToolTip from './WithToolTip';
@@ -17,6 +19,8 @@ export {
     Footer,
     Layout,
     Resume,
+    Loading,
+    Spinner,
     Projects,
     LoginForm,
     SignUpForm,

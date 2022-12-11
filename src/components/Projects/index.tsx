@@ -1,6 +1,7 @@
 import { useProjectCache } from '../../providers/AttacheProjectCache';
 import ProjectCard from '../ProjectCard';
 import { Suspense } from 'react';
+import Loading from '../Loading';
 
 export type componentProps = {
     names?: string[];
@@ -20,7 +21,7 @@ export default function ProjectsComponent(props: componentProps) {
 
     return (
         <section className={styles.projectSection}>
-            <Suspense fallback={<div className={styles.div}>Loading...</div>}>
+            <Suspense fallback={<Loading />}>
                 {names?.map((repoName, index) => {
                     return (
                         <div className={styles.div} key={index}>

@@ -1,6 +1,5 @@
 import Head from 'next/head';
 import Image from 'next/image';
-import { Suspense } from 'react';
 import { useIsMounted } from '../hooks';
 import { useAvatarState } from '../providers';
 import DefaultUserSettings from '../../attache-defaults.json';
@@ -32,16 +31,14 @@ const About = (): JSX.Element => { // NOSONAR
             <section className={pageStyles.avatarSection}>
                 <p className={pageStyles.codeText + ' ml-5'}>{'<'}</p>
                 <span className={pageStyles.imgSpan}>
-                    <Suspense>
-                        <Image
-                            alt='Avatar'
-                            priority={true}
-                            width={pageStyles.imgWidth}
-                            height={pageStyles.imgHeight}
-                            className='rounded-full'
-                            src={avatarUrl !== '' ? avatarUrl : '/images/default-img.jpg'}
-                        />
-                    </Suspense>
+                    <Image
+                        alt='Avatar'
+                        priority={true}
+                        width={pageStyles.imgWidth}
+                        height={pageStyles.imgHeight}
+                        className='rounded-full'
+                        src={avatarUrl !== '' ? avatarUrl : '/images/default-img.jpg'}
+                    />
                 </span>
                 <p className={pageStyles.codeText}>{'/'}</p>
                 <p className={pageStyles.codeText + ' -ml-3'}>{'>'}</p>
