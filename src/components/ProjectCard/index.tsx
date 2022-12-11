@@ -59,7 +59,7 @@ export default function ProjectCard( // NOSONAR
         error && setErrors(error);
     }, [error]);
 
-    if (!isMounted || loading) {
+    if (!isMounted) {
         return null;
     }
 
@@ -77,7 +77,7 @@ export default function ProjectCard( // NOSONAR
         return <Loading />;
     }
 
-    return isMounted ? (
+    return isMounted && !loading ? (
         <article
             className={`w-full h-full hover:bg-zinc-800 bg-zinc-800/75 hover:scale-105 rounded-lg p-2 flex flex-col justify-start items-center`}
             onMouseEnter={handleHover}
