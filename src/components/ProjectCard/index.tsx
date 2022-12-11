@@ -1,11 +1,12 @@
-import type { errorType, repoData } from '../../types';
 import { useIsMounted, useHovered, useProjectData } from '../../hooks';
+import type { errorType, repoData } from '../../types';
 import { IoRocketOutline } from 'react-icons/io5';
 import { BiMoviePlay } from 'react-icons/bi';
 import { VscGithub } from 'react-icons/vsc';
 import { useEffect, useState } from 'react';
-
+import Loading from '../Loading';
 import Image from 'next/image';
+
 
 const footerIconClasses = 'text-shadow text-2xl text-purple-500 hover:text-gray-300 hover:scale-110 transition duration-300 ease-in-out';
 
@@ -70,6 +71,11 @@ export default function ProjectCard( // NOSONAR
     ];
 
     const emeraldOnHover = isHovered ? 'text-emerald-400' : '';
+
+
+    if (loading) {
+        return <Loading />;
+    }
 
     return isMounted ? (
         <article
