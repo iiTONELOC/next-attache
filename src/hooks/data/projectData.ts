@@ -27,7 +27,6 @@ export default function useProjectData(props: {
             data && dispatch({ type: ADD_PROJECT_TO_CACHE, payload: data });
 
             if (error) { // NOSONAR
-                console.log('error', error);
                 throw new Error(error?.message || 'An error occurred');
             }
         });

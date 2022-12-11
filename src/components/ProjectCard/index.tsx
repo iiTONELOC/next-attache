@@ -1,11 +1,12 @@
-import type { errorType, repoData } from '../../types';
 import { useIsMounted, useHovered, useProjectData } from '../../hooks';
+import type { errorType, repoData } from '../../types';
 import { IoRocketOutline } from 'react-icons/io5';
 import { BiMoviePlay } from 'react-icons/bi';
 import { VscGithub } from 'react-icons/vsc';
 import { useEffect, useState } from 'react';
-
+import Loading from '../Loading';
 import Image from 'next/image';
+
 
 const footerIconClasses = 'text-shadow text-2xl text-purple-500 hover:text-gray-300 hover:scale-110 transition duration-300 ease-in-out';
 
@@ -58,7 +59,7 @@ export default function ProjectCard( // NOSONAR
         error && setErrors(error);
     }, [error]);
 
-    if (!isMounted || loading) {
+    if (!isMounted) {
         return null;
     }
 
@@ -71,7 +72,7 @@ export default function ProjectCard( // NOSONAR
 
     const emeraldOnHover = isHovered ? 'text-emerald-400' : '';
 
-    return isMounted ? (
+    return isMounted && data && !loading ? (
         <article
             className={`w-full h-full hover:bg-zinc-800 bg-zinc-800/75 hover:scale-105 rounded-lg p-2 flex flex-col justify-start items-center`}
             onMouseEnter={handleHover}
@@ -80,13 +81,12 @@ export default function ProjectCard( // NOSONAR
             {/* Title */}
             <h1 className={'decoration-gray-400 underline underline-offset-4 text-gray-100 my-2 text-shadow ' + emeraldOnHover} >{formatRepoName(projectName)}</h1>
 
-
             {!errors ? (
                 <section className='h-full bg-zinc-900/80 w-full flex flex-wrap flex-row justify-center items-center rounded-md text-gray-200'>
                     {/* Image container */}
                     <div className='w-full  p-1 h-40 overflow-hidden  rounded-t-md'>
                         <div className='relative h-[152px] overflow-hidden rounded-t-md'>
-                            <Image
+                            (<Image
                                 priority={true}
                                 className='text-base'
                                 objectFit='cover'
@@ -95,7 +95,7 @@ export default function ProjectCard( // NOSONAR
                                 alt={projectName}
                                 height={152}
                                 width={300}
-                            />
+                            />)
                         </div>
                     </div>
 
@@ -109,7 +109,6 @@ export default function ProjectCard( // NOSONAR
                         <section className='flex flex-row justify-evenly items-center w-full p-2'>
                             {
                                 footerIcons.map(({ icon, name, href }, index) => {
-
                                     return (
                                         href && href !== '' && (
                                             <a
@@ -121,7 +120,7 @@ export default function ProjectCard( // NOSONAR
                                                 {icon}
                                             </a>
                                         )
-                                    )
+                                    );
                                 })
                             }
                         </section>
@@ -132,5 +131,5 @@ export default function ProjectCard( // NOSONAR
                 <p>{errors}</p>
             )}
         </article>
-    ) : <></>;
+    ) : <Loading />;
 }

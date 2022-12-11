@@ -22,12 +22,12 @@ const componentStyles = {
 const footerLinks: footerLink[] = [
     {
         name: 'GitHub',
-        href: `https:github.com/${username}`,
+        href: `https://github.com/${username}`,
         icon: <BsGithub className={componentStyles.linkIcon} />
     },
     {
         name: 'LinkedIn',
-        href: `https:linkedin.com/in/${linkedIn}`,
+        href: `https://linkedin.com/in/${linkedIn}`,
         icon: <BsLinkedin className={componentStyles.linkIcon} />
     },
     {
