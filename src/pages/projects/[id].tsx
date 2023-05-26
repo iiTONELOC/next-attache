@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import { styles } from './index';
 import { useIsMounted } from '../../hooks';
-import { Projects as ProjectsComponent } from '../../components';
 import DefaultUserSettings from '../../../attache-defaults.json';
 import { getAttacheById } from '../../../lib/db/controller/Attache';
 
@@ -25,7 +24,7 @@ const FeaturedAttacheProjects = (props: propTypes): JSX.Element | null => {
                 <title>{`${DefaultUserSettings.name}'s Portfolio - Projects`}</title>
             </Head>
 
-            <ProjectsComponent names={projectNames} dynamic={true} />
+            {/* <ProjectsComponent names={projectNames} dynamic={true} /> */}
         </main>
     );
 };
