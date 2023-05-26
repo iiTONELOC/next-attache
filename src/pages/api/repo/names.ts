@@ -13,13 +13,13 @@ export default function handler(
 ) {
     return withAppAuth(req, res, async () => {
         try {
-            const gitHubAPI = new GitHubAPI();
+
             const repo: {
                 data: repoNameData['data'];
                 status: number;
                 ok: boolean;
                 errors?: [{ message: string }];
-            } = await gitHubAPI.getAllRepoNames();
+            } = await GitHubAPI.getAllRepoNames();
             const data = repo.data;
 
             return res.status(repo.status).json({ data });

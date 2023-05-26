@@ -15,5 +15,5 @@ export type repoByName = {
     size: number,
     commitUrl: string,
     repoUrl: string,
-    license: { name: string }
+    license: { name: string } | null,
 };

@@ -4,7 +4,6 @@ import Layout from './Layout';
 import Resume from './Resume';
 import Loading from './Loading';
 import Spinner from './Spinner';
-import Projects from './Projects';
 import ProjectCard from './ProjectCard';
 import WithToolTip from './WithToolTip';
 import AttacheList from './AttacheList';
@@ -21,7 +20,6 @@ export {
     Resume,
     Loading,
     Spinner,
-    Projects,
     LoginForm,
     SignUpForm,
     AttacheList,

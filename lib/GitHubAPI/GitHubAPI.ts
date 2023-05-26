@@ -20,11 +20,10 @@ export const demoOptions: DemoOptions = {
     NONE: 'NONE'
 };
 
-
-export default class GitHubAPI {
+class GitHubAPI {
     user: string;
     #auth: string;
-    #readmeCache: { [key: string]: string };
+    #readmeCache: { [key: string]: { readme: string, timestamp: number } };
 
     constructor() {
         const username = process.env.NEXT_PUBLIC_GIT_HUB_USERNAME;
@@ -177,9 +176,10 @@ export default class GitHubAPI {
 
             const repoScreenshot = await this.getRepoScreenshot(repoName);
             const demoUrl = await this.getDemoURL(repoName);
-            const liveUrl = await this.getLiveURLForPinned(repoName, liveUrlType || 'pinned');
+            const liveUrl = await this.getLiveURLForPinned(repoName, 'dynamic', data);
 
-            this.clearItemFromCache(repoName);
+            // The cache has a TTL of 10 minutes
+            // this.clearItemFromCache(repoName);
 
             return {
                 data: {
@@ -307,7 +307,7 @@ export default class GitHubAPI {
                 if (readme.ok) {
                     const readmeData = await fetch(readme.data.download_url);
                     const readmeText = await readmeData.text();
-                    this.#readmeCache[repoName] = readmeText;
+                    this.updateCache(repoName, readmeText);
 
                     return {
                         data: { readme: readmeText },
@@ -367,10 +367,7 @@ export default class GitHubAPI {
                 // download the RAW README file
                 const readmeData = await fetch(readme.data.download_url);
                 const readmeText = await readmeData.text();
-
-                // cache the readme text
-                !this.#readmeCache[repoName] && (this.#readmeCache[repoName] = readmeText);
-
+                this.updateCache(repoName, readmeText);
                 // parse the README for a screenshot
                 const readmeURL = readmeParser('screenshot', readmeText);
 
@@ -459,7 +456,8 @@ export default class GitHubAPI {
         }
 * ```
  */
-    async getLiveURLForPinned(repoName: string, type: 'pinned' | 'dynamic'): Promise<APIResponseData> {
+    async getLiveURLForPinned(repoName: string, type: 'pinned' | 'dynamic', repoData: any): Promise<APIResponseData> {
+
         try {
             const { pinned } = Object.create(repoDefaults);
 
@@ -490,7 +488,15 @@ export default class GitHubAPI {
                     errors: []
                 };
             } else {
-                throw new Error('Repo not found');
+                if (repoData?.homepage && repoData?.homepage !== '') {
+                    return {
+                        data: { liveUrl: repoData.homepage },
+                        status: 200,
+                        ok: true,
+                        errors: []
+                    };
+                }
+                throw new Error('Live Url not found');
             }
         } catch (error) {
             return {
@@ -552,4 +558,25 @@ export default class GitHubAPI {
     clearCache(): void {
         this.#readmeCache = {};
     }
+
+    updateCache(repoName: string, readme: string): void {
+        // we only allow 100 items in the cache, if we have more than that remove the oldest item
+        if (Object.keys(this.#readmeCache).length > 100) {
+            const oldestItem = Object
+                .keys(this.#readmeCache)
+                .sort((a, b) => this.#readmeCache[a].timestamp - this.#readmeCache[b].timestamp)[0];
+
+            delete this.#readmeCache[oldestItem];
+        }
+        // check the cache for the repoName
+        if (!this.#readmeCache[repoName] || this.#readmeCache[repoName]?.timestamp > 600000) {
+            // if the cache is older than 10 minutes, update it
+            this.#readmeCache[repoName] = { readme, timestamp: Date.now() };
+        }
+    }
 }
+
+
+const githubAPI = new GitHubAPI();
+
+export default githubAPI;

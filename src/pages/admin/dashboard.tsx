@@ -117,9 +117,8 @@ export default function Dashboard(props: dashboardProps): JSX.Element | null { /
 }
 
 export async function getServerSideProps(context: object) {
-    const gitHubApi = new GitHubAPI();
     const [repoNames, attacheIds] = await Promise.all([
-        gitHubApi.getAllRepoNames(),
+        GitHubAPI.getAllRepoNames(),
         getAttacheIds()
     ]);
     return {

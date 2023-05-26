@@ -6,9 +6,9 @@ import type { IconProps } from '../components/Icons/types';
 
 // client side API
 export type repoData = repoByName & {
-    screenshotUrl?: string,
-    liveUrl?: string,
-    demoUrl?: string,
+    screenshotUrl?: string | null,
+    liveUrl?: string | null,
+    demoUrl?: string | null,
 };
 
 export type repoNameData = {

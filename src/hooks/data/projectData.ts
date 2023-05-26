@@ -29,6 +29,8 @@ export default function useProjectData(props: {
             if (error) { // NOSONAR
                 throw new Error(error?.message || 'An error occurred');
             }
+        }).catch(err => {
+            setErrors(err?.message || 'An error occurred');
         });
     };
 

@@ -1,23 +1,23 @@
 import GitHubAPI from '../../lib/GitHubAPI';
 
 const covidMaster = 'covid-master';
-const gitHubAPI = new GitHubAPI();
+
 
 describe('GitHubAPI', () => {
     it('Instantiates a new GitHubAPI Class', () => {
 
-        expect(gitHubAPI).toBeInstanceOf(GitHubAPI);
+        expect(GitHubAPI).toBeInstanceOf(GitHubAPI);
     });
 
     it('Has a public user property to expose the GitHub username', () => {
 
-        expect(gitHubAPI.user).toBeDefined();
-        expect(gitHubAPI.user).toBe(process.env.NEXT_PUBLIC_GIT_HUB_USERNAME);
+        expect(GitHubAPI.user).toBeDefined();
+        expect(GitHubAPI.user).toBe(process.env.NEXT_PUBLIC_GIT_HUB_USERNAME);
     });
 
     it('Has a private variable that stays hidden', () => {
 
-        expect(gitHubAPI['#auth']).toBeUndefined();
+        expect(GitHubAPI['#auth']).toBeUndefined();
     });
 
 
@@ -34,7 +34,7 @@ describe('GitHubAPI', () => {
         ];
 
 
-        const repos = await gitHubAPI.getPinnedRepoNames();
+        const repos = await GitHubAPI.getPinnedRepoNames();
 
         expect(repos.ok).toBeTruthy();
         expect(repos.status).toEqual(200);
@@ -44,7 +44,7 @@ describe('GitHubAPI', () => {
 
     it('Can connect to GitHub and retrieve a list of all repo names', async () => {
 
-        const repos = await gitHubAPI.getAllRepoNames();
+        const repos = await GitHubAPI.getAllRepoNames();
 
         expect(repos.ok).toBeTruthy();
         expect(repos.status).toEqual(200);
@@ -53,7 +53,7 @@ describe('GitHubAPI', () => {
 
     it('Can connect to GitHub and retrieve a repo by name', async () => {
 
-        const repo = await gitHubAPI.getRepoByName(covidMaster);
+        const repo = await GitHubAPI.getRepoByName(covidMaster);
 
         const expectedData = {
             data: {
@@ -82,7 +82,7 @@ describe('GitHubAPI', () => {
     });
 
     it('Can connect to GitHub and retrieve a repository\'s contents', async () => {
-        const covidMasterContents = await gitHubAPI.getRepoContents(covidMaster);
+        const covidMasterContents = await GitHubAPI.getRepoContents(covidMaster);
 
         expect(covidMasterContents.data).toBeDefined();
     });
@@ -93,7 +93,7 @@ describe('GitHubAPI', () => {
             download_url: 'https://raw.githubusercontent.com/iiTONELOC/covid-master/main/README.md'
         };
 
-        const covidMasterReadmeData = await gitHubAPI.getRepoReadme(covidMaster);
+        const covidMasterReadmeData = await GitHubAPI.getRepoReadme(covidMaster);
 
         expect(covidMasterReadmeData.data).toEqual(expectedData);
     });
@@ -108,14 +108,14 @@ describe('GitHubAPI', () => {
             errors: []
         };
 
-        const covidMasterReadmeScreenshot = await gitHubAPI.getRepoScreenshot(covidMaster);
+        const covidMasterReadmeScreenshot = await GitHubAPI.getRepoScreenshot(covidMaster);
 
         expect(covidMasterReadmeScreenshot).toBeDefined();
         expect(covidMasterReadmeScreenshot).toEqual(expectedData);
     });
 
     it('Can return the URL for my GitHub Avatar', async () => {
-        const avatar = await gitHubAPI.getAvatarURL();
+        const avatar = await GitHubAPI.getAvatarURL();
 
         expect(avatar).toBeDefined();
         expect(avatar.data.avatar_url).
@@ -132,7 +132,7 @@ describe('GitHubAPI', () => {
             errors: []
         };
 
-        const demoURL = await gitHubAPI.getDemoURL('employee-tracker');
+        const demoURL = await GitHubAPI.getDemoURL('employee-tracker');
 
         expect(demoURL).toBeDefined();
         expect(demoURL).toEqual(expectedData);
@@ -140,7 +140,7 @@ describe('GitHubAPI', () => {
 
     it('Can return the live URL link for the repo from the JSON settings', async () => {
         const expectedData = 'https://i-dash.herokuapp.com/';
-        const liveUrl = await gitHubAPI.getLiveURLForPinned('dashboard', 'pinned');
+        const liveUrl = await GitHubAPI.getLiveURLForPinned('dashboard', 'pinned');
         const { data } = liveUrl;
 
         expect(liveUrl).toBeDefined();
