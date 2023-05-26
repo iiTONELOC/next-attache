@@ -1,6 +1,6 @@
 import { getAttacheById } from '../../../../lib/db/controller/Attache';
 import DefaultUserSettings from '../../../../attache-defaults.json';
-import ProjectsComponent from '../../../components/Projects';
+
 import { useIsMounted } from '../../../hooks';
 import Head from 'next/head';
 
@@ -50,7 +50,7 @@ export default function Attache(props: attachePageProps) { //NOSONAR
                 </div>
             </section>
 
-            <ProjectsComponent dynamic={true} names={projectNames} />
+            {/* <ProjectsComponent dynamic={true} names={projectNames} /> */}
 
         </main>
 
