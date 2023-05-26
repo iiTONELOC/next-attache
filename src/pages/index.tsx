@@ -2,7 +2,7 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { useIsMounted } from '../hooks';
 import { useAvatarState } from '../providers';
-import DefaultUserSettings from '../../attache-defaults.json';
+import ProfileDefaults from '../../attache-defaults.json';
 
 
 const pageStyles = {
@@ -24,7 +24,7 @@ const About = (): JSX.Element => { // NOSONAR
     return isMounted ? (
         <main className={pageStyles.main}>
             <Head>
-                <title>{`${DefaultUserSettings.name}'s Portfolio - About`}</title>
+                <title>{`${ProfileDefaults?.name || 'Anthony'}'s Portfolio - About`}</title>
             </Head>
 
             {/* Avatar with < /> */}
@@ -37,7 +37,7 @@ const About = (): JSX.Element => { // NOSONAR
                         width={pageStyles.imgWidth}
                         height={pageStyles.imgHeight}
                         className='rounded-full'
-                        src={avatarUrl !== '' ? avatarUrl : '/images/default-img.jpg'}
+                        src={avatarUrl}
                     />
                 </span>
                 <p className={pageStyles.codeText}>{'/'}</p>
@@ -46,13 +46,9 @@ const About = (): JSX.Element => { // NOSONAR
 
             {/* About Me */}
             <section className={pageStyles.aboutSection}>
-                <h1 className={pageStyles.aboutHeading}>{
-                    DefaultUserSettings.aboutHeading || 'About Me'
-                }</h1>
+                <h1 className={pageStyles.aboutHeading}>{ProfileDefaults?.aboutHeading || 'About Me'}</h1>
 
-                <p className={pageStyles.aboutContent}>{
-                    DefaultUserSettings.about || 'Missing Defaults!'
-                }</p>
+                <p className={pageStyles.aboutContent}>{ProfileDefaults?.about || 'Missing Defaults!'}</p>
             </section>
         </main>
     ) : <></>;

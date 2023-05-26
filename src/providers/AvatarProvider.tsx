@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useReducer } from 'react';
+import ProfileDefaults from '../../attache-defaults.json';
 import { SET_AVATAR } from '../actions';
 import { useIsMounted } from '../hooks';
 import API from '../utils/API';
@@ -33,16 +34,29 @@ function AvatarProvider({ value = [], ...props }) {//NOSONAR
     const getAndSetAvatar = (): void => {
         const currUrl = state;
 
-        API.getAvatar().then(d => {
-            const url = d?.avatar_url;
+        const defaultUrl = ProfileDefaults?.avatar;
 
-            if (url && url !== currUrl) {
-                dispatch({
-                    type: SET_AVATAR,
-                    payload: url
-                });
-            }
-        });
+        if (defaultUrl && defaultUrl !== currUrl) {
+            dispatch({
+                type: SET_AVATAR,
+                payload: defaultUrl
+            });
+        } else if (!defaultUrl && !currUrl) {
+            API.getAvatar().then(d => {
+                const url = d?.avatar_url;
+
+                if (url && url !== currUrl) {
+                    dispatch({
+                        type: SET_AVATAR,
+                        payload: url ? url : '/images/default-img.jpg'
+                    });
+                }
+            }).catch(e => {
+                console.error('There was an error updating the avatar url:\n', e);
+            });
+        } else {
+            // do nothing
+        }
     };
 
     useEffect(() => {
