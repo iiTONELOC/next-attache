@@ -6,6 +6,7 @@ import { Loading, ProjectCard } from '../../components';
 import DefaultUserSettings from '../../../attache-defaults.json';
 import { handleProjectLookUp } from '../api/repo/[name]';
 import { NextApiRequest } from 'next';
+import { updateDBNonBlocking } from '../../utils/UpdateDb';
 
 class ProjectCache {
     projects: { data: repoData; timestamp: number }[] = [];
@@ -112,7 +113,9 @@ export async function getServerSideProps() {
         if (cachedProject) {
             // check if the cached project is older than 5 minutes
             if (Date.now() - cachedProject.timestamp > 300000) {
-                return lookupProject();
+                // update but dont wait for it
+                updateDBNonBlocking(repoName);
+                return cachedProject.data;
             } else {
                 return cachedProject.data;
             }
