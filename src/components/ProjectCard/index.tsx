@@ -5,6 +5,7 @@ import type { repoData } from '../../types';
 import { useHovered } from '../../hooks';
 import Loading from '../Loading';
 import Image from 'next/image';
+import WithToolTip from '../WithToolTip';
 
 
 
@@ -43,6 +44,7 @@ export default function ProjectCard(props: { data: repoData }): JSX.Element | nu
     return data ? (
         <article
             className={`w-full h-full hover:bg-zinc-800 bg-zinc-800/75 hover:scale-105 rounded-lg p-2 flex flex-col justify-start items-center`}
+            onClick={() => window.open(liveUrl as string || repoUrl as string, '_blank')}
             onMouseEnter={handleHover}
             onMouseLeave={handleHover}
         >
@@ -79,14 +81,15 @@ export default function ProjectCard(props: { data: repoData }): JSX.Element | nu
                             footerIcons.map(({ icon, name, href }) => {
                                 return (
                                     href && href !== '' && (
-                                        <a
-                                            key={name}
-                                            href={href}
-                                            target='_blank'
-                                            rel='noreferrer'
-                                        >
-                                            {icon}
-                                        </a>
+                                        <WithToolTip key={name} tip={`View ${name}`}>
+                                            <a
+                                                href={href}
+                                                target='_blank'
+                                                rel='noreferrer'
+                                            >
+                                                {icon}
+                                            </a>
+                                        </WithToolTip>
                                     )
                                 );
                             })
