@@ -44,7 +44,6 @@ export default function ProjectCard(props: { data: repoData }): JSX.Element | nu
     return data ? (
         <article
             className={`w-full h-full hover:bg-zinc-800 bg-zinc-800/75 hover:scale-105 rounded-lg p-2 flex flex-col justify-start items-center`}
-            onClick={() => window.open(liveUrl as string || repoUrl as string, '_blank')}
             onMouseEnter={handleHover}
             onMouseLeave={handleHover}
         >
@@ -57,6 +56,7 @@ export default function ProjectCard(props: { data: repoData }): JSX.Element | nu
                 <div className='w-full  p-1 h-40 overflow-hidden  rounded-t-md'>
                     <div className='relative h-[152px] overflow-hidden rounded-t-md'>
                         (<Image
+                            onClick={() => window.open(liveUrl as string || repoUrl as string, '_blank')}
                             priority={true}
                             className='text-base'
                             objectFit='cover'

@@ -96,6 +96,7 @@ export async function getServerSideProps() {
         async function lookupProject() {
             // @ts-ignore
             const { data } = await handleProjectLookUp(req as unknown as NextApiRequest, res as unknown);
+
             // cache each project
             // @ts-ignore
             projectCache.projects.push({
@@ -104,10 +105,7 @@ export async function getServerSideProps() {
                     _id: data.data._doc._id.toString()
                 }, timestamp: Date.now()
             });
-            return {
-                ...data.data._doc,
-                _id: data.data._doc._id.toString()
-            };
+            return projectCache.projects[projectCache.projects.length - 1].data;
         }
 
         if (cachedProject) {
