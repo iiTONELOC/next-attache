@@ -65,71 +65,70 @@ const Projects = (props: propTypes): JSX.Element | null => {
     );
 };
 
+
+
+// Helper function to fetch project data
+async function fetchProjectData(repoName: string) {
+    const req = {
+        method: 'GET',
+        query: {
+            name: repoName
+        }
+    };
+    const res = {
+        status: (code: number) => ({
+            json: (data: any) => ({
+                code,
+                data
+            })
+        })
+    };
+    // @ts-ignore
+    const { data } = await handleProjectLookUp(req as unknown as NextApiRequest, res as unknown);
+    return {
+        ...data.data._doc,
+        _id: data.data._doc._id.toString()
+    };
+}
+
 export async function getServerSideProps() {
     const pinnedRepoNames = await GitHubAPI.getPinnedRepoNames();
     const repoNames = pinnedRepoNames.data;
 
+    // Create a map for storing cached projects
+    const projectCache = new Map<string, any>();
 
-    const repoData = await Promise.all(repoNames.map(async (repoName: string) => {
-        const req = {
-            method: 'GET',
-            query: {
-                name: repoName
-            }
-        };
-        const res = {
-            status: (code: number) => {
-                return {
-                    json: (data: any) => {
-                        return {
-                            code,
-                            data
-                        };
-                    }
-                };
-            }
-        };
-
-        // check if the project is cached
-        const cachedProject = projectCache.projects.find(project => project.data.name === repoName);
-
-        async function lookupProject() {
-            // @ts-ignore
-            const { data } = await handleProjectLookUp(req as unknown as NextApiRequest, res as unknown);
-
-            // cache each project
-            // @ts-ignore
-            projectCache.projects.push({
-                data: {
-                    ...data.data._doc,
-                    _id: data.data._doc._id.toString()
-                }, timestamp: Date.now()
-            });
-            return projectCache.projects[projectCache.projects.length - 1].data;
-        }
+    // Fetch uncached project data in parallel
+    const repoDataPromises = repoNames.map(async (repoName: string) => {
+        const cachedProject = projectCache.get(repoName);
 
         if (cachedProject) {
-            // check if the cached project is older than 5 minutes
+            // Check if the cached project is older than 5 minutes
             if (Date.now() - cachedProject.timestamp > 300000) {
-                // update but dont wait for it
+                // Update the cache in the background
                 updateDBNonBlocking(repoName);
                 return cachedProject.data;
             } else {
                 return cachedProject.data;
             }
         } else {
-            return lookupProject();
+            const projectData = await fetchProjectData(repoName);
+            // Cache the project data
+            projectCache.set(repoName, { data: projectData, timestamp: Date.now() });
+            return projectData;
         }
+    });
 
-
-    }));
+    const repoData = await Promise.allSettled(repoDataPromises)
+        .then(results => results
+            .map(result => result.status === 'fulfilled' ? result.value : null));
 
     return {
         props: {
-            // pinnedRepoNames: repoNames
-            pinnedRepoData: repoData
+            pinnedRepoData: repoData.filter((data) => data !== null)
         }
     };
 }
+
 
 export default Projects;
