@@ -1,18 +1,13 @@
 import Head from 'next/head';
 import { repoData } from '../../types';
+import { NextApiRequest } from 'next';
 import { useIsMounted } from '../../hooks';
 import GitHubAPI from '../../../lib/GitHubAPI';
 import { Loading, ProjectCard } from '../../components';
+import { updateDatabase } from '../../utils/UpdateDb';
 import DefaultUserSettings from '../../../attache-defaults.json';
 import { handleProjectLookUp } from '../api/repo/[name]';
-import { NextApiRequest } from 'next';
-import { updateDBNonBlocking } from '../../utils/UpdateDb';
 
-class ProjectCache {
-    projects: { data: repoData; timestamp: number }[] = [];
-}
-
-const projectCache = new ProjectCache();
 
 export const styles = {
     main: 'w-full h-full flex flex-wrap flex-row justify-center gap-x-10 items-center mb-10 rounded-b-lg',
@@ -31,7 +26,6 @@ type propTypes = {
 const Projects = (props: propTypes): JSX.Element | null => {
     const isMounted = useIsMounted();
     const { pinnedRepoData } = props;
-
 
 
     if (!isMounted) {
@@ -91,41 +85,56 @@ async function fetchProjectData(repoName: string) {
     };
 }
 
+
+const projectCache = new Map<string, { data: repoData, lastUpdated: number }>();
+
+
+
 export async function getServerSideProps() {
     const pinnedRepoNames = await GitHubAPI.getPinnedRepoNames();
     const repoNames = pinnedRepoNames.data;
+    const fiveMinutes = 1000 * 60 * 5;
+    const fourMinutes = 1000 * 60 * 4;
 
-    // Create a map for storing cached projects
-    const projectCache = new Map<string, any>();
+    const getFresh = async (repoName: string) => {
+        const freshData = await fetchProjectData(repoName);
+        projectCache.set(repoName, { data: freshData, lastUpdated: Date.now() });
+        return freshData;
+    };
 
     // Fetch uncached project data in parallel
-    const repoDataPromises = repoNames.map(async (repoName: string) => {
+    const data = repoNames.map(async (repoName: string) => {
+        // see if the project is cached
         const cachedProject = projectCache.get(repoName);
-
-        if (cachedProject) {
-            // Check if the cached project is older than 5 minutes
-            if (Date.now() - cachedProject.timestamp > 300000) {
-                // Update the cache in the background
-                updateDBNonBlocking(repoName);
-                return cachedProject.data;
-            } else {
-                return cachedProject.data;
-            }
+        // see if the project is cached and it's been less than 5 minutes since the last update
+        if (cachedProject && Date.now() - cachedProject.lastUpdated < fiveMinutes) {
+            return cachedProject.data;
         } else {
-            const projectData = await fetchProjectData(repoName);
-            // Cache the project data
-            projectCache.set(repoName, { data: projectData, timestamp: Date.now() });
-            return projectData;
+            return getFresh(repoName);
         }
     });
 
-    const repoData = await Promise.allSettled(repoDataPromises)
+    const staleProjects = [...projectCache.entries()]
+        .filter(([_, { lastUpdated }]) => Date.now() - lastUpdated > fourMinutes)
+        .map(([repoName, { data }]) => {
+            return {
+                ...data,
+                name: repoName
+            };
+        });
+
+    if (staleProjects.length > 0) {
+        updateDatabase();
+    }
+
+    const repoData = await Promise.allSettled(data)
         .then(results => results
-            .map(result => result.status === 'fulfilled' ? result.value : null));
+            .map(result => result.status === 'fulfilled' ? result.value : null)
+            .filter(data => data !== null));
 
     return {
         props: {
-            pinnedRepoData: repoData.filter((data) => data !== null)
+            pinnedRepoData: repoData
         }
     };
 }

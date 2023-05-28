@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import GitHubAPI from '../../../lib/GitHubAPI';
 
-
 // api/avatar
 export default async function handler(
     req: NextApiRequest, res: NextApiResponse

@@ -61,7 +61,7 @@ export default function ProjectCard(props: { data: repoData }): JSX.Element | nu
                             className='text-base'
                             objectFit='cover'
                             layout='fill'
-                            src={screenshotUrl && screenshotUrl !== '' ? screenshotUrl : '/images/default-img.jpg'}
+                            src={screenshotUrl && screenshotUrl !== '' ? screenshotUrl.replace(/README.MD/g, '') : '/images/default-img.jpg'}
                             alt={name}
                             height={152}
                             width={300}

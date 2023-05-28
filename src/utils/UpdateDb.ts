@@ -1,18 +1,28 @@
 import { getDataAndUpdate } from '../pages/api/repo/[name]';
-import { spawn } from 'child_process';
-import path from 'path';
+import { dbConnection } from '../../lib/db/connection';
+import { Project } from '../../lib/db/Models';
 
-const updateDb = async (name: string) => await getDataAndUpdate(name);
-const cwd = process.cwd();
-const pathToFile = path.join(cwd, 'src', 'utils', 'updateDb.ts');
+export function updateDatabase() {
+    dbConnection();
+
+    async function update() {
+        console.log('Updating database...');
+        // get a list of all the repo names from the database
+        // for each repo name, fetch the data from GitHub and update the database
+        const repoNames = (await Project.find({}).select('name -_id')).map(({ name }) => name);
+        for (const name of repoNames) {
+            await getDataAndUpdate(name);
+        }
+
+        console.log('Database updated!');
+    }
+
+    update().catch(console.error);
+}
 
 
-export const updateDBNonBlocking = (name: string) =>  spawn('node', [pathToFile, name]);
-
-
-// allow for script to be run directly with `node-ts updateDb.ts <name>`
+// allow this to be called from the command line
 if (require.main === module) {
-    const name = process.argv[2];
-    (async () => updateDb(name))();
+    updateDatabase();
 }
 

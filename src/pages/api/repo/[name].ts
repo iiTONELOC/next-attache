@@ -4,7 +4,7 @@ import withAppAuth from '../../../utils/withAppAuth';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { dbConnection } from '../../../../lib/db/connection';
 import { ProjectController } from '../../../../lib/db/controller';
-import { updateDBNonBlocking } from '../../../utils/UpdateDb';
+
 
 const { getProjectBy, updateProjectBy } = ProjectController;
 
@@ -43,7 +43,6 @@ export const handleProjectLookUp = async (
         const repoInDb = await getProjectBy.name(name as string);
 
         if (repoInDb) {
-            updateDBNonBlocking(name as string);
             return res.status(HttpStatus.OK).json({ data: repoInDb });
         } else {
             // Fetch the data from GitHub
@@ -71,7 +70,7 @@ export const getDataAndUpdate = async (name: string) => {
         const updated = await updateProjectBy.name(name, { ...data });
         return updated._doc;
     } catch (error) {
-        console.error('Error updating project in the background:', error);
+        console.error('Error updating project in the background');
     }
 };
 
