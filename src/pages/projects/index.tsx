@@ -1,12 +1,11 @@
 import Head from 'next/head';
-import { repoData } from '../../types';
 import { NextApiRequest } from 'next';
+import { repoData } from '../../types';
 import { useIsMounted } from '../../hooks';
 import GitHubAPI from '../../../lib/GitHubAPI';
 import { Loading, ProjectCard } from '../../components';
-import { updateDatabase } from '../../utils/UpdateDb';
-import DefaultUserSettings from '../../../attache-defaults.json';
 import { handleProjectLookUp } from '../api/repo/[name]';
+import DefaultUserSettings from '../../../attache-defaults.json';
 
 
 export const styles = {
@@ -20,6 +19,10 @@ export const styles = {
 type propTypes = {
     pinnedRepoData: repoData[];
 };
+
+if (typeof window === 'undefined') {
+    import('../../utils/UpdateDb');
+}
 
 
 
@@ -88,13 +91,10 @@ async function fetchProjectData(repoName: string) {
 
 const projectCache = new Map<string, { data: repoData, lastUpdated: number }>();
 
-
-
 export async function getServerSideProps() {
     const pinnedRepoNames = await GitHubAPI.getPinnedRepoNames();
     const repoNames = pinnedRepoNames.data;
     const fiveMinutes = 1000 * 60 * 5;
-    const fourMinutes = 1000 * 60 * 4;
 
     const getFresh = async (repoName: string) => {
         const freshData = await fetchProjectData(repoName);
@@ -113,19 +113,6 @@ export async function getServerSideProps() {
             return getFresh(repoName);
         }
     });
-
-    const staleProjects = [...projectCache.entries()]
-        .filter(([_, { lastUpdated }]) => Date.now() - lastUpdated > fourMinutes)
-        .map(([repoName, { data }]) => {
-            return {
-                ...data,
-                name: repoName
-            };
-        });
-
-    if (staleProjects.length > 0) {
-        updateDatabase();
-    }
 
     const repoData = await Promise.allSettled(data)
         .then(results => results

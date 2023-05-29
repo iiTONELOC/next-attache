@@ -13,13 +13,14 @@ export function updateDatabase() {
         for (const name of repoNames) {
             await getDataAndUpdate(name);
         }
-
         console.log('Database updated!');
     }
 
     update().catch(console.error);
 }
 
+
+setTimeout(updateDatabase, 1000 * 60 * 1); // update the database every 5 minutes
 
 // allow this to be called from the command line
 if (require.main === module) {
