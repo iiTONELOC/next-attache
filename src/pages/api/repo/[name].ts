@@ -6,7 +6,7 @@ import { dbConnection } from '../../../../lib/db/connection';
 import { ProjectController } from '../../../../lib/db/controller';
 
 
-const { getProjectBy, updateProjectBy } = ProjectController;
+const { getProjectBy, updateProjectBy, createProject } = ProjectController;
 
 dbConnection();
 
@@ -46,9 +46,13 @@ export const handleProjectLookUp = async (
             return res.status(HttpStatus.OK).json({ data: repoInDb });
         } else {
             // Fetch the data from GitHub
-            const gitHubData = await getDataAndUpdate(name as string);
+            const gitHubData = await getDataAndUpdate(name as string, false);
+
             // Return the fetched data to the client
-            return res.status(gitHubData.status).json({ data: gitHubData.data });
+            return gitHubData ? res.status(gitHubData.status).json({ data: gitHubData.data }) :
+                res.status(HttpStatus.NOT_FOUND).json({
+                    errors: [{ message: 'Project not found' }]
+                });
         }
     } catch (error: any) {
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
@@ -58,18 +62,33 @@ export const handleProjectLookUp = async (
 };
 
 // Fetches the data from GitHub and updates the database
-export const getDataAndUpdate = async (name: string) => {
+export const getDataAndUpdate = async (name: string, doesExist = true) => {
     const gitHubData = await GitHubAPI.getRepoByName(
         name, 'dynamic'
     );
-    const { data } = gitHubData;
+    const { data, errors } = gitHubData;
+
+    if (errors) {
+        for (const error of errors) {
+            throw new Error(error.message);
+        }
+    }
+
 
     // Perform the database update in the background
     try {
-        // Perform the database update asynchronously
-        const updated = await updateProjectBy.name(name, { ...data });
-        return updated._doc;
+
+        if (!doesExist) {
+            const created = await createProject({ ...data });
+            return created;
+        } else {
+            // Perform the database update asynchronously
+            const updated = await updateProjectBy.name(name, { ...data });
+            return updated?._doc ?? data;
+        }
+
     } catch (error) {
+        console.error(error);
         console.error('Error updating project in the background');
     }
 };

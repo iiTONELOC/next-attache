@@ -30,7 +30,6 @@ export function readmeParser(get: 'screenshot' | 'demo', readme: string): string
 
         // extract the URL from the markdown
         const neededPath = cleanedContent.match(/\(.+\)/g)?.[0];
-
         // remove parentheses
         url = neededPath?.replace(/[()]/g, '');
 
