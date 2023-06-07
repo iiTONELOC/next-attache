@@ -178,6 +178,8 @@ class GitHubAPI {
             const demoUrl = await this.getDemoURL(repoName);
             const liveUrl = await this.getLiveURLForPinned(repoName, 'dynamic', data);
 
+
+
             // The cache has a TTL of 10 minutes
             // this.clearItemFromCache(repoName);
 
@@ -371,8 +373,13 @@ class GitHubAPI {
                 // parse the README for a screenshot
                 const readmeURL = readmeParser('screenshot', readmeText);
 
+                // if (repoName === 'trashscan-device') {
+                //     console.log('readmeURL', readmeURL);
+                //     console.log('readmeText', readmeText);
+                // }
+
                 // return a placeholder if no screenshot is found
-                const screenshotUrl = readmeURL ? SCREENSHOT_URL_BASE_PATH + readmeURL : (await this.getAvatarURL()).data.avatar_url;
+                const screenshotUrl = readmeURL ? SCREENSHOT_URL_BASE_PATH + readmeURL : undefined;
 
                 return {
                     data: { screenshotUrl },

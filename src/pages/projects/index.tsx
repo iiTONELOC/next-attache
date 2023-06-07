@@ -89,36 +89,17 @@ async function fetchProjectData(repoName: string) {
 }
 
 
-const projectCache = new Map<string, { data: repoData, lastUpdated: number }>();
-
 export async function getServerSideProps() {
     const pinnedRepoNames = await GitHubAPI.getPinnedRepoNames();
     const repoNames = pinnedRepoNames.data;
-    const fiveMinutes = 1000 * 60 * 5;
-
-    const getFresh = async (repoName: string) => {
-        const freshData = await fetchProjectData(repoName);
-        projectCache.set(repoName, { data: freshData, lastUpdated: Date.now() });
-        return freshData;
-    };
 
     // Fetch uncached project data in parallel
-    const data = repoNames.map(async (repoName: string) => {
-        // see if the project is cached
-        const cachedProject = projectCache.get(repoName);
-        // see if the project is cached and it's been less than 5 minutes since the last update
-        if (cachedProject && Date.now() - cachedProject.lastUpdated < fiveMinutes) {
-            return cachedProject.data;
-        } else {
-            return getFresh(repoName);
-        }
-    });
+    const data = repoNames.map(async (repoName: string) => fetchProjectData(repoName));
 
     const repoData = await Promise.allSettled(data)
         .then(results => results
             .map(result => result.status === 'fulfilled' ? result.value : null)
             .filter(data => data !== null));
-
     return {
         props: {
             pinnedRepoData: repoData

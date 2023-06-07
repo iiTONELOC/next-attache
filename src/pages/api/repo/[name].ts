@@ -74,8 +74,6 @@ export const getDataAndUpdate = async (name: string, doesExist = true) => {
         }
     }
 
-
-    // Perform the database update in the background
     try {
 
         if (!doesExist) {

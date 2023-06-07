@@ -17,10 +17,13 @@ export function readmeParser(get: 'screenshot' | 'demo', readme: string): string
     const SCREENSHOT_REGEX = /#.+Screenshot?.+\n+!\[.+\]\(.+\)/g;
 
 
-    const matchedContentArray = readme.match(get === 'demo' ? DEMO_REGEX : SCREENSHOT_REGEX);
+    const matchedContentArray = (get === 'demo' ? DEMO_REGEX : SCREENSHOT_REGEX).exec(readme);
     const matchedContent = matchedContentArray ? matchedContentArray[0] : '';
 
     let url: string | undefined | null = null;
+
+    console.log('matchedContent', matchedContentArray);
+
 
     if (matchedContent !== '') {
         // remove all extra spacing and newlines
