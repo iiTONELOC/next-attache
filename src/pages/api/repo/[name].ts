@@ -88,6 +88,9 @@ export const getDataAndUpdate = async (name: string, doesExist = true) => {
     } catch (error) {
         console.error(error);
         console.error('Error updating project in the background');
+        console.error('Project name: ', name);
+        console.error('Project data: ', data);
+        return null;
     }
 };
 
