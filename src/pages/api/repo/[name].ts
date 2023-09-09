@@ -104,14 +104,14 @@ export default function handler(
     try {
         // For fetching a single repo
         if (method === 'GET') {
-            withAppAuth(req, res, async () => handleProjectLookUp(req, res));
+            return withAppAuth(req, res, async () => handleProjectLookUp(req, res));
         } else {
-            res.status(HttpStatus.METHOD_NOT_ALLOWED).json({
+            return res.status(HttpStatus.METHOD_NOT_ALLOWED).json({
                 error: { message: 'Method not allowed' },
             });
         }
     } catch (error: any) {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
             error: error?.message || 'Something went wrong',
         });
     }

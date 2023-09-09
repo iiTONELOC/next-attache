@@ -1,10 +1,9 @@
 import Head from 'next/head';
-import { NextApiRequest } from 'next';
 import { repoData } from '../../types';
 import { useIsMounted } from '../../hooks';
 import GitHubAPI from '../../../lib/GitHubAPI';
+import { useState, useEffect } from 'react';
 import { Loading, ProjectCard } from '../../components';
-import { handleProjectLookUp } from '../api/repo/[name]';
 import DefaultUserSettings from '../../../attache-defaults.json';
 
 
@@ -17,18 +16,47 @@ export const styles = {
 
 
 type propTypes = {
-    pinnedRepoData: repoData[];
+    repoNames: string[];
 };
 
-if (typeof window === 'undefined') {
-    import('../../utils/UpdateDb');
-}
 
+const fetchRepoProjectData = async (repoNames: string[]) => {
+    const data = Promise.all(repoNames.map(async (repoName: string) => await fetchProjectData(repoName)));
+    const repoData = await data
+        .then(results => results)
+    return repoData;
+};
 
+const fetchProjectData = async (repoName: string) => {
+    const req = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + process.env.NEXT_PUBLIC_GIT_HUB_ACCESS_TOKEN
+        },
+        query: {
+            name: repoName
+        }
+    };
+    const res = await fetch(`/api/repo/${repoName}`, req);
+
+    const data = await res.json();
+    return data;
+};
 
 const Projects = (props: propTypes): JSX.Element | null => {
     const isMounted = useIsMounted();
-    const { pinnedRepoData } = props;
+    const [pinnedRepoData, setPinnedRepoData] = useState<null | any[]>(null);
+
+    const { repoNames } = props;
+
+    useEffect(() => {
+        isMounted && repoNames && (async () => {
+            const repoData = await fetchRepoProjectData(repoNames)
+            setPinnedRepoData(repoData)
+        })();
+    }, [repoNames, isMounted]);
+
 
 
     if (!isMounted) {
@@ -48,12 +76,11 @@ const Projects = (props: propTypes): JSX.Element | null => {
             <Head>
                 <title>{`${DefaultUserSettings.name}'s Portfolio - Projects`}</title>
             </Head>
-
             <section className={styles.projectSection}>
-                {pinnedRepoData?.map((project, index) => {
+                {pinnedRepoData?.map((project: { data: repoData }) => {
                     return (
-                        <div className={styles.div} key={`${project.name}-${index}`}>
-                            <ProjectCard data={project} />
+                        <div className={styles.div} key={`${project.data.name}`}>
+                            <ProjectCard data={project.data} />
                         </div>
                     );
                 })}
@@ -63,46 +90,13 @@ const Projects = (props: propTypes): JSX.Element | null => {
 };
 
 
-
-// Helper function to fetch project data
-async function fetchProjectData(repoName: string) {
-    const req = {
-        method: 'GET',
-        query: {
-            name: repoName
-        }
-    };
-    const res = {
-        status: (code: number) => ({
-            json: (data: any) => ({
-                code,
-                data
-            })
-        })
-    };
-    // @ts-ignore
-    const { data } = await handleProjectLookUp(req as unknown as NextApiRequest, res as unknown);
-    return {
-        ...data.data._doc,
-        _id: data.data._doc._id.toString()
-    };
-}
-
-
 export async function getServerSideProps() {
     const pinnedRepoNames = await GitHubAPI.getPinnedRepoNames();
     const repoNames = pinnedRepoNames.data;
 
-    // Fetch uncached project data in parallel
-    const data = repoNames.map(async (repoName: string) => fetchProjectData(repoName));
-
-    const repoData = await Promise.allSettled(data)
-        .then(results => results
-            .map(result => result.status === 'fulfilled' ? result.value : null)
-            .filter(data => data !== null));
     return {
         props: {
-            pinnedRepoData: repoData
+            repoNames
         }
     };
 }
