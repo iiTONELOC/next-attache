@@ -59,7 +59,7 @@ const Projects = (props: propTypes): JSX.Element | null => {
 
 
 
-    if (!isMounted) {
+    if (!isMounted || !pinnedRepoData || pinnedRepoData.length === 0) {
         return <main className={styles.main}>
             <Head>
                 <title>{`${DefaultUserSettings.name}'s Portfolio - Projects`}</title>
